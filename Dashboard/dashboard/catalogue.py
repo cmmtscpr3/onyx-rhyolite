@@ -324,7 +324,7 @@ SEKI = (
 # ---------------------------------------------------------------------------
 # Bank Indonesia -- Survei Konsumen
 
-INCOME_GROUPS = {
+EXPENDITURE_GROUPS = {
     "": "All respondents",
     "rp1_2juta": "Rp 1-2 mn a month",
     "rp2_3juta": "Rp 2.1-3 mn a month",
@@ -334,18 +334,19 @@ INCOME_GROUPS = {
 }
 
 
-def _by_income(prefix: str) -> tuple[tuple[str, ...], dict[str, str]]:
-    ids = tuple(f"{prefix}.{suffix}" if suffix else prefix for suffix in INCOME_GROUPS)
-    labels = {sid: label for sid, label in zip(ids, INCOME_GROUPS.values())}
+def _by_expenditure_group(prefix: str) -> tuple[tuple[str, ...], dict[str, str]]:
+    """The all-respondent series plus one per monthly household expenditure bracket."""
+    ids = tuple(f"{prefix}.{suffix}" if suffix else prefix for suffix in EXPENDITURE_GROUPS)
+    labels = {sid: label for sid, label in zip(ids, EXPENDITURE_GROUPS.values())}
     return ids, labels
 
 
-_SHARE_CONS, _SHARE_CONS_L = _by_income("bi_consumer_survey.expenditure_share.consumption")
-_SHARE_LOAN, _SHARE_LOAN_L = _by_income("bi_consumer_survey.expenditure_share.loan_instalment")
-_SHARE_SAVE, _SHARE_SAVE_L = _by_income("bi_consumer_survey.expenditure_share.saving")
-_EXP_SAVE, _EXP_SAVE_L = _by_income("bi_consumer_survey.expectation.saving_6m")
-_EXP_DEBT, _EXP_DEBT_L = _by_income("bi_consumer_survey.expectation.debt_position_6m")
-_EXP_SPEND, _EXP_SPEND_L = _by_income("bi_consumer_survey.expectation.consumption_spend_3m")
+_SHARE_CONS, _SHARE_CONS_L = _by_expenditure_group("bi_consumer_survey.expenditure_share.consumption")
+_SHARE_LOAN, _SHARE_LOAN_L = _by_expenditure_group("bi_consumer_survey.expenditure_share.loan_instalment")
+_SHARE_SAVE, _SHARE_SAVE_L = _by_expenditure_group("bi_consumer_survey.expenditure_share.saving")
+_EXP_SAVE, _EXP_SAVE_L = _by_expenditure_group("bi_consumer_survey.expectation.saving_6m")
+_EXP_DEBT, _EXP_DEBT_L = _by_expenditure_group("bi_consumer_survey.expectation.debt_position_6m")
+_EXP_SPEND, _EXP_SPEND_L = _by_expenditure_group("bi_consumer_survey.expectation.consumption_spend_3m")
 
 CONSUMER_SURVEY = (
     Group(
@@ -380,7 +381,7 @@ CONSUMER_SURVEY = (
     ),
     Group(
         key="share_consumption",
-        heading="Household budget shares by income group",
+        heading="Household budget shares by monthly expenditure group",
         title="Share of income spent on consumption",
         unit="percent",
         series=_SHARE_CONS,
@@ -388,7 +389,7 @@ CONSUMER_SURVEY = (
     ),
     Group(
         key="share_loan_instalment",
-        heading="Household budget shares by income group",
+        heading="Household budget shares by monthly expenditure group",
         title="Share of income going to loan instalments",
         unit="percent",
         series=_SHARE_LOAN,
@@ -396,7 +397,7 @@ CONSUMER_SURVEY = (
     ),
     Group(
         key="share_saving",
-        heading="Household budget shares by income group",
+        heading="Household budget shares by monthly expenditure group",
         title="Share of income saved",
         unit="percent",
         series=_SHARE_SAVE,
