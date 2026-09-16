@@ -45,3 +45,15 @@ def test_consumer_survey_is_defined_from_bank_indonesia_documents():
     assert len(components.labels) == 6
     assert all("bi.go.id" in definition.url for definition in definitions.all_definitions() if definition.term.startswith("Indeks"))
     assert definitions.undefined(catalogue.group("consumer_survey", "share_saving")) == []
+
+
+def test_every_dataset_has_official_definitions():
+    for dataset in catalogue.DATASETS:
+        assert definitions.populated(dataset), dataset.key
+        assert definitions.for_dataset(dataset.key), f"{dataset.key} has no description of its publication"
+    # Series the publishers do not define are listed as such, not invented.
+    assert set(definitions.undefined(catalogue.group("seki", "deposits"))) == {
+        "Cooperatives",
+        "Other private sector (includes households)",
+        "All owners",
+    }

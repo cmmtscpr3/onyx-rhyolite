@@ -1388,3 +1388,393 @@ IBID_TERMS = Definition(
 )
 
 DATASETS["ibid"] = (IBID_TERMS,)
+
+
+# ---------------------------------------------------------------------------
+# Bank Indonesia -- SEKI (GDP by expenditure, republished from BPS; deposits by owner group)
+
+_BI_PDB = "Metadata SEKI: Produk Domestik Bruto (PDB) (Bank Indonesia)"
+_BI_PDB_URL = "https://www.bi.go.id/id/statistik/Metadata/SEKI/Documents/14_Produk-Domestik-Bruto.pdf"
+_BI_PDB_EN = "SEKI Metadata: Gross Domestic Product (Bank Indonesia, July 2024)"
+_BI_PDB_EN_URL = "https://www.bi.go.id/en/statistik/Metadata/SEKI/Documents/Gross-Domestic-Product.pdf"
+_BI_DEP = "Metadata SEKI: Simpanan Masyarakat (Bank Indonesia, Juni 2025)"
+_BI_DEP_URL = "https://www.bi.go.id/id/statistik/Metadata/SEKI/Documents/04_Simpanan-Masyarakat.pdf"
+_BI_DEP_EN = "SEKI Metadata: Private Deposit on Commercial and Rural Banks (Bank Indonesia)"
+_BI_DEP_EN_URL = "https://www.bi.go.id/en/statistik/Metadata/SEKI/Documents/Private-Deposit-.pdf"
+_BI_NAB = "Metadata SEKI: Neraca Analitis Bank Umum dan BPR (Bank Indonesia)"
+_BI_NAB_URL = "https://www.bi.go.id/id/statistik/Metadata/SEKI/Documents/02_Neraca-Analitis-Bank-Umum-dan-BPR.pdf"
+_BI_NAB_EN = "SEKI Metadata: Analytical Balance Sheet of Commercial and Rural Banks (Bank Indonesia)"
+_BI_NAB_EN_URL = "https://www.bi.go.id/en/statistik/Metadata/SEKI/Documents/Analytical-Balance-Sheet-of-Commercial-and-Rural-Banks-.pdf"
+_LBUT = "Peraturan Anggota Dewan Gubernur No. 21/23/PADG/2019 tentang Laporan Bank Umum Terintegrasi, Lampiran II: Golongan Pihak Lawan"
+_LBUT_URL = "https://www.bi.go.id/id/publikasi/peraturan/Pages/PADG_212319.aspx"
+_BPS_LNPRT = "BPS, Neraca Lembaga Non Profit yang Melayani Rumahtangga Tahun 2011-2013 (Katalog 9506002), 2.3 Konsep dan Definisi"
+_BPS_LNPRT_URL = "https://www.bps.go.id/id/publication/2024/10/31/44894a2bac8fc1804b37cd4b/neraca-lembaga-non-profit-yang-melayani-rumahtangga--2021-2023.html"
+
+
+def _sirusa(number: int, title: str) -> tuple[str, str]:
+    return (f"BPS, Sistem Informasi Rujukan Statistik (SIRUSA), indikator {number}: {title}", f"https://sirusa.bps.go.id/metadata/indikator/{number}")
+
+
+SEKI_ABOUT = Definition(
+    term="Statistik Ekonomi dan Keuangan Indonesia (SEKI) / Indonesian Economic and Financial Statistics",
+    text=(
+        "SEKI merupakan publikasi bulanan yang diterbitkan oleh Bank untuk memberikan informasi tentang data ekonomi dan "
+        "keuangan Indonesia. Publikasi ini berguna bagi masyarakat untuk memahami perkembangan ekonomi dan keuangan "
+        "Indonesia. Data dalam SEKI disusun dengan menggunakan data primer dari Bank Indonesia serta data sekunder dari "
+        "lembaga lain seperti Kementerian Keuangan, Badan Pusat Statistik (BPS), dan Lembaga Penjamin Simpanan (LPS). "
+        "Penyusunan data dalam SEKI telah menggunakan metodologi standar internasional sehingga dapat dibandingkan dengan "
+        "data di negara lain. Publikasi SEKI mencakup empat sektor yaitu sektor moneter, sektor keuangan pemerintah, "
+        "sektor riil, dan sektor eksternal. Data dalam SEKI disajikan dengan periodisasi yang disesuaikan dengan "
+        "ketersediaan data dari masing-masing sektor."
+    ),
+    source="Bank Indonesia, Statistik Ekonomi dan Keuangan Indonesia (SEKI)",
+    url="https://www.bi.go.id/id/statistik/ekonomi-keuangan/seki/Default.aspx",
+    english=(
+        "Indonesian Economic and Financial Statistics (SEKI) are published monthly by Bank Indonesia, presenting economic "
+        "and financial data to help users understand economic and financial developments in Indonesia. Using primary data "
+        "from Bank Indonesia and secondary data from other relevant institutions, including the Ministry of Finance, "
+        "BPS-Statistics Indonesia, and Indonesia Deposit Insurance Corporation (LPS), SEKI data is compiled based on "
+        "international standards and methodologies that enable cross-country data comparison. Covering four sectors, "
+        "namely the monetary sector, government finance sector, real sector and external sector, the data samples apply "
+        "periodisation that is adjusted to the data availability for each respective sector."
+    ),
+    english_source="Bank Indonesia, Indonesian Economic and Financial Statistics (SEKI)",
+    english_url="https://www.bi.go.id/en/statistik/ekonomi-keuangan/seki/Default.aspx",
+)
+
+SEKI_PDB = Definition(
+    term="Produk Domestik Bruto (PDB) / Gross Domestic Product (GDP)",
+    text=(
+        "PDB pada dasarnya merupakan jumlah nilai tambah yang dihasilkan oleh seluruh unit usaha dalam suatu negara "
+        "tertentu, atau merupakan jumlah nilai barang dan jasa akhir yang dihasilkan oleh seluruh unit ekonomi.\n\n"
+        "Pendekatan Pengeluaran: PDB adalah semua komponen permintaan akhir yang terdiri dari: (1) Pengeluaran Konsumsi "
+        "Rumah Tangga (PK-RT), (2) Pengeluaran Konsumsi Lembaga Nonprofit yang Melayani Rumah Tangga (PK-LNPRT), (2) "
+        "Pengeluaran Konsumsi Pemerintah (P-KP), (3) Pembentukan Modal Tetap Bruto (PMTB), (4) Perubahan Inventori, dan "
+        "(5) Ekspor Neto (merupakan ekspor dikurangi impor).\n\n"
+        "Selama ini, data PDB yang dipublikasikan oleh BPS menggunakan pendekatan produksi (lapangan usaha) dan pendekatan "
+        "pengeluaran (penggunaan). Bank Indonesia tidak melakukan pengolahan lebih lanjut terhadap data PDB."
+    ),
+    source=_BI_PDB, url=_BI_PDB_URL,
+    english=(
+        "GDP is the amount of additional value produced by all business units in a particular country or the number of "
+        "goods and services produced by all economic units. GDP is presented in current prices and constant prices.\n\n"
+        "The Expenditure Approach: GDP by expenditure explains the final demand for goods and services produced in economic "
+        "activities and exports and imports. The final demand consists of Household Final Consumption Expenditure (HFCE), "
+        "Nonprofit Institutions Serving Households (NPISHs) Final Consumption Expenditure, General Government Final "
+        "Consumption Expenditure (GGFCE), Gross Fixed Capital Formation (GFCF), Changes in Inventories (CI), and "
+        "Exports-Imports of Goods and Services.\n\n"
+        "Currently, GDP data published by Statistics Indonesia-BPS is calculated using the production approach and "
+        "expenditure approach. Bank Indonesia does not reprocess the GDP data."
+    ),
+    english_source=_BI_PDB_EN, english_url=_BI_PDB_EN_URL,
+)
+
+SEKI_PRICE_BASIS = Definition(
+    term="Atas dasar harga berlaku / harga konstan (current prices / constant prices)",
+    text=(
+        "PDB atas dasar harga berlaku menggambarkan nilai tambah barang dan jasa yang dihitung menggunakan harga pada "
+        "tahun berjalan, sedangkan PDB atas dasar harga konstan menunjukkan nilai tambah barang dan jasa tersebut yang "
+        "dihitung menggunakan harga yang berlaku pada satu tahun tertentu sebagai tahun dasar.\n\n"
+        "PDB menurut harga berlaku digunakan untuk mengetahui kemampuan sumber daya ekonomi, pergeseran, dan struktur "
+        "ekonomi suatu negara. Sementara itu, PDB atas dasar harga konstan digunakan untuk mengetahui pertumbuhan ekonomi "
+        "secara riil dari tahun ke tahun atau pertumbuhan ekonomi yang tidak dipengaruhi oleh faktor harga."
+    ),
+    source=_BI_PDB, url=_BI_PDB_URL,
+    english=(
+        "GDP at current price is often referred to as nominal GDP, which is the value added of goods and services produced "
+        "by a country in a period of time according to the prices prevailing at that time.\n\n"
+        "Meanwhile, GDP at constant prices, often referred to as real GDP, is the value added of goods and services "
+        "calculated using prices in a given year as the base year."
+    ),
+    english_source=_BI_PDB_EN, english_url=_BI_PDB_EN_URL,
+)
+
+SEKI_BASE_YEAR = Definition(
+    term="Tahun dasar 2010 / Base year 2010",
+    text=(
+        "Sejak triwulan IV-2014, data PDB disajikan menggunakan tahun dasar 2010. Perubahan tahun dasar dari 2000 menjadi "
+        "2010 dilakukan karena struktur perekonomian Indonesia dalam kurun waktu tersebut telah mengalami perubahan yang "
+        "signifikan, meliputi perkembangan harga, cakupan komoditas produksi dan konsumsi serta jenis dan kualitas barang "
+        "maupun jasa yang dihasilkan."
+    ),
+    source=_BI_PDB, url=_BI_PDB_URL,
+    english=(
+        "Since the fourth quarter of 2014, GDP data has been presented using 2010 as the base year. The base year was "
+        "revised from 2000 to 2010 due to significant changes in Indonesia's economic structure during that period in "
+        "terms of prices, the scope of production, commodities, and consumption, and the types and quality of goods and "
+        "services produced."
+    ),
+    english_source=_BI_PDB_EN, english_url=_BI_PDB_EN_URL,
+)
+
+_s, _u = _sirusa(132284, "Produk Domestik Bruto Atas Dasar Harga Berlaku")
+BPS_PDB_CURRENT = Definition(
+    term="Produk Domestik Bruto Atas Dasar Harga Berlaku (BPS)",
+    text=(
+        "Jumlah penggunaan akhir barang dan jasa yang dihasilkan oleh berbagai kegiatan ekonomi untuk memenuhi pengeluaran "
+        "konsumsi akhir, pembentukan modal, perubahan inventori, dan ekspor serta impor yang dihitung menurut harga yang "
+        "berlaku pada saat PDB tersebut dihitung.\n\n"
+        "Produk Domestik Bruto atas dasar harga berlaku jenis pengeluaran merupakan penambahan Pengeluaran Konsumsi Rumah "
+        "Tangga (PKRT), Pengeluaran Konsumsi Lembaga Nonprofit yang melayani Rumah Tangga (PKLNPRT), Pengeluaran Konsumsi "
+        "Pemerintah (PKP), Pembentukan Modal Tetap Bruto (PMTB), Perubahan Inventori (PI), dan Ekspor barang dan jasa yang "
+        "kemudian dikurangi Impor barang dan jasa yang dihitung dengan menggunakan atas dasar harga berlaku."
+    ),
+    source=_s, url=_u,
+)
+_s, _u = _sirusa(132279, "Produk Domestik Bruto Atas Dasar Harga Konstan 2010")
+BPS_PDB_CONSTANT = Definition(
+    term="Produk Domestik Bruto Atas Dasar Harga Konstan 2010 (BPS)",
+    text=(
+        "Jumlah penggunaan akhir barang dan jasa yang dihasilkan oleh berbagai kegiatan ekonomi untuk memenuhi pengeluaran "
+        "konsumsi akhir, pembentukan modal, perubahan inventori, dan ekspor serta impor yang dihitung menurut harga konstan "
+        "(harga pada suatu tahun dasar yang ditetapkan).\n\n"
+        "Produk Domestik Bruto atas dasar harga konstan jenis pengeluaran merupakan penambahan Pengeluaran Konsumsi Rumah "
+        "Tangga (PKRT), Pengeluaran Konsumsi Lembaga Nonprofit yang melayani Rumah Tangga (PKLNPRT), Pengeluaran Konsumsi "
+        "Pemerintah (PKP), Pembentukan Modal Tetap Bruto (PMTB), Perubahan Inventori (PI), dan Ekspor barang dan jasa yang "
+        "kemudian dikurangi Impor barang dan jasa yang dihitung dengan menggunakan atas dasar harga konstan."
+    ),
+    source=_s, url=_u,
+)
+_s, _u = _sirusa(50661, "Pengeluaran Konsumsi Rumah Tangga")
+BPS_PKRT = Definition(
+    term="Pengeluaran Konsumsi Rumah Tangga (BPS)",
+    text=(
+        "Pengeluaran konsumsi rumah tangga adalah pengeluaran atas barang dan jasa oleh rumah tangga residen untuk tujuan "
+        "konsumsi akhir, tidak termasuk pengeluaran rumah tangga untuk barang modal.\n\n"
+        "Konsumsi rumah tangga = konsumsi makanan dan minuman, selain restoran + konsumsi pakaian, alas kaki, dan jasa "
+        "perawatan + konsumsi perumahan dan perabot rumah tangga + konsumsi kesehatan dan pendidikan + konsumsi "
+        "transportasi dan komunikasi + konsumsi restoran dan hotel + konsumsi lainnya"
+    ),
+    source=_s, url=_u,
+)
+_s, _u = _sirusa(132284, "Produk Domestik Bruto Atas Dasar Harga Berlaku")
+SEKI_TOTAL_CONSUMPTION = Definition(
+    term="Pengeluaran Konsumsi (total row) / Consumption Expenditures",
+    text=(
+        "PDB atas dasar harga berlaku menggambarkan nilai produk barang dan jasa yang digunakan sebagai konsumsi akhir "
+        "oleh rumah tangga, Lembaga Non-profit yang melayani Rumah Tangga (LNPRT), dan pemerintah ditambah dengan investasi "
+        "(pembentukan modal tetap bruto dan perubahan inventori), serta ekspor neto (ekspor dikurang impor) yang berlaku "
+        "pada setiap tahun, PDB atas dasar harga berlaku dapat digunakan untuk melihat pergeseran dan struktur ekonomi "
+        "suatu wilayah pada waktu tertentu."
+    ),
+    source=_s, url=_u,
+    note=(
+        "Neither Bank Indonesia nor BPS defines the table's 'Pengeluaran Konsumsi' / 'Consumption Expenditures' row "
+        "itself. In BI's file it is the sum of the three rows indented beneath it: Rumah Tangga, Konsumsi LNPRT and Pemerintah."
+    ),
+)
+
+SEKI_PKRT = Definition(
+    term="Pengeluaran Konsumsi Rumah Tangga / Household Final Consumption Expenditure (HFCE)",
+    text="Pengeluaran Konsumsi Rumah Tangga, pengeluaran atas barang dan jasa oleh rumah tangga untuk tujuan konsumsi.",
+    source=_BI_PDB, url=_BI_PDB_URL,
+    english=(
+        "1. Household Final Consumption Expenditure (HFCE) cover all expenditures for goods and services consumption "
+        "subtracted by net second-hand and waste goods selling carried out by the household in one year."
+    ),
+    english_source=_BI_PDB_EN, english_url=_BI_PDB_EN_URL,
+)
+
+BPS_LNPRT = Definition(
+    term="Lembaga Non Profit yang Melayani Rumahtangga (LNPRT) (BPS)",
+    text=(
+        "Sehingga LNPRT adalah lembaga yang menyediakan barang dan jasa secara gratis atau pada harga yang tidak berarti "
+        "secara ekonomi kepada anggotanya atau kelompok rumahtangga dan tidak dikontrol oleh pemerintah. Output LNPRT yang "
+        "menyediakan jasa ke individu anggota atau rumahtangga dihitung sebagai pengeluaran konsumsi akhir LNPRT dan "
+        "pengeluaran akhir aktual rumahtangga."
+    ),
+    source=_BPS_LNPRT, url=_BPS_LNPRT_URL,
+    note=(
+        "BPS's SIRUSA has no standalone entry for Pengeluaran Konsumsi LNPRT; this is the concept chapter of BPS's own "
+        "LNPRT accounts publication (the file BPS serves from the 2021-2023 publication page is the 2011-2013 edition)."
+    ),
+)
+
+SEKI_NPISH = Definition(
+    term="Konsumsi LNPRT / NPISHs final consumption expenditure",
+    text=(
+        "2. Nonprofit Institutions Serving Households (NPISHs) final consumption equals the value of non-market output or "
+        "production costs incurred minus the sale of goods/services in carrying out service activities for the community, "
+        "members of the organization, or specific community groups."
+    ),
+    source=_BI_PDB_EN, url=_BI_PDB_EN_URL,
+    note="Bank Indonesia's Indonesian metadata names this component but gives it no definition; this is its English metadata.",
+)
+
+SEKI_PKP = Definition(
+    term="Pengeluaran Konsumsi Pemerintah / General Government Final Consumption Expenditure (GGFCE)",
+    text=(
+        "Pengeluaran Konsumsi Pemerintah, nilai seluruh jenis output pemerintah dikurangi nilai output untuk pembentukan "
+        "modal sendiri dikurangi nilai penjualan barang/jasa (baik yang harganya signifikan dan tdk signifikan secara "
+        "ekonomi) ditambah nilai barang/jasa yang dibeli dari produsen pasar untuk diberikan pada rumah tangga secara "
+        "gratis atau dengan harga yang tidak signifikan secara ekonomi (social transfer in kind-purchased market production)."
+    ),
+    source=_BI_PDB, url=_BI_PDB_URL,
+    english=(
+        "3. General Government Final Consumption Expenditure (GGFCE) cover civil servants' spending, depreciation, and "
+        "goods spending, either by central government or regional government, excluding the income from goods and "
+        "services produced. This data uses the realization of State Budget (APBN) figures."
+    ),
+    english_source=_BI_PDB_EN, english_url=_BI_PDB_EN_URL,
+)
+
+SEKI_PMTB = Definition(
+    term="Pembentukan Modal Tetap Domestik Bruto / Gross Fixed Capital Formation (GFCF)",
+    text=(
+        "Pembentukan Modal Tetap Domestik Bruto, pengeluaran unit produksi untuk menambah aset tetap dikurangi dengan "
+        "pengurangan aset tetap bekas. Penambahan barang modal meliputi pengadaan, pembuatan, pembelian barang modal baru "
+        "dari dalam negeri dan barang modal baru maupun bekas dari luar negeri (termasuk perbaikan besar, transfer atau "
+        "barter barang modal). Pengurangan barang modal meliputi penjualan barang modal (termasuk barang modal yang "
+        "ditransfer atau barter kepada pihak lain)."
+    ),
+    source=_BI_PDB, url=_BI_PDB_URL,
+    english=(
+        "4. Gross Fixed Capital Formation (GFCF) covers the production and purchase of new domestic capital goods, used "
+        "goods, or new foreign capital goods. The method used is the flow of goods approach."
+    ),
+    english_source=_BI_PDB_EN, english_url=_BI_PDB_EN_URL,
+)
+
+# -- Deposits by owner group (SEKI table I.18)
+
+SEKI_DEPOSITS = Definition(
+    term="Simpanan Masyarakat / Private Deposits",
+    text=(
+        "Simpanan Masyarakat adalah simpanan milik pihak ketiga bukan bank umum dan Bank Perkreditan Rakyat/BPR (termasuk "
+        "penghimpunan dana dengan prinsip syariah) baik dalam rupiah maupun valuta asing yang berbentuk giro, tabungan dan "
+        "simpanan berjangka. BPR saat ini tidak diperbolehkan menerima simpanan giro dan kegiatan dalam valuta asing. "
+        "Dalam publikasi ini, tidak termasuk simpanan milik Pemerintah Pusat dan Bukan Penduduk."
+    ),
+    source=_BI_DEP, url=_BI_DEP_URL,
+    english=(
+        "Private Deposits are deposits owned by non-commercial banks and rural bank third parties (including deposits with "
+        "the sharia principle) in rupiah and foreign currency in the form of demand deposits, saving deposits, and time "
+        "deposits. Rural banks are not allowed to accept demand deposits and manage deposits in foreign currency. In this "
+        "publication, Private Deposits do not include deposits from the central government and non-residents."
+    ),
+    english_source=_BI_DEP_EN, english_url=_BI_DEP_EN_URL,
+)
+
+SEKI_OWNER_GROUPS = Definition(
+    term="Golongan Pemilik / Group of Ownership",
+    text=(
+        "Golongan Pemilik terdiri dari:\n"
+        "o Penduduk: orang, badan hukum, atau badan lainnya, yang berdomisili atau berencana berdomisili di Indonesia "
+        "sekurang-kurangnya 1 (satu) tahun, termasuk perwakilan dan staf diplomatik Republik Indonesia di luar negeri atau "
+        "yang mempunyai center economic of interest di Indonesia.\n"
+        "o Bukan penduduk: orang, badan hukum, atau badan lainnya, yang tidak berdomisili di Indonesia, atau berencana "
+        "berdomisili di Indonesia kurang dari 1 (satu) tahun, termasuk perwakilan dan staf diplomatik asing di Indonesia, "
+        "atau yang tidak mempunyai center economic of interest di Indonesia. Bukan penduduk terdiri dari perorangan dan "
+        "institusi.\n"
+        "o Pemerintah Pusat: Seluruh instansi pemerintah baik kementerian, lembaga maupun badan di atas/setingkat "
+        "kementerian yang anggaran keuangannya merupakan bagian dari Anggaran Pendapatan dan Belanja Negara (APBN) "
+        "termasuk kantor wilayah/perwakilan/jawatan dan dinas-dinas vertikalnya di daerah-daerah."
+    ),
+    source=_BI_DEP, url=_BI_DEP_URL,
+    note=(
+        "Bank Indonesia's SEKI metadata defines 'Golongan Pemilik' only at this level; the individual rows of table I.18 "
+        "(Perseorangan, Badan Usaha Bukan Keuangan Milik Swasta and Milik Negara, Lembaga Keuangan Lainnya, Pemerintah "
+        "Daerah, Sektor Swasta Lainnya, Koperasi, Yayasan dan Badan Sosial) are not defined in any SEKI metadata. The "
+        "entries below quote BI's reporting guidance for the banks' source report (LBUT), whose categories BI does not "
+        "itself map onto the table's rows."
+    ),
+)
+
+LBUT_PERORANGAN = Definition(
+    term="Perorangan (Penduduk) / Individuals",
+    text=(
+        "i. Perorangan:\n"
+        "a) Seluruh penduduk yang menetap dan tinggal di Indonesia.\n"
+        "b) Warga Negara Asing (WNA) yang datang dan menetap di Indonesia yang ditunjukkan dengan kepemilikan KITAS (Kartu "
+        "Izin Tinggal Terbatas) atau KITAS (Kartu Izin Tinggal Tetap).\n"
+        "c) Warga Negara Indonesia (WNI) yang berada di luar negeri dalam rangka: ▪ Tugas-tugas diplomatik dan kenegaraan "
+        "lainnya ▪ Pengobatan ▪ Perjalanan ke luar negeri lainnya, misalnya dalam rangka tour\n"
+        "d) Karyawan yang bekerja pada kantor lembaga-lembaga internasional yang berada di Indonesia.\n"
+        "e) Penduduk Indonesia yang bertempat tinggal di perbatasan wilayah RI dengan negara lain, yang karena "
+        "pekerjaannya diharuskan untuk melintasi batas wilayah negara Indonesia secara harian dan rutin."
+    ),
+    source=_LBUT, url=_LBUT_URL,
+)
+
+LBUT_NONFINANCIAL_PRIVATE = Definition(
+    term="Badan Usaha Bukan-Keuangan Milik Swasta / Perusahaan Non Finansial: Swasta Nasional, Swasta Pengendalian Asing",
+    text=(
+        "f) Perusahaan Non Finansial Perusahaan yang kegiatan utamanya adalah memproduksi barang atau jasa non finansial.\n\n"
+        "Perusahaan non finansial yang dikendalikan oleh institusi domestik atau warga negara indonesia\n\n"
+        "Perusahaan non finansial yang dikendalikan oleh institusi asing atau warga negara asing"
+    ),
+    source=_LBUT, url=_LBUT_URL,
+    note="The second and third sentences are the guidance's entries for 'Swasta Nasional' and 'Swasta Pengendalian Asing'.",
+)
+
+LBUT_NONFINANCIAL_PUBLIC = Definition(
+    term="Badan Usaha Bukan Keuangan Milik Negara / Perusahaan Non Finansial: Publik (BUMN, BUMD, BUM Desa)",
+    text=(
+        "f) Perusahaan Non Finansial Perusahaan yang kegiatan utamanya adalah memproduksi barang atau jasa non finansial.\n\n"
+        "Perusahaan non finansial yang dikendalikan oleh pemerintah"
+    ),
+    source=_LBUT, url=_LBUT_URL,
+    note="The second sentence is the guidance's entry for 'Publik', listed with the codes BUMN, BUMD and BUM Desa.",
+)
+
+SEKI_OTHER_FINANCIAL = Definition(
+    term="Lembaga Keuangan Lainnya / Other Financial Corporations",
+    text=(
+        "Lembaga Keuangan Lainnya terdiri dari Lembaga Keuangan Non Bank (LKNB) antara lain Perusahaan Pembiayaan, "
+        "Perusahaan Asuransi, Dana Pensiun, Pegadaian, dan Perusahaan Reksadana."
+    ),
+    source=_BI_NAB, url=_BI_NAB_URL,
+    english=(
+        "Other Financial Corporations comprise of non-bank financial institution, e.g. finance companies, insurance "
+        "companies, pension funds, pawnshops, and mutual funds."
+    ),
+    english_source=_BI_NAB_EN, english_url=_BI_NAB_EN_URL,
+)
+
+LBUT_LOCAL_GOVERNMENT = Definition(
+    term="Pemerintah Daerah / State and Local Governments",
+    text=(
+        "Instansi/lembaga pemerintah yang anggaran keuangannya diatur dalam Anggaran dan Pendapatan dan Belanja Daerah "
+        "(APBD) termasuk kantor wilayah/perwakilan/jawatan dan dinas-dinas vertikalnya di daerah-daerah."
+    ),
+    source=_LBUT, url=_LBUT_URL,
+)
+
+LBUT_NONPROFIT = Definition(
+    term="Yayasan, Badan Sosial, & Org. Kemasyarakatan / Lembaga Non Profit Melayani Rumah Tangga",
+    text=(
+        "h) Lembaga Non Profit Melayani Rumah Tangga Lembaga yang didirikan untuk melakukan usaha yang bersifat sosial "
+        "dan tidak untuk mencari keuntungan."
+    ),
+    source=_LBUT, url=_LBUT_URL,
+    note="BI does not state that the table's row equals this LBUT category; the correspondence is by name only.",
+)
+
+DATASETS["seki"] = (SEKI_ABOUT,)
+GROUPS.update(
+    {
+        ("seki", "gdp_current"): (SEKI_PDB, SEKI_PRICE_BASIS),
+        ("seki", "gdp_constant"): (SEKI_PDB, SEKI_PRICE_BASIS, SEKI_BASE_YEAR),
+        ("seki", "deposits"): (SEKI_DEPOSITS, SEKI_OWNER_GROUPS),
+    }
+)
+SERIES.update(
+    {
+        "bi_seki.gdp_expenditure_current.gdp": (BPS_PDB_CURRENT,),
+        "bi_seki.gdp_expenditure_current.total_consumption": (SEKI_TOTAL_CONSUMPTION,),
+        "bi_seki.gdp_expenditure_current.household_consumption": (BPS_PKRT, SEKI_PKRT),
+        "bi_seki.gdp_expenditure_current.npish_consumption": (BPS_LNPRT, SEKI_NPISH),
+        "bi_seki.gdp_expenditure_current.government_consumption": (SEKI_PKP,),
+        "bi_seki.gdp_expenditure_current.gfcf": (SEKI_PMTB,),
+        "bi_seki.gdp_expenditure_constant.gdp": (BPS_PDB_CONSTANT,),
+        "bi_seki.gdp_expenditure_constant.total_consumption": (SEKI_TOTAL_CONSUMPTION,),
+        "bi_seki.gdp_expenditure_constant.household_consumption": (BPS_PKRT, SEKI_PKRT),
+        "bi_seki.gdp_expenditure_constant.government_consumption": (SEKI_PKP,),
+        "bi_seki.deposits_by_owner.households": (LBUT_PERORANGAN,),
+        "bi_seki.deposits_by_owner.private_nonfinancial_business": (LBUT_NONFINANCIAL_PRIVATE,),
+        "bi_seki.deposits_by_owner.state_nonfinancial_business": (LBUT_NONFINANCIAL_PUBLIC,),
+        "bi_seki.deposits_by_owner.other_financial_institutions": (SEKI_OTHER_FINANCIAL,),
+        "bi_seki.deposits_by_owner.local_government": (LBUT_LOCAL_GOVERNMENT,),
+        "bi_seki.deposits_by_owner.foundations_and_social_bodies": (LBUT_NONPROFIT,),
+    }
+)
