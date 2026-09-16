@@ -1,0 +1,16 @@
+# Collection
+requests>=2.31        # HTTP with retry/backoff against bi.go.id and ojk.go.id
+PyYAML>=6.0           # the row-label -> series_id configuration
+
+# Browser automation
+# ibid is a React single-page app and ASPI renders its charts client-side, so
+# both need a real browser.  Where a runner already ships one, point at it with
+# CHROMIUM_PATH (or leave /opt/pw-browsers/chromium in place) rather than
+# running `playwright install` -- Playwright pins a browser build per release,
+# so a pip-installed Playwright and an image-provided browser routinely
+# disagree about the build number.
+playwright>=1.40
+
+# Parsing and writing
+openpyxl>=3.1         # .xlsx: PIHPS read+write, OJK and consumer-survey source workbooks
+xlrd>=2.0             # .xls: BI SPIP and SEKI still publish BIFF8

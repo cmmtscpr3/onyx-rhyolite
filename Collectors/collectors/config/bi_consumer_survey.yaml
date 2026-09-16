@@ -1,0 +1,75 @@
+# BI Survei Konsumen — which sheets are read and what each row becomes.
+#
+# BI publishes the survey as a "Data Series" zip alongside the monthly PDF.
+# The zip holds one workbook of nine sheets; four of them carry series worth
+# storing.  Rows are matched on a substring of the Indonesian label.
+#
+# The ability/willingness distinction the brief asks for is Tabel 5 against
+# Tabel 1: Tabel 5 is what respondents *do* with their income (the consumption,
+# instalment and saving shares), Tabel 1 is what they *intend* (the durable
+# goods purchase index).  They are stored as separate series and never summed.
+
+version: 1
+
+sheets:
+
+  - sheet: Tabel 1
+    scope: national
+    kind: index
+    rows:
+      - {sub: ikk, match: "Indeks Keyakinan Konsumen (IKK)"}
+      - {sub: ike, match: "Indeks Kondisi Ekonomi Saat Ini (IKE)"}
+      - {sub: iek, match: "Indeks Ekspektasi Konsumen (IEK)"}
+      - {sub: ipsi, match: "Indeks Penghasilan Saat Ini"}
+      - {sub: iklk, match: "Indeks Ketersediaan Lapangan Kerja"}
+      - {sub: durable_goods_purchase, match: "Indeks Pembelian Barang Tahan Lama"}
+      - {sub: iep, match: "Indeks Ekspektasi Penghasilan"}
+      - {sub: ieklk, match: "Indeks Ekspektasi Ketersediaan Lapangan Kerja"}
+      - {sub: ieku, match: "Indeks Ekspektasi Kegiatan Usaha"}
+      - {sub: price_expectation_3m, match: "Indeks Ekspektasi Harga pada 3 bulan"}
+      - {sub: price_expectation_6m, match: "Indeks Ekspektasi Harga pada 6 bulan"}
+      - {sub: price_expectation_12m, match: "Indeks Ekspektasi Harga pada 12 bulan"}
+
+  - sheet: Tabel 5
+    scope: national
+    kind: share
+    unit: percent
+    group_prefix: expenditure_share
+    rows:
+      - {sub: consumption, match: "Konsumsi"}
+      - {sub: loan_instalment, match: "Cicilan pinjaman"}
+      - {sub: saving, match: "Tabungan"}
+
+  - sheet: Tabel 9
+    scope: national
+    kind: index
+    group_prefix: expectation
+    rows:
+      - {sub: saving_6m, match: "perkiraan jumlah tabungan"}
+      - {sub: debt_position_6m, match: "perkiraan posisi pinjaman"}
+      - {sub: consumption_spend_3m, match: "perkiraan pengeluaran konsumsi"}
+
+  # Not collected: these datasets are national-only, so a city row has nowhere
+  # to go.  Kept here because it documents what the source publishes, and
+  # because enabling it later is a one-line change in bi_consumer_survey.py
+  # (add "city" to SCOPES) plus a geo crosswalk for the eighteen survey cities.
+  - sheet: Tabel 6
+    scope: city
+    kind: index
+    rows:
+      - {sub: ikk, match: "Indeks Keyakinan Konsumen (IKK)"}
+      - {sub: ike, match: "Indeks Kondisi Ekonomi Saat Ini (IKE)"}
+      - {sub: iek, match: "Indeks Ekspektasi Konsumen (IEK)"}
+      - {sub: price_expectation_3m, match: "Indeks Ekspektasi Harga pada 3 bln"}
+      - {sub: price_expectation_6m, match: "Indeks Ekspektasi Harga pada 6 bln"}
+      - {sub: price_expectation_12m, match: "Indeks Ekspektasi Harga pada 12 bln"}
+
+# Expenditure groups in Tabel 5 and Tabel 9, in sheet order.  "Total" is the
+# all-respondent figure and is stored with no group suffix.
+expenditure_groups:
+  Total: ""
+  "Rp 1 - 2 juta": rp1_2juta
+  "Rp 2,1 - 3 juta": rp2_3juta
+  "Rp 3,1 - 4 juta": rp3_4juta
+  "Rp 4,1 - 5 juta": rp4_5juta
+  "> Rp 5 juta": above_rp5juta

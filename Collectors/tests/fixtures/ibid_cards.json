@@ -1,0 +1,70 @@
+{
+ "page_1": [
+  {
+   "position": 1,
+   "grade": "Grade C",
+   "title": "HONDA SONIC - 150 (2015 - MT)",
+   "year_build": "2015 | MT | BG4589AAW",
+   "price_raw": "Rp 7.000.000",
+   "listed_raw": "15 Sep 2026",
+   "listed_parts": [
+    "15 Sep 2026"
+   ],
+   "sold": false,
+   "sold_label": null,
+   "href": "/detail-lelang/motor/honda-sonic---150--2015---mt-/724977413254?entry_point=Product Listing",
+   "image": "/static/media/noimage.b019d48a0c3351696c24.png",
+   "card_text": "Lot 1 Grade C HONDA SONIC - 150 (2015 - MT) 2015 | MT | BG4589AAW Rp 7.000.000 15 Sep 2026 LAMPUNG Live"
+  },
+  {
+   "position": 2,
+   "grade": "Grade -",
+   "title": "HONDA BEAT - 110 (2019 - AT)",
+   "year_build": "2019 | AT | B3795PID",
+   "price_raw": "Rp 6.800.000",
+   "listed_raw": "15 Sep 2026",
+   "listed_parts": [
+    "15 Sep 2026"
+   ],
+   "sold": false,
+   "sold_label": null,
+   "href": "/detail-lelang/motor/honda-beat---110--2019---at-/728208313429?entry_point=Product Listing",
+   "image": "/static/media/noimage.b019d48a0c3351696c24.png",
+   "card_text": "Lot 1 Grade - HONDA BEAT - 110 (2019 - AT) 2019 | AT | B3795PID Rp 6.800.000 15 Sep 2026 SEMARANG Live"
+  }
+ ],
+ "page_40": [
+  {
+   "position": 1,
+   "grade": "Grade C",
+   "title": "HONDA VARIO - 125 (2014 - AT)",
+   "year_build": "2014 | AT | B4709BAU",
+   "price_raw": "Rp 6.300.000",
+   "listed_raw": "05 Sep 2026",
+   "listed_parts": [
+    "05 Sep 2026"
+   ],
+   "sold": true,
+   "sold_label": "Terjual",
+   "href": "/detail-lelang/motor/honda-vario---125--2014---at-/729212513351?entry_point=Product Listing",
+   "image": "/static/media/noimage.b019d48a0c3351696c24.png",
+   "card_text": "Lot 24 Grade C HONDA VARIO - 125 (2014 - AT) 2014 | AT | B4709BAU Rp 6.300.000 05 Sep 2026 JAKARTA LIVE"
+  },
+  {
+   "position": 2,
+   "grade": "Grade A",
+   "title": "HONDA BEAT - 110 (2025 - AT)",
+   "year_build": "2025 | AT | D4854UFS",
+   "price_raw": "Rp 13.700.000",
+   "listed_raw": "10 Sep 2026",
+   "listed_parts": [
+    "10 Sep 2026"
+   ],
+   "sold": true,
+   "sold_label": "Terjual",
+   "href": "/detail-lelang/motor/honda-beat---110--2025---at-/729274913456?entry_point=Product Listing",
+   "image": "/static/media/noimage.b019d48a0c3351696c24.png",
+   "card_text": "Lot 24 Grade A HONDA BEAT - 110 (2025 - AT) 2025 | AT | D4854UFS Rp 13.700.000 10 Sep 2026 BANDUNG LIVE"
+  }
+ ]
+}

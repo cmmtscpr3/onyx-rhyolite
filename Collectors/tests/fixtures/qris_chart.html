@@ -1,0 +1,14 @@
+<!doctype html>
+<!-- SYNTHETIC stand-in, as for qris_table.html. This exercises the chart shape:
+     a Highcharts-style config embedded in a script, with xAxis.categories and
+     a named series. -->
+<html lang="id"><head><title>Statistik QRIS</title></head><body>
+<div id="qris-volume"></div>
+<script>
+  Highcharts.chart('qris-volume', {"chart":{"type":"column"},"title":{"text":"QRIS"},
+    "xAxis":{"categories":["Jan 2026","Feb 2026","Mar 2026"]},
+    "series":[{"name":"Volume Transaksi","data":[1234567890,1301228104,1412880311]},
+              {"name":"Nominal Transaksi (Rp Miliar)","data":[32450.75,33910.2,36002.1]},
+              {"name":"Sesuatu Yang Lain","data":[1,2,3]}]});
+</script>
+</body></html>

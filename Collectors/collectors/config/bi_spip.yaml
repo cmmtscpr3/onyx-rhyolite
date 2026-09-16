@@ -1,0 +1,69 @@
+# BI Statistik Sistem Pembayaran dan Infrastruktur Pasar Keuangan (SPIP).
+#
+# The work plan calls this "SPI"; BI renamed it SPIP and the tables now live
+# under /id/statistik/ekonomi-keuangan/spip/Documents/.  Note the collision
+# with OJK's "SPI" (Statistik Perbankan Indonesia), which is a different
+# publication collected by collectors/sources/ojk_dpk.py.
+#
+# Rows are matched by the component label in the workbook's leading columns,
+# not by row number: BI reshapes these tables without notice, and a row index
+# fails silently by reading the wrong component.  `match` is a case-insensitive
+# substring of the Indonesian label; `sub` is the series_id suffix.
+
+version: 1
+
+tables:
+
+  - table: TABEL_5e
+    title: Uang Elektronik / Electronic money
+    prefix: bi_emoney
+    rows:
+      - {sub: instruments, match: "Jumlah Kartu/ Instrumen", unit: million units}
+      - {sub: instruments_chip, match: "Chip Based", unit: million units}
+      - {sub: instruments_server, match: "Server Based", unit: million units}
+      - {sub: volume, match: "Volume Transaksi", exact: true, unit: thousand transactions}
+      - {sub: volume_purchase, match: "Volume Transaksi Belanja", unit: thousand transactions}
+      - {sub: volume_topup, match: "Volume Transaksi Reload/Top Up", unit: thousand transactions}
+      - {sub: value, match: "Nilai Transaksi", exact: true, unit: IDR billion}
+      - {sub: value_purchase, match: "Nilai Transaksi Belanja", unit: IDR billion}
+      - {sub: value_topup, match: "Nilai Transaksi Reload/Top Up", unit: IDR billion}
+      # "Dana Float" is also the prefix of its own two components, so the
+      # total needs an exact match or it captures all three and the series
+      # ends up holding three different values for every month.
+      - {sub: float_funds, match: "Dana Float", exact: true, unit: IDR billion}
+      - {sub: float_funds_bank, match: "Dana Float Penerbit Uang Elektronik Bank", unit: IDR billion}
+      - {sub: float_funds_nonbank, match: "Dana Float seluruh Penerbit Uang Elektronik Non Bank", unit: IDR billion}
+
+  - table: TABEL_5a
+    title: ATM dan ATM+Debet / ATM and debit cards
+    prefix: bi_card_transactions
+    rows:
+      - {sub: atm_debit.cards, match: "Jumlah Kartu", unit: million units}
+      - {sub: atm_debit.volume, match: "Volume Transaksi", exact: true, unit: thousand transactions}
+      - {sub: atm_debit.value, match: "Nilai Transaksi", exact: true, unit: IDR billion}
+
+  - table: TABEL_5c
+    title: Kartu Kredit / Credit cards
+    prefix: bi_card_transactions
+    rows:
+      - {sub: credit.cards, match: "Jumlah Kartu", unit: million units}
+      - {sub: credit.volume, match: "Volume Transaksi", exact: true, unit: thousand transactions}
+      - {sub: credit.value, match: "Nilai Transaksi", exact: true, unit: IDR billion}
+
+  - table: TABEL_1
+    title: Indikator Utama / Main indicators
+    prefix: bi_payment_system
+    rows:
+      - {sub: rtgs.volume, match: "Volume transaksi", unit: thousand transactions}
+      - {sub: rtgs.value, match: "Nilai transaksi", unit: IDR billion}
+      - {sub: currency_to_gdp, match: "UYD terhadap PDB", unit: percent}
+      - {sub: currency_to_household_consumption, match: "UYD terhadap Konsumsi", unit: percent}
+
+  - table: TABEL_2
+    title: Media yang Digunakan sebagai Alat Pembayaran / Settlement media
+    prefix: bi_payment_system
+    rows:
+      - {sub: narrow_money, match: "Uang Beredar dalam Arti Sempit", unit: IDR billion}
+      - {sub: currency_in_circulation, match: "Uang yang Diedarkan di Masyarakat", unit: IDR billion}
+      - {sub: demand_deposits_rupiah, match: "Simpanan Giro Rupiah", unit: IDR billion}
+      - {sub: emoney_instruments_outstanding, match: "Instrumen Uang Elektronik", unit: million instruments}

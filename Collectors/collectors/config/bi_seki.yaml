@@ -1,0 +1,67 @@
+# BI Statistik Ekonomi dan Keuangan Indonesia (SEKI).
+#
+# Two tables, both reachable from a foreign runner, both carrying series the
+# brief asks for that BPS's own WebAPI currently will not serve us:
+#
+#   VII.3 / VII.4  GDP by expenditure at current and at constant prices.  Row
+#                  "Rumah Tangga" is BPS household consumption (PK-RT).  BPS is
+#                  the source; BI is the reachable publisher.  Treat it as the
+#                  same number, not an independent one.
+#   I.18           Bank deposits by owner group, which is where "total deposits
+#                  by households and businesses" actually lives: Perseorangan
+#                  is households, and the two Badan Usaha Bukan Keuangan rows
+#                  are businesses, split state and private.
+#
+# Sheet names carry the table number and drift with revisions, so each table
+# names the sheets to try in order and the collector takes the first that
+# parses.  Table numbering drifts between releases — discover, never construct.
+
+version: 1
+
+tables:
+
+  - table: TABEL7_3
+    title: VII.3 PDB menurut jenis pengeluaran, harga berlaku
+    sheets: ["7.3"]
+    prefix: bi_seki
+    group: gdp_expenditure_current
+    unit: IDR billion
+    rows:
+      - {sub: household_consumption, match: "Rumah Tangga"}
+      - {sub: total_consumption, match: "Pengeluaran Konsumsi"}
+      - {sub: npish_consumption, match: "Konsumsi LNPRT"}
+      - {sub: government_consumption, match: "Pemerintah"}
+      - {sub: gfcf, match: "Pembentukan Modal Tetap"}
+      - {sub: gdp, match: "Produk Domestik Bruto"}
+
+  - table: TABEL7_4
+    title: VII.4 PDB menurut jenis pengeluaran, harga konstan
+    sheets: ["7.4"]
+    prefix: bi_seki
+    group: gdp_expenditure_constant
+    unit: IDR billion
+    rows:
+      - {sub: household_consumption, match: "Rumah Tangga"}
+      - {sub: total_consumption, match: "Pengeluaran Konsumsi"}
+      - {sub: government_consumption, match: "Pemerintah"}
+      - {sub: gdp, match: "Produk Domestik Bruto"}
+
+  - table: TABEL1_18
+    title: I.18 Posisi simpanan masyarakat menurut golongan pemilik
+    sheets: ["1.18_2", "1.18_1"]
+    prefix: bi_seki
+    group: deposits_by_owner
+    unit: IDR billion
+    # Stop before the Memo Items block, whose "Rupiah"/"Valas" rows repeat
+    # labels that appear above them.
+    stop_at: "Memo Items"
+    rows:
+      - {sub: total, match: "Rupiah dan Valas", exact: true}
+      - {sub: households, match: "Perseorangan", exact: true}
+      - {sub: private_nonfinancial_business, match: "Badan Usaha Bukan-Keuangan Milik Swasta"}
+      - {sub: state_nonfinancial_business, match: "Badan Usaha Bukan Keuangan Milik Negara"}
+      - {sub: other_financial_institutions, match: "Lembaga Keuangan Lainnya", exact: false}
+      - {sub: local_government, match: "Pemerintah Daerah", exact: true}
+      - {sub: other_private_sector, match: "Sektor Swasta Lainnya", exact: true}
+      - {sub: cooperatives, match: "Koperasi", exact: true}
+      - {sub: foundations_and_social_bodies, match: "Yayasan", exact: false}
