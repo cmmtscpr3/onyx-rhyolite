@@ -161,12 +161,15 @@ def _definition_html(labels: Sequence[str], definition: definitions.Definition) 
         out.append(f'<blockquote lang="en">{_lines(definition.english)}</blockquote>')
     if definition.note:
         out.append(f"<p>{html.escape(definition.note)}</p>")
-    out.append(f'<p class="src">Source: <a href="{html.escape(definition.url)}" rel="noopener">{html.escape(definition.source)}</a></p>')
+    source = f'Source: <a href="{html.escape(definition.url)}" rel="noopener">{html.escape(definition.source)}</a>'
+    if definition.english_url:
+        source += f' · English text: <a href="{html.escape(definition.english_url)}" rel="noopener">{html.escape(definition.english_source)}</a>'
+    out.append(f'<p class="src">{source}</p>')
     return "".join(out)
 
 
 def _definitions_html(dataset: Dataset, group: Group) -> str:
-    if not definitions.populated():
+    if not definitions.populated(dataset):
         return ""
     entries = definitions.for_group(dataset.key, group)
     missing = definitions.undefined(group)

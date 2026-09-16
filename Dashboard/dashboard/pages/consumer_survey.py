@@ -22,8 +22,8 @@ def render() -> None:
     st.subheader("Confidence indices")
     ui.render_group(bundle, dataset, catalogue.group(KEY, "confidence"))
 
-    st.subheader("Household budget shares by income group")
-    share = st.radio("Share of income going to", list(SHARES), horizontal=True, key=f"{KEY}:share")
+    st.subheader("Household budget shares by monthly expenditure group")
+    share = st.radio("Share of income going to", list(SHARES), horizontal=True, key=f"{KEY}:share", help="Respondents are grouped by their monthly household expenditure (BI's \"Pengeluaran per bulan\" brackets), not by income.")
     ui.render_group(bundle, dataset, catalogue.group(KEY, SHARES[share]))
 
     with st.expander("Discontinued series (last published 2019–2020)"):

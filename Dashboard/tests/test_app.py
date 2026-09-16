@@ -47,3 +47,12 @@ def test_spip_page_groups_charts_by_category_tabs():
     measures = [radio for radio in at.radio if radio.label == "Measure"]
     assert [len(radio.options) for radio in measures] == [5, 3, 4]
     assert len(at.dataframe) == 3
+
+
+def test_consumer_survey_page_shows_official_definitions():
+    at = AppTest.from_function(_page_script, kwargs={"page_name": "consumer_survey", "root": str(ROOT)}, default_timeout=300)
+    at.run()
+    assert not at.exception, [e.message for e in at.exception]
+    labels = [expander.label for expander in at.expander]
+    assert "Official description" in labels
+    assert labels.count("Official definitions") >= 2  # the confidence chart and the budget-share chart

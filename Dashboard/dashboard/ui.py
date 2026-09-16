@@ -120,19 +120,27 @@ def definition_markdown(labels: Sequence[str], definition: Definition) -> str:
     published (and the publisher's English, if any), and where it comes from."""
     head = f"**{', '.join(labels)}** · " if labels else ""
     lines = [f"{head}*{definition.term}*", ""]
-    lines += [f"> {line}" for line in definition.text.splitlines()]
+    lines += _quoted(definition.text)
     if definition.english:
-        lines += [">", *(f"> {line}" for line in definition.english.splitlines())]
+        lines += [">", *_quoted(definition.english)]
     if definition.note:
         lines += ["", definition.note]
-    lines += ["", f"Source: [{definition.source}]({definition.url})"]
+    source = f"Source: [{definition.source}]({definition.url})"
+    if definition.english_url:
+        source += f" · English text: [{definition.english_source}]({definition.english_url})"
+    lines += ["", source]
     return "\n".join(lines)
+
+
+def _quoted(text: str) -> list[str]:
+    """Blockquote lines; two trailing spaces keep the source's own line breaks."""
+    return [f"> {line}  " if line else ">" for line in text.splitlines()]
 
 
 def show_definitions(dataset: Dataset, group: Group) -> None:
     """The publishers' own definitions of what the chart's series measure; series
     without one are named as such rather than given a definition of ours."""
-    if not definitions.populated():
+    if not definitions.populated(dataset):
         return
     entries = definitions.for_group(dataset.key, group)
     missing = definitions.undefined(group)
