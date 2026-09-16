@@ -11,12 +11,14 @@ from __future__ import annotations
 import datetime as dt
 import html
 import subprocess
+from typing import Sequence
 
 import pandas as pd
 import plotly.io as pio
 from plotly.offline import get_plotlyjs
 
-from . import catalogue, charts, transform
+from . import catalogue, charts, definitions, transform
+from .catalogue import Dataset, Group
 from .theme import CHROME, STATUS
 
 WIB = dt.timezone(dt.timedelta(hours=7))
@@ -88,6 +90,9 @@ section.dataset h2 .eyebrow {{ display: block; font-size: 11px; letter-spacing: 
 .notes {{ margin: 8px 0 16px; padding: 10px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--ink-2); }}
 .notes summary {{ cursor: pointer; color: var(--ink); }}
 .notes ul {{ margin: 8px 0 0; padding-left: 18px; }}
+.notes p.term {{ margin: 10px 0 2px; }}
+.notes blockquote {{ margin: 4px 0; padding: 2px 0 2px 12px; border-left: 3px solid var(--grid); color: var(--ink); }}
+.notes p.src {{ margin: 0 0 4px; font-size: 12px; }}
 .chart {{ background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 12px 8px 4px; margin: 16px 0 0; }}
 .chart h3 {{ font-size: 15px; margin: 0 8px 4px; }}
 .chart .unit {{ color: var(--muted); font-size: 12px; margin: 0 8px 8px; }}
@@ -145,6 +150,35 @@ def _freshness_html(bundle: charts.Bundle, now: dt.date) -> str:
     return f'<div class=tablewrap><table class=latest><thead>{head}</thead><tbody>{"".join(rows)}</tbody></table></div>'
 
 
+def _lines(text: str) -> str:
+    return "<br>".join(html.escape(line) for line in text.splitlines())
+
+
+def _definition_html(labels: Sequence[str], definition: definitions.Definition) -> str:
+    who = f"<b>{html.escape(', '.join(labels))}</b> · " if labels else ""
+    out = [f'<p class="term">{who}<i>{html.escape(definition.term)}</i></p>', f"<blockquote>{_lines(definition.text)}</blockquote>"]
+    if definition.english:
+        out.append(f'<blockquote lang="en">{_lines(definition.english)}</blockquote>')
+    if definition.note:
+        out.append(f"<p>{html.escape(definition.note)}</p>")
+    out.append(f'<p class="src">Source: <a href="{html.escape(definition.url)}" rel="noopener">{html.escape(definition.source)}</a></p>')
+    return "".join(out)
+
+
+def _definitions_html(dataset: Dataset, group: Group) -> str:
+    if not definitions.populated():
+        return ""
+    entries = definitions.for_group(dataset.key, group)
+    missing = definitions.undefined(group)
+    if not entries and not missing:
+        return ""
+    body = "".join(_definition_html(entry.labels, entry.definition) for entry in entries)
+    if missing:
+        qualifier = "separate " if entries else ""
+        body += f'<p class="note">No {qualifier}official definition found for: {html.escape(", ".join(missing))}.</p>'
+    return f'<details class="notes"><summary>Official definitions</summary>{body}</details>'
+
+
 def build_offline_html(bundle: charts.Bundle, *, now: dt.datetime | None = None, standalone: bool = True) -> bytes:
     built = (now or dt.datetime.now(dt.timezone.utc)).astimezone(WIB)
     commit = data_commit()
@@ -190,6 +224,10 @@ def build_offline_html(bundle: charts.Bundle, *, now: dt.datetime | None = None,
         if dataset.notes:
             items = "".join(f"<li>{html.escape(note)}</li>" for note in dataset.notes)
             parts.append(f'<details class="notes"><summary>About this data</summary><ul>{items}</ul></details>')
+        described = definitions.for_dataset(dataset.key)
+        if described:
+            body = "".join(_definition_html((), definition) for definition in described)
+            parts.append(f'<details class="notes"><summary>Official description</summary>{body}</details>')
         heading_shown = ""
         for chart in chart_list:
             if chart.heading and chart.heading != heading_shown:
@@ -205,6 +243,9 @@ def build_offline_html(bundle: charts.Bundle, *, now: dt.datetime | None = None,
             parts.append(_latest_table_html(chart.table, chart.unit))
             if chart.note:
                 parts.append(f'<p class="note">{html.escape(chart.note)}</p>')
+            group = next((candidate for candidate in dataset.groups if candidate.key == chart.key), None)
+            if group is not None:
+                parts.append(_definitions_html(dataset, group))
             parts.append("</div>")
         parts.append("</section>")
 

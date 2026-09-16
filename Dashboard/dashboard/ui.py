@@ -4,12 +4,14 @@ and the chart-plus-table block."""
 from __future__ import annotations
 
 import datetime as dt
+from typing import Sequence
 
 import pandas as pd
 import streamlit as st
 
-from . import catalogue, charts, data, export, theme, transform
+from . import catalogue, charts, data, definitions, export, theme, transform
 from .catalogue import Dataset, Group
+from .definitions import Definition
 from .transform import SHOW_AS, SHOW_AS_HELP
 
 PLOTLY_CONFIG = {
@@ -56,6 +58,11 @@ def page_header(dataset: Dataset, latest: pd.Timestamp | None) -> None:
         with st.expander("About this data"):
             for note in dataset.notes:
                 st.markdown(f"- {note}")
+    described = definitions.for_dataset(dataset.key)
+    if described:
+        with st.expander("Official description"):
+            for definition in described:
+                st.markdown(definition_markdown((), definition))
 
 
 def years_available(frame_index: pd.DatetimeIndex) -> list[int | None]:
@@ -108,6 +115,37 @@ def display_table(table: pd.DataFrame, unit: str) -> pd.DataFrame:
     return shown
 
 
+def definition_markdown(labels: Sequence[str], definition: Definition) -> str:
+    """One official definition: which series it covers, the term, the quote as
+    published (and the publisher's English, if any), and where it comes from."""
+    head = f"**{', '.join(labels)}** · " if labels else ""
+    lines = [f"{head}*{definition.term}*", ""]
+    lines += [f"> {line}" for line in definition.text.splitlines()]
+    if definition.english:
+        lines += [">", *(f"> {line}" for line in definition.english.splitlines())]
+    if definition.note:
+        lines += ["", definition.note]
+    lines += ["", f"Source: [{definition.source}]({definition.url})"]
+    return "\n".join(lines)
+
+
+def show_definitions(dataset: Dataset, group: Group) -> None:
+    """The publishers' own definitions of what the chart's series measure; series
+    without one are named as such rather than given a definition of ours."""
+    if not definitions.populated():
+        return
+    entries = definitions.for_group(dataset.key, group)
+    missing = definitions.undefined(group)
+    if not entries and not missing:
+        return
+    with st.expander("Official definitions"):
+        for entry in entries:
+            st.markdown(definition_markdown(entry.labels, entry.definition))
+        if missing:
+            qualifier = "separate " if entries else ""
+            st.caption(f"No {qualifier}official definition found for: {', '.join(missing)}.")
+
+
 def render_group(bundle_: charts.Bundle, dataset: Dataset, group: Group, *, title: str | None = None) -> None:
     key = f"{dataset.key}:{group.key}"
     st.markdown(f"#### {title or group.title}")
@@ -126,6 +164,7 @@ def render_group(bundle_: charts.Bundle, dataset: Dataset, group: Group, *, titl
         palette=palette(),
     )
     show_chart(chart, key)
+    show_definitions(dataset, group)
 
 
 def render_headings(bundle_: charts.Bundle, dataset: Dataset, headings: list[str] | None = None) -> None:
