@@ -10,7 +10,7 @@ import streamlit as st
 
 from . import catalogue, charts, data, export, theme, transform
 from .catalogue import Dataset, Group
-from .transform import SHOW_AS
+from .transform import SHOW_AS, SHOW_AS_HELP
 
 PLOTLY_CONFIG = {
     "displaylogo": False,
@@ -75,7 +75,7 @@ def controls(group: Group, key: str, years: list[int | None]) -> tuple[list[str]
         format_func=group.label,
         key=f"{key}:series",
     )
-    mode = middle.radio("Show as", SHOW_AS, horizontal=True, key=f"{key}:mode")
+    mode = middle.radio("Show as", SHOW_AS, horizontal=True, key=f"{key}:mode", help=SHOW_AS_HELP)
     since = right.selectbox(
         "From",
         options=years,

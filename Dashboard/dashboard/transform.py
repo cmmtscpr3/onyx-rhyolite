@@ -12,7 +12,16 @@ from typing import Mapping
 import numpy as np
 import pandas as pd
 
-SHOW_AS = ("Level", "Year-on-year % change", "Index (100 at start)")
+SHOW_AS = ("Level", "Year-on-year % change", "Index (first value = 100)")
+
+#: The tooltip on the "Show as" control, in Markdown.
+SHOW_AS_HELP = (
+    "**Level**: the values as published.  \n"
+    "**Year-on-year % change**: each value against the same date a year earlier.  \n"
+    "**Index (first value = 100)**: each series divided by its first value in the chosen range and "
+    "multiplied by 100, so lines of different size or unit share one axis; 110 means 10% above that "
+    "first value. It is a rebasing, not a rank or a percentile."
+)
 
 #: How far back "a year earlier" is, and how far off that date an observation
 #: may sit and still count.  Weekly data is compared 52 weeks back so the

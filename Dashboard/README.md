@@ -17,7 +17,7 @@ python Dashboard/export_html.py                 # Dashboard/dist/indonesia-indic
 |---|---|---|
 | Overview | Freshness of every dataset | all |
 | Food prices | PIHPS weekly food prices, 31 commodities at three market levels | `Dataset/Food Prices/PIHPS/**` |
-| Bank Indonesia | SPIP payment system statistics: e-money, cards, indicators | `bi_emoney`, `bi_card_transactions`, `bi_payment_system` |
+| Bank Indonesia | SPIP payment system statistics: one tab each for e-money, cards, and currency and BI-RTGS, one chart at a time | `bi_emoney`, `bi_card_transactions`, `bi_payment_system` |
 | Bank Indonesia | SEKI: GDP by expenditure, deposits by owner group | `bi_seki` |
 | Bank Indonesia | Survei Konsumen: confidence indices, budget shares | `bi_consumer_survey` |
 | OJK | SPI third-party funds (stale at source since June 2025) | `ojk_dpk` |
@@ -26,7 +26,8 @@ python Dashboard/export_html.py                 # Dashboard/dist/indonesia-indic
 | Other sources | ibid vehicle auctions: weekly median listed price, lots per week | `ibid_car_data`, `ibid_motor_data` |
 
 Every chart has a **Show as** switch: level, year-on-year % change, or an index
-set to 100 at the first observation from the chosen start year. The last two
+with each series' first value in the chosen range set to 100 (a rebasing, not a
+rank or a percentile; the control's tooltip says so). The last two
 put series of different scale on one axis, which is why no chart here has a
 second y-axis. Under each chart a table gives the latest value per series and
 its change on the previous observation and on a year earlier (percentages,

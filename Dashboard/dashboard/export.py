@@ -81,6 +81,7 @@ nav.toc a:hover, nav.toc a:focus {{ color: var(--accent); text-decoration: under
 nav.toc .sec {{ color: var(--muted); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; }}
 section.dataset {{ padding-top: 36px; scroll-margin-top: 72px; }}
 section.dataset h2 {{ font-size: 21px; margin: 0 0 4px; }}
+section.dataset h3.subhead {{ font-size: 17px; margin: 28px 0 0; color: var(--ink-2); }}
 section.dataset h2 .eyebrow {{ display: block; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-bottom: 4px; }}
 .source {{ color: var(--ink-2); margin: 0 0 12px; }}
 .source a {{ color: var(--accent); }}
@@ -189,7 +190,11 @@ def build_offline_html(bundle: charts.Bundle, *, now: dt.datetime | None = None,
         if dataset.notes:
             items = "".join(f"<li>{html.escape(note)}</li>" for note in dataset.notes)
             parts.append(f'<details class="notes"><summary>About this data</summary><ul>{items}</ul></details>')
+        heading_shown = ""
         for chart in chart_list:
+            if chart.heading and chart.heading != heading_shown:
+                parts.append(f'<h3 class="subhead">{html.escape(chart.heading)}</h3>')
+                heading_shown = chart.heading
             figure_html = pio.to_html(
                 chart.figure, include_plotlyjs=False, full_html=False, config=PLOTLY_CONFIG, div_id=f"fig-{dataset.key}-{_slug(chart.key)}"
             )

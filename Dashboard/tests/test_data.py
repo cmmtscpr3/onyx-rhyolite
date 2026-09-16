@@ -174,3 +174,11 @@ def test_fingerprint_changes_with_the_files(tmp_path, monkeypatch):
     (tmp_path / "b.csv").write_text("y")
     after = data.fingerprint([tmp_path])
     assert after.files == 2 and after.digest != before.digest
+
+
+def test_spip_is_bucketed_into_three_categories():
+    spip = catalogue.BY_KEY["spip"]
+    assert spip.headings == ["E-money", "Cards", "Currency and BI-RTGS"]
+    emoney = [group.key for group in spip.groups if group.heading == "E-money"]
+    assert emoney == ["emoney_value", "emoney_volume", "emoney_instruments", "emoney_float", "emoney_outstanding"]
+    assert [group.key for group in spip.groups if group.heading == "Cards"] == ["cards_value", "cards_volume", "cards_outstanding"]
