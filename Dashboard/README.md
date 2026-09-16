@@ -39,6 +39,23 @@ methodology note (`docs/methodology.md` on the repository's default branch,
 commit `40fa6e7`) lays out later layers: percentile heatmaps, breadth counts and
 composite indices. None of that is built yet.
 
+## Official definitions
+
+Every chart has an **Official definitions** expander and every page an
+**Official description** one, mirrored in the offline HTML. The text in them
+is the publisher's own: Bank Indonesia's per-table SPIP and SEKI metadata, its
+Survei Konsumen metadata and reports, its regulations, OJK's Statistik
+Perbankan Indonesia and the Banking Law, the QRIS regulation, the PIHPS FAQ,
+Magpie IQ's methodology page and ibid's general terms. Nothing is paraphrased:
+each entry in `dashboard/definitions.py` is a verbatim quote in the language
+it was published in, the publisher's own English wording where one exists,
+and the document and URL it comes from. Where a publisher defines only part
+of what a series shows (say, the components of an aggregate row) or nothing at
+all, the entry's note says so, and a series with no entry is listed under its
+chart as having no official definition rather than being given one of ours.
+To add an entry, quote the document, keep the quote checkable against it, and
+register it under the series id, the chart group or the dataset key.
+
 ## Keeping it updated
 
 The app reads the files under `Dataset/` when it starts and caches them until
@@ -68,6 +85,7 @@ Dashboard/
   requirements-dev.txt   + pytest
   dashboard/
     catalogue.py         the buckets: datasets, their groups of series, labels, notes
+    definitions.py       the publishers' own definitions, quoted verbatim, by series, chart and dataset
     data.py              loaders, through the collectors' own readers
     transform.py         show-as arithmetic, latest-value tables, weekly medians, freshness
     figures.py           the line chart (Plotly)
@@ -90,9 +108,13 @@ exactly as the collectors write them.
    ids in the order their colours should be assigned, labels, defaults).
 2. Add a page module under `dashboard/pages/` (for a plain page,
    `ui.render_dataset("<key>")` is all it takes) and register it in `app.py`.
-3. Run the tests: `cd Dashboard && python -m pytest`. They check that every
-   catalogued series exists, that every default chart builds, and that every
-   page renders.
+3. Add the publisher's definitions of its series to `dashboard/definitions.py`,
+   quoted verbatim with their source document; the page shows them under each
+   chart.
+4. Run the tests: `cd Dashboard && python -m pytest`. They check that every
+   catalogued series exists, that every default chart builds, that every page
+   renders, and that every definition points at a catalogued series and cites
+   a source.
 
 ## Tests
 
