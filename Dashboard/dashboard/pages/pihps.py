@@ -4,10 +4,11 @@ from __future__ import annotations
 
 import streamlit as st
 
-from .. import catalogue, charts, data, ui
-from ..transform import SHOW_AS, SHOW_AS_HELP
+from .. import catalogue, charts, data, transform, ui
 
 KEY = "pihps"
+#: PIHPS publishes one column per week, so changes are week on week.
+FREQUENCY = "weekly"
 
 
 def render() -> None:
@@ -30,7 +31,13 @@ def render() -> None:
         key=f"{KEY}:commodities",
     )
     left, right = st.columns([3, 1])
-    mode = left.radio("Show as", SHOW_AS, horizontal=True, key=f"{KEY}:mode", help=SHOW_AS_HELP)
+    mode = left.radio(
+        "Show as",
+        transform.show_as_options(FREQUENCY),
+        horizontal=True,
+        key=f"{KEY}:mode",
+        help=transform.show_as_help(FREQUENCY),
+    )
     years = ui.years_available(pihps["week"].drop_duplicates())
     since = right.selectbox(
         "From", options=years, format_func=lambda y: "All history" if y is None else str(y), key=f"{KEY}:since"

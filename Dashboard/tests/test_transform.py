@@ -25,22 +25,57 @@ def test_year_earlier_aligns_by_date_not_position():
     assert np.isnan(previous.loc["2024-02-01", "a"])
 
 
-def test_show_as_yoy_and_index():
+@pytest.mark.parametrize(
+    "frequency, label",
+    [
+        ("weekly", "Week-on-week % change"),
+        ("monthly", "Month-on-month % change"),
+        ("quarterly", "Year-on-year % change"),
+        ("annual", "Year-on-year % change"),
+        ("irregular", "Year-on-year % change"),
+        ("something else", "Year-on-year % change"),
+    ],
+)
+def test_the_comparison_follows_the_publication_frequency(frequency, label):
+    assert transform.show_as_options(frequency) == ("Level", label)
+    assert transform.comparison(frequency).label == label
+
+
+def test_show_as_compares_a_monthly_series_with_the_month_before():
     frame = monthly([100.0] * 12 + [110.0] * 12)
-    yoy = transform.show_as(frame, transform.SHOW_AS[1], "monthly")
-    assert yoy.loc["2025-01-01", "a"] == pytest.approx(10.0)
-    assert np.isnan(yoy.loc["2024-06-01", "a"])
-    index = transform.show_as(frame, transform.SHOW_AS[2], "monthly")
-    assert index.iloc[0, 0] == 100.0 and index.iloc[-1, 0] == pytest.approx(110.0)
-    assert transform.show_as(frame, transform.SHOW_AS[0], "monthly").equals(frame.sort_index())
+    change = transform.show_as(frame, transform.comparison("monthly").label, "monthly")
+    assert change.loc["2025-01-01", "a"] == pytest.approx(10.0)  # the step month
+    assert change.loc["2025-02-01", "a"] == pytest.approx(0.0)
+    assert np.isnan(change.loc["2024-01-01", "a"])  # nothing a month earlier
+    assert transform.show_as(frame, transform.LEVEL, "monthly").equals(frame.sort_index())
 
 
-def test_weekly_yoy_uses_52_weeks():
+def test_weekly_compares_the_week_before_while_the_table_keeps_52_weeks():
     index = pd.date_range("2025-01-02", periods=60, freq="7D")
     frame = pd.DataFrame({"a": np.arange(60, dtype=float) + 100}, index=index)
-    yoy = transform.show_as(frame, transform.SHOW_AS[1], "weekly")
-    assert yoy.iloc[52, 0] == pytest.approx((152 / 100 - 1) * 100)
-    assert np.isnan(yoy.iloc[51, 0])
+    change = transform.show_as(frame, transform.comparison("weekly").label, "weekly")
+    assert change.iloc[1, 0] == pytest.approx((101 / 100 - 1) * 100)
+    assert np.isnan(change.iloc[0, 0])
+    # The latest-value table still looks 52 weeks back for its own column.
+    previous = transform.year_earlier(frame, "weekly")
+    assert previous.iloc[52, 0] == 100.0
+    assert np.isnan(previous.iloc[51, 0])
+
+
+def test_a_week_a_source_skipped_leaves_a_gap():
+    index = pd.DatetimeIndex(["2026-01-05", "2026-01-12", "2026-01-26"])
+    frame = pd.DataFrame({"a": [100.0, 110.0, 121.0]}, index=index)
+    change = transform.show_as(frame, transform.comparison("weekly").label, "weekly")
+    assert change.iloc[1, 0] == pytest.approx(10.0)
+    assert np.isnan(change.iloc[2, 0])  # a fortnight back is not a week
+
+
+def test_quarterly_is_compared_with_a_year_earlier():
+    index = pd.date_range("2024-01-01", periods=8, freq="QS")
+    frame = pd.DataFrame({"a": [100.0] * 4 + [125.0] * 4}, index=index)
+    change = transform.show_as(frame, transform.comparison("quarterly").label, "quarterly")
+    assert change.iloc[4, 0] == pytest.approx(25.0)
+    assert np.isnan(change.iloc[3, 0])
 
 
 def test_since_slices_from_january():

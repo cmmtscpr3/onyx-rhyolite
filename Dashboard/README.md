@@ -25,11 +25,23 @@ python Dashboard/export_html.py                 # Dashboard/dist/indonesia-indic
 | Other sources | Magpie IQ e-commerce GMV | `ecommerce_gmv` |
 | Other sources | ibid vehicle auctions: weekly median listed price, lots per week | `ibid_car_data`, `ibid_motor_data` |
 
-Every chart has a **Show as** switch: level, year-on-year % change, or an index
-with each series' first value in the chosen range set to 100 (a rebasing, not a
-rank or a percentile; the control's tooltip says so). The last two
-put series of different scale on one axis, which is why no chart here has a
-second y-axis. Under each chart a table gives the latest value per series and
+Every chart has a **Show as** switch with two settings: the level as published,
+or the % change over the interval that dataset's own publication frequency
+calls for.
+
+| Frequency | Compared with | Pages |
+|---|---|---|
+| weekly | a week earlier | PIHPS food prices, ibid vehicle auctions |
+| monthly | a month earlier | SPIP, SEKI deposits, Survei Konsumen, OJK, e-commerce GMV |
+| quarterly or rarer | a year earlier | SEKI GDP, SPIP cash intensity, QRIS |
+
+A quarterly series has too few observations either side for a shorter
+comparison to say much, which is why it is the one case that still looks back a
+year. Comparisons are made by date rather than by position, so a period a
+source did not publish leaves a gap instead of being silently compared against
+an older observation, and none of them is seasonally adjusted. A chart carries
+one unit and one y-axis; the change is how series of different scale are put
+side by side. Under each chart a table gives the latest value per series and
 its change on the previous observation and on a year earlier (percentages,
 or points for series that are already percentages or indices). Plotly's range
 buttons (1y / 3y / 5y / All) and the slider under the x-axis zoom the time span.
@@ -87,7 +99,7 @@ Dashboard/
     catalogue.py         the buckets: datasets, their groups of series, labels, notes
     definitions.py       the publishers' own definitions, quoted verbatim, by series, chart and dataset
     data.py              loaders, through the collectors' own readers
-    transform.py         show-as arithmetic, latest-value tables, weekly medians, freshness
+    transform.py         the per-frequency comparisons, latest-value tables, weekly medians, freshness
     figures.py           the line chart (Plotly)
     theme.py             palette and Plotly template
     charts.py            data + choices -> a chart with its table (no Streamlit)

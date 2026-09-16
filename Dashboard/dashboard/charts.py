@@ -16,7 +16,7 @@ import plotly.graph_objects as go
 
 from . import catalogue, data, figures, theme, transform
 from .catalogue import Annotation, Dataset, Group
-from .transform import SHOW_AS
+from .transform import LEVEL
 
 
 @dataclass
@@ -48,7 +48,7 @@ class Chart:
     table: pd.DataFrame
     frequency: str = ""
     note: str = ""
-    mode: str = SHOW_AS[0]
+    mode: str = LEVEL
     #: The sub-heading the chart's group sits under on its page.
     heading: str = ""
 
@@ -62,7 +62,7 @@ def group_chart(
     group: Group,
     *,
     selected: Sequence[str] | None = None,
-    mode: str = SHOW_AS[0],
+    mode: str = LEVEL,
     since_year: int | None = None,
     annotations: Sequence[Annotation] = (),
     palette: str = "light",
@@ -71,7 +71,9 @@ def group_chart(
     chosen = set(selected if selected is not None else group.shown)
     ids = [sid for sid in group.series if sid in chosen]
     frame = data.wide(series, ids)
-    frequency = data.frequency_of(series, ids)
+    # The group's own frequency, not the selection's: deselecting a series
+    # must not change what the y-axis means.
+    frequency = data.frequency_of(series, group.series)
     shown = transform.show_as(transform.since(frame, since_year), mode, frequency)
     figure = figures.line_chart(
         shown,
@@ -144,7 +146,7 @@ def pihps_chart(
     *,
     market: str = "Traditional Market",
     commodities: Sequence[str] = PIHPS_DEFAULT,
-    mode: str = SHOW_AS[0],
+    mode: str = LEVEL,
     since_year: int | None = None,
     palette: str = "light",
     title: str | None = None,
@@ -204,6 +206,7 @@ def lots_charts(
     category: str = "cars",
     model: str | None = None,
     sold_only: bool = True,
+    mode: str = LEVEL,
     palette: str = "light",
 ) -> list[Chart]:
     subset = lots_subset(lots, category, model, sold_only)
@@ -215,10 +218,11 @@ def lots_charts(
     price = weekly[["median_price"]].rename(columns={"median_price": "median"})
     price_labels = {"median": f"Median listed price, {what} ({qualifier})"}
     price_fig = figures.line_chart(
-        price,
+        transform.show_as(price, mode, "weekly"),
         labels=price_labels,
         unit="IDR",
         colours={"median": hues[0]},
+        mode=mode,
         markers=True,
         palette=palette,
         range_slider=False,
@@ -226,10 +230,11 @@ def lots_charts(
     count = weekly[["lots"]]
     count_labels = {"lots": f"Lots per auction week, {what} ({qualifier})"}
     count_fig = figures.line_chart(
-        count,
+        transform.show_as(count, mode, "weekly"),
         labels=count_labels,
         unit="lots",
         colours={"lots": hues[1]},
+        mode=mode,
         markers=True,
         palette=palette,
         range_slider=False,
@@ -243,6 +248,7 @@ def lots_charts(
             table=transform.latest_table(price, "weekly", price_labels, "IDR"),
             frequency="weekly",
             note="Weeks start on Monday. The price is the one shown on the lot card, not a confirmed hammer price.",
+            mode=mode,
         ),
         Chart(
             key=f"ibid_count_{category}",
@@ -252,6 +258,7 @@ def lots_charts(
             table=transform.latest_table(count, "weekly", count_labels, "lots"),
             frequency="weekly",
             note="Lots, not vehicles: a vehicle relisted after an auction counts again.",
+            mode=mode,
         ),
     ]
 

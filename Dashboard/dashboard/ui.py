@@ -12,7 +12,6 @@ import streamlit as st
 from . import catalogue, charts, data, definitions, export, theme, transform
 from .catalogue import Dataset, Group
 from .definitions import Definition
-from .transform import SHOW_AS, SHOW_AS_HELP
 
 PLOTLY_CONFIG = {
     "displaylogo": False,
@@ -72,7 +71,7 @@ def years_available(frame_index: pd.DatetimeIndex) -> list[int | None]:
     return [None, *range(last, first - 1, -1)]
 
 
-def controls(group: Group, key: str, years: list[int | None]) -> tuple[list[str], str, int | None]:
+def controls(group: Group, key: str, years: list[int | None], frequency: str) -> tuple[list[str], str, int | None]:
     """One row: which series, how to show them, and from which year."""
     left, middle, right = st.columns([3, 2, 1])
     selected = left.multiselect(
@@ -82,7 +81,13 @@ def controls(group: Group, key: str, years: list[int | None]) -> tuple[list[str]
         format_func=group.label,
         key=f"{key}:series",
     )
-    mode = middle.radio("Show as", SHOW_AS, horizontal=True, key=f"{key}:mode", help=SHOW_AS_HELP)
+    mode = middle.radio(
+        "Show as",
+        transform.show_as_options(frequency),
+        horizontal=True,
+        key=f"{key}:mode",
+        help=transform.show_as_help(frequency),
+    )
     since = right.selectbox(
         "From",
         options=years,
@@ -158,7 +163,8 @@ def render_group(bundle_: charts.Bundle, dataset: Dataset, group: Group, *, titl
     key = f"{dataset.key}:{group.key}"
     st.markdown(f"#### {title or group.title}")
     frame = data.wide(bundle_.series, group.series)
-    selected, mode, since = controls(group, key, years_available(frame.index))
+    frequency = data.frequency_of(bundle_.series, group.series)
+    selected, mode, since = controls(group, key, years_available(frame.index), frequency)
     if not selected:
         st.info("Pick at least one series.")
         return

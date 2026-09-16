@@ -38,6 +38,26 @@ def test_each_page_renders(page):
         assert at.dataframe, "every dataset page shows a latest-values table"
 
 
+@pytest.mark.parametrize(
+    "page, expected",
+    [
+        ("pihps", "Week-on-week % change"),
+        ("ibid", "Week-on-week % change"),
+        ("spip", "Month-on-month % change"),
+        ("ecommerce", "Month-on-month % change"),
+        ("qris", "Year-on-year % change"),
+    ],
+)
+def test_show_as_offers_levels_and_the_frequencys_own_comparison(page, expected):
+    at = AppTest.from_function(_page_script, kwargs={"page_name": page, "root": str(ROOT)}, default_timeout=300)
+    at.run()
+    assert not at.exception, [e.message for e in at.exception]
+    shown = [radio for radio in at.radio if radio.label == "Show as"]
+    assert shown, f"{page} has no Show-as control"
+    for radio in shown:
+        assert list(radio.options) == ["Level", expected]
+
+
 def test_spip_page_groups_charts_by_category_tabs():
     at = AppTest.from_function(_page_script, kwargs={"page_name": "spip", "root": str(ROOT)}, default_timeout=300)
     at.run()

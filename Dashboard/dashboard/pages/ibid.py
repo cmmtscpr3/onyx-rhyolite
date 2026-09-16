@@ -4,9 +4,11 @@ from __future__ import annotations
 
 import streamlit as st
 
-from .. import catalogue, charts, ui
+from .. import catalogue, charts, transform, ui
 
 KEY = "ibid"
+#: Lots are aggregated into auction weeks, so changes are week on week.
+FREQUENCY = "weekly"
 
 
 def render() -> None:
@@ -36,7 +38,16 @@ def render() -> None:
     all_lots = charts.lots_subset(lots, category, model, sold_only=False)
     d.metric("Sold share", f"{all_lots['sold'].mean():.0%}" if not all_lots.empty else "–")
 
-    for chart in charts.lots_charts(lots, category=category, model=model, sold_only=sold_only, palette=ui.palette()):
+    mode = st.radio(
+        "Show as",
+        transform.show_as_options(FREQUENCY),
+        horizontal=True,
+        key=f"{KEY}:mode",
+        help=transform.show_as_help(FREQUENCY),
+    )
+    for chart in charts.lots_charts(
+        lots, category=category, model=model, sold_only=sold_only, mode=mode, palette=ui.palette()
+    ):
         st.markdown(f"#### {chart.title}")
         ui.show_chart(chart, f"{KEY}:{chart.key}:{model or 'all'}:{sold_only}")
     st.caption(

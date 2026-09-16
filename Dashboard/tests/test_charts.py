@@ -6,7 +6,7 @@ from __future__ import annotations
 import pytest
 
 from dashboard import catalogue, charts, data, figures, theme
-from dashboard.transform import SHOW_AS
+from dashboard.transform import LEVEL, comparison
 
 
 @pytest.fixture(scope="session")
@@ -42,16 +42,32 @@ def test_group_chart_keeps_group_order_and_colours(bundle):
     assert full.frequency == "monthly"
 
 
-def test_show_as_modes_change_axis_and_values(bundle):
-    group = catalogue.group("consumer_survey", "confidence")
-    yoy = charts.group_chart(bundle.series, group, mode=SHOW_AS[1], since_year=2024)
-    index = charts.group_chart(bundle.series, group, mode=SHOW_AS[2], since_year=2024)
-    assert "year earlier" in yoy.figure.layout.yaxis.title.text
-    assert "index" in index.figure.layout.yaxis.title.text
-    first = [y for y in index.figure.data[0].y if y == y][0]
-    assert first == pytest.approx(100.0)
-    # The table stays on levels whatever the chart shows.
-    assert yoy.table.loc[yoy.table["Series"].str.startswith("Consumer Confidence"), "Value"].iloc[0] == pytest.approx(118.5)
+def test_each_chart_compares_over_its_own_publication_interval(bundle):
+    monthly = charts.group_chart(
+        bundle.series, catalogue.group("consumer_survey", "confidence"), mode=comparison("monthly").label, since_year=2024
+    )
+    assert monthly.frequency == "monthly"
+    assert monthly.figure.layout.yaxis.title.text == "% change on a month earlier"
+    quarterly = charts.group_chart(
+        bundle.series, catalogue.group("seki", "gdp_current"), mode=comparison("quarterly").label, since_year=2020
+    )
+    assert quarterly.frequency == "quarterly"
+    assert quarterly.figure.layout.yaxis.title.text == "% change on a year earlier"
+    weekly = charts.pihps_chart(bundle.pihps, mode=comparison("weekly").label, since_year=2025)
+    assert weekly.figure.layout.yaxis.title.text == "% change on a week earlier"
+    lots = charts.lots_charts(bundle.lots, category="cars", mode=comparison("weekly").label)[0]
+    assert lots.figure.layout.yaxis.title.text == "% change on a week earlier"
+    # The table under each chart stays on levels whatever the chart shows.
+    assert monthly.table.loc[monthly.table["Series"].str.startswith("Consumer Confidence"), "Value"].iloc[0] == pytest.approx(118.5)
+
+
+def test_a_chart_shows_levels_or_one_change_and_nothing_else(bundle):
+    group = catalogue.group("spip", "emoney_value")
+    assert charts.group_chart(bundle.series, group).mode == LEVEL
+    assert figures.axis_title("IDR billion", LEVEL) == "IDR billion"
+    # Deselecting a series must not change what the comparison means.
+    frequency = charts.group_chart(bundle.series, group, selected=["bi_emoney.value_topup"]).frequency
+    assert frequency == charts.group_chart(bundle.series, group).frequency == "monthly"
 
 
 def test_ecommerce_break_is_marked(bundle):
@@ -116,4 +132,4 @@ def test_precision_follows_magnitude():
     assert figures.precision(big, "IDR billion") == 0
     assert figures.precision(small, "IDR billion") == 2
     assert figures.precision(big, "index") == 1
-    assert figures.precision(big, "IDR billion", SHOW_AS[1]) == 1
+    assert figures.precision(big, "IDR billion", comparison("monthly").label) == 1
