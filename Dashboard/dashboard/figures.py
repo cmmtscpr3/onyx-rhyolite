@@ -16,7 +16,7 @@ import plotly.graph_objects as go
 
 from . import theme
 from .catalogue import Annotation
-from .transform import POINT_UNITS, SHOW_AS
+from .transform import AXIS_TITLES, LEVEL, POINT_UNITS
 
 RANGE_BUTTONS = (
     dict(count=1, label="1y", step="year", stepmode="backward"),
@@ -26,9 +26,9 @@ RANGE_BUTTONS = (
 )
 
 
-def precision(frame: pd.DataFrame, unit: str, mode: str = SHOW_AS[0]) -> int:
+def precision(frame: pd.DataFrame, unit: str, mode: str = LEVEL) -> int:
     """Decimals for hover and axis: what the magnitude of the values calls for."""
-    if mode != SHOW_AS[0] or unit in POINT_UNITS:
+    if mode != LEVEL or unit in POINT_UNITS:
         return 1
     raw = frame.to_numpy(dtype=float).ravel() if not frame.empty else np.array([], dtype=float)
     finite = np.abs(raw[np.isfinite(raw)])
@@ -69,11 +69,8 @@ def top_margin(labels: Sequence[str]) -> int:
 
 
 def axis_title(unit: str, mode: str) -> str:
-    if mode == SHOW_AS[1]:
-        return "% change on a year earlier"
-    if mode == SHOW_AS[2]:
-        return "index, 100 at first observation"
-    return unit
+    """The unit on levels; what the change compares against otherwise."""
+    return unit if mode == LEVEL else AXIS_TITLES.get(mode, "% change")
 
 
 def line_chart(
@@ -83,7 +80,7 @@ def line_chart(
     unit: str,
     colours: Mapping[str, str],
     dashes: Mapping[str, str] | None = None,
-    mode: str = SHOW_AS[0],
+    mode: str = LEVEL,
     markers: bool = False,
     title: str | None = None,
     annotations: Sequence[Annotation] = (),
@@ -171,7 +168,7 @@ def line_chart(
             title=dict(text=axis_title(unit, mode)),
             tickformat=f",.{decimals}f",
             separatethousands=True,
-            rangemode="tozero" if mode == SHOW_AS[0] and _all_positive(frame) else "normal",
+            rangemode="tozero" if mode == LEVEL and _all_positive(frame) else "normal",
         ),
     )
     return fig

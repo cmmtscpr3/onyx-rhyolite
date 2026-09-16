@@ -7,26 +7,61 @@ across) so it can be unit-tested without Streamlit or Plotly.
 from __future__ import annotations
 
 import datetime as dt
+from dataclasses import dataclass
 from typing import Mapping
 
 import numpy as np
 import pandas as pd
 
-SHOW_AS = ("Level", "Year-on-year % change", "Index (first value = 100)")
+#: The first "Show as" option, on every chart.
+LEVEL = "Level"
 
-#: The tooltip on the "Show as" control, in Markdown.
-SHOW_AS_HELP = (
-    "**Level**: the values as published.  \n"
-    "**Year-on-year % change**: each value against the same date a year earlier.  \n"
-    "**Index (first value = 100)**: each series divided by its first value in the chosen range and "
-    "multiplied by 100, so lines of different size or unit share one axis; 110 means 10% above that "
-    "first value. It is a rebasing, not a rank or a percentile."
-)
 
-#: How far back "a year earlier" is, and how far off that date an observation
-#: may sit and still count.  Weekly data is compared 52 weeks back so the
-#: comparison stays on the same weekday lattice; irregular data gets a wide
+@dataclass(frozen=True)
+class Comparison:
+    """What a chart's % change looks back to, for one publication frequency.
+
+    The interval is the one the dataset itself is published on: a weekly
+    series against the week before, a monthly one against the month before.
+    Anything quarterly or rarer is compared with a year earlier, because a
+    quarterly series has too few observations either side for a shorter
+    comparison to say much.
+    """
+
+    #: The "Show as" option the reader picks.
+    label: str
+    #: How the axis and the tooltip name the interval ("a week").
+    period: str
+    #: How far back to look, and how far off that date an observation may sit
+    #: and still count.
+    offset: pd.DateOffset | pd.Timedelta
+    tolerance: pd.Timedelta
+
+    @property
+    def axis(self) -> str:
+        return f"% change on {self.period} earlier"
+
+
+def _year(tolerance_days: int) -> Comparison:
+    return Comparison("Year-on-year % change", "a year", pd.DateOffset(years=1), pd.Timedelta(days=tolerance_days))
+
+
+#: One comparison per publication frequency.  Irregular data gets a wide
 #: tolerance because its release months drift.
+COMPARISONS: dict[str, Comparison] = {
+    "weekly": Comparison("Week-on-week % change", "a week", pd.Timedelta(days=7), pd.Timedelta(days=3)),
+    "monthly": Comparison("Month-on-month % change", "a month", pd.DateOffset(months=1), pd.Timedelta(days=3)),
+    "quarterly": _year(3),
+    "annual": _year(10),
+    "irregular": _year(20),
+}
+
+#: The y-axis title of each comparison, looked up by the option's own label.
+AXIS_TITLES: dict[str, str] = {compared.label: compared.axis for compared in COMPARISONS.values()}
+
+#: How far back the latest-value table's "vs year earlier" column looks,
+#: whatever the chart above it is showing.  Weekly data is compared 52 weeks
+#: back so the comparison stays on the same weekday lattice.
 _YEAR_BACK: dict[str, tuple[pd.DateOffset | pd.Timedelta, pd.Timedelta]] = {
     "weekly": (pd.Timedelta(days=364), pd.Timedelta(days=3)),
     "monthly": (pd.DateOffset(years=1), pd.Timedelta(days=3)),
@@ -45,28 +80,55 @@ def _clean(frame: pd.DataFrame) -> pd.DataFrame:
     return frame
 
 
-def year_earlier(frame: pd.DataFrame, frequency: str) -> pd.DataFrame:
-    """Each row's value one year earlier, aligned to the row's own date."""
+def comparison(frequency: str) -> Comparison:
+    """What a series of this publication frequency is compared against."""
+    return COMPARISONS.get(frequency, COMPARISONS["irregular"])
+
+
+def show_as_options(frequency: str) -> tuple[str, str]:
+    """The two "Show as" choices for a chart of this frequency."""
+    return (LEVEL, comparison(frequency).label)
+
+
+def show_as_help(frequency: str) -> str:
+    """The tooltip on the "Show as" control, in Markdown."""
+    compared = comparison(frequency)
+    return (
+        f"**{LEVEL}**: the values as published.  \n"
+        f"**{compared.label}**: each value against the observation {compared.period} earlier, as a percentage. "
+        "The interval follows how often the dataset is published: a week for weekly data, a month for monthly "
+        "data, a year for anything quarterly or rarer. None of it is seasonally adjusted."
+    )
+
+
+def _shift_back(frame: pd.DataFrame, offset: pd.DateOffset | pd.Timedelta, tolerance: pd.Timedelta) -> pd.DataFrame:
+    """Each row's value one interval earlier, aligned to the row's own date.
+
+    By date, not by position: a period a source did not publish leaves a gap
+    rather than pulling an older observation into the comparison.
+    """
     frame = _clean(frame)
     if frame.empty:
         return frame.copy()
-    offset, tolerance = _YEAR_BACK.get(frequency, _YEAR_BACK["irregular"])
     targets = pd.DatetimeIndex(frame.index - offset)
     previous = frame.reindex(targets, method="nearest", tolerance=tolerance)
     previous.index = frame.index
     return previous
 
 
+def year_earlier(frame: pd.DataFrame, frequency: str) -> pd.DataFrame:
+    """Each row's value one year earlier -- the table's "vs year earlier" column."""
+    offset, tolerance = _YEAR_BACK.get(frequency, _YEAR_BACK["irregular"])
+    return _shift_back(frame, offset, tolerance)
+
+
 def show_as(frame: pd.DataFrame, mode: str, frequency: str) -> pd.DataFrame:
-    """Level, year-on-year % change, or an index with 100 at each series' first value."""
+    """The level as published, or the % change over the interval this frequency calls for."""
     frame = _clean(frame)
-    if mode == SHOW_AS[1]:
-        previous = year_earlier(frame, frequency)
-        return (frame / previous - 1.0) * 100.0
-    if mode == SHOW_AS[2]:
-        base = frame.apply(lambda column: column.dropna().iloc[0] if column.notna().any() else np.nan)
-        return frame / base * 100.0
-    return frame
+    if mode == LEVEL:
+        return frame
+    compared = comparison(frequency)
+    return (frame / _shift_back(frame, compared.offset, compared.tolerance) - 1.0) * 100.0
 
 
 def since(frame: pd.DataFrame, year: int | None) -> pd.DataFrame:
