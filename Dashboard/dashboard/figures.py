@@ -184,3 +184,117 @@ def _all_positive(frame: pd.DataFrame) -> bool:
 
 def two_panel_note(unit: str) -> str:
     return f"One axis per chart; series in {unit}."
+
+
+# ---------------------------------------------------------------------------
+# Distributions: how many of each, and the spread of a value within each
+
+#: One bar per row, plus the room the title and the value labels need.
+BAR_ROW_PX = 30
+BAR_CHROME_PX = 60
+#: Room at the right for the value written at the end of the longest bar.
+BAR_LABEL_PX = 72
+
+
+def bar_height(rows: int, title: str | None = None) -> int:
+    return BAR_CHROME_PX + BAR_ROW_PX * max(rows, 1) + (24 if title else 0)
+
+
+def ranked_bar(
+    labels: Sequence[str],
+    values: Sequence[float],
+    *,
+    text: Sequence[str],
+    hovertemplate: str,
+    colour: str,
+    palette: str = "light",
+    title: str | None = None,
+) -> go.Figure:
+    """A ranked horizontal bar chart, largest at the top.
+
+    One colour for every bar: the categories here are names, not an ordered
+    scale, and the length of the bar already carries the magnitude, so a
+    colour ramp would encode the same number twice.  The value is written at
+    the end of each bar, which lets the x-axis go away entirely.
+    """
+    chrome = theme.CHROME[palette]
+    fig = go.Figure(
+        go.Bar(
+            x=list(values),
+            y=list(labels),
+            orientation="h",
+            marker=dict(color=colour, cornerradius=4),
+            text=list(text),
+            textposition="outside",
+            textfont=dict(color=chrome["secondary"], size=12),
+            cliponaxis=False,
+            hovertemplate=hovertemplate,
+        )
+    )
+    fig.update_layout(
+        template=theme.template(palette),
+        title=dict(text=title, yref="container", y=1, yanchor="top", pad=dict(t=8)) if title else None,
+        height=bar_height(len(labels), title),
+        bargap=0.34,
+        showlegend=False,
+        margin=dict(l=8, r=BAR_LABEL_PX, t=32 if title else 8, b=8),
+        xaxis=dict(visible=False, showgrid=False),
+        yaxis=dict(autorange="reversed", showgrid=False, zeroline=False, ticks="", title=None),
+    )
+    return fig
+
+
+def range_box(
+    rows: pd.DataFrame,
+    *,
+    colour: str,
+    unit: str,
+    palette: str = "light",
+    title: str | None = None,
+) -> go.Figure:
+    """One box per category: the quartiles, with whiskers at the true extremes.
+
+    The quantiles are computed by the caller and handed over, so the whiskers
+    reach the real minimum and maximum rather than a multiple of the
+    interquartile range.  That is what a reader asking for "the range" means,
+    and it keeps the figure small however many observations sit behind it.
+    """
+    chrome = theme.CHROME[palette]
+    fig = go.Figure()
+    for row in rows.itertuples(index=False):
+        fig.add_trace(
+            go.Box(
+                name=row.label,
+                y=[row.label],
+                q1=[row.p25],
+                median=[row.median],
+                q3=[row.p75],
+                lowerfence=[row.minimum],
+                upperfence=[row.maximum],
+                orientation="h",
+                marker=dict(color=colour),
+                fillcolor=theme.translucent(colour, 0.18),
+                line=dict(width=2),
+                hoverinfo="x",
+                showlegend=False,
+            )
+        )
+    fig.update_layout(
+        template=theme.template(palette),
+        title=dict(text=title, yref="container", y=1, yanchor="top", pad=dict(t=8)) if title else None,
+        height=bar_height(len(rows), title),
+        boxgap=0.34,
+        margin=dict(l=8, r=16, t=32 if title else 8, b=8),
+        xaxis=dict(
+            visible=True,
+            showgrid=True,
+            gridcolor=chrome["grid"],
+            showline=False,
+            ticks="",
+            title=dict(text=unit),
+            rangemode="tozero",
+            separatethousands=True,
+        ),
+        yaxis=dict(autorange="reversed", showgrid=False, zeroline=False, ticks="", title=None),
+    )
+    return fig

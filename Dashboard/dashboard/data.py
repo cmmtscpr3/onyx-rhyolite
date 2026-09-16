@@ -235,6 +235,7 @@ LOT_COLUMNS = (
     "title",
     "brand",
     "model",
+    "variant",
     "model_year",
     "transmission",
     "plate",
@@ -262,26 +263,66 @@ def parse_auction_date(text: str) -> dt.date | None:
         return None
 
 
-def parse_family(title: str) -> tuple[str, str]:
-    """``'TOYOTA AVANZA 1.3 E MT (2019 - MT)'`` -> ``('TOYOTA', 'AVANZA')``.
+#: Brands written as more than one word.  Matched before the single-word
+#: fallback so "LAND ROVER RANGE ROVER" is a Land Rover, not a "LAND".
+MULTIWORD_BRANDS: tuple[tuple[str, ...], ...] = (
+    ("HARLEY", "DAVIDSON"),
+    ("LAND", "ROVER"),
+    ("MORRIS", "GARAGE"),
+    ("UD", "TRUCKS"),
+)
 
-    The model is the words between the brand and the first number, minus
-    trailing one- or two-letter trim codes (``AVANZA E``, ``GRAN MAX BV AC``),
-    which is what makes lots of the same vehicle comparable.
+#: Words that only ever open a two-word nameplate and never name a model on
+#: their own: Gran Max, Grand Livina, Range Rover, Santa Fe, Strada Triton.  Every other
+#: model is the single word after the brand, so that an Avanza G and an Avanza
+#: Veloz both count as an Avanza and the trim is kept separately.
+NAMEPLATE_PREFIXES = frozenset({"GRAN", "GRAND", "RANGE", "SANTA", "STRADA"})
+
+#: Where the model ends and the trim and engine begin: a separator, or any
+#: token carrying a digit (``1.5``, ``150``).
+_SPEC_TOKEN = re.compile(r"^-+$|\d")
+
+#: Rows that are not one vehicle: a lot of several units, or a stray line of
+#: bare numbers.
+_NOT_A_VEHICLE = re.compile(r"^\s*(?:PAKET\b|[\d\s]+$)")
+
+
+def _split_brand(tokens: Sequence[str]) -> tuple[str, list[str]]:
+    for words in MULTIWORD_BRANDS:
+        if tuple(tokens[: len(words)]) == words:
+            return " ".join(words), list(tokens[len(words) :])
+    return tokens[0], list(tokens[1:])
+
+
+def parse_vehicle(title: str) -> tuple[str, str, str]:
+    """``'TOYOTA AVANZA G 1.5 (2019 - MT)'`` -> ``('TOYOTA', 'AVANZA', 'G')``.
+
+    ibid writes the brand first, then the model, then the trim and the engine
+    or displacement.  The model is the one word after the brand, except for the
+    nameplates listed in :data:`NAMEPLATE_PREFIXES` whose first word never
+    stands alone, so every Avanza counts as an Avanza whatever its trim.  The
+    trim is returned separately rather than folded into the model, which is
+    what used to split one Gran Max into four.
     """
     head = (title or "").split("(")[0].strip()
     tokens = head.split()
     if not tokens:
-        return "", ""
-    brand = tokens[0]
-    rest: list[str] = []
-    for token in tokens[1:]:
-        if token == "-" or any(ch.isdigit() for ch in token):
+        return "", "", ""
+    brand, rest = _split_brand(tokens)
+    if not rest:
+        return brand, "", ""
+    model = rest[:2] if rest[0] in NAMEPLATE_PREFIXES and len(rest) > 1 else rest[:1]
+    variant: list[str] = []
+    for token in rest[len(model) :]:
+        if _SPEC_TOKEN.search(token):
             break
-        rest.append(token)
-    while len(rest) > 1 and len(rest[-1]) <= 2:
-        rest.pop()
-    return brand, " ".join(rest)
+        variant.append(token)
+    return brand, " ".join(model), " ".join(variant)
+
+
+def is_vehicle(title: str) -> bool:
+    """False for the handful of rows that list a bundle of units or nothing at all."""
+    return bool((title or "").strip()) and not _NOT_A_VEHICLE.match(title)
 
 
 def parse_city(card_text: str) -> str:
@@ -299,12 +340,14 @@ def parse_model_year(year_build: str, title: str) -> float:
 def load_lots() -> pd.DataFrame:
     """Every lot on file, with the fields the charts need parsed out.
 
-    Rows without an auction date and rows dated before the scrape began are
-    dropped, and the counts recorded in ``frame.attrs`` so the page can say so.
+    Rows without an auction date, rows dated before the scrape began and rows
+    that are not one vehicle are dropped, and the counts recorded in
+    ``frame.attrs`` so the page can say so.
     """
     records = []
     dropped_undated = 0
     dropped_stray = 0
+    dropped_nonvehicle = 0
     for category, filename in LISTING_FILES.items():
         path = paths.CONSUMPTION / filename
         if not path.exists():
@@ -318,8 +361,11 @@ def load_lots() -> pd.DataFrame:
                 if auction_date < EARLIEST_AUCTION:
                     dropped_stray += 1
                     continue
+                if not is_vehicle(row.get("title", "")):
+                    dropped_nonvehicle += 1
+                    continue
                 segments = [part.strip() for part in (row.get("year_build") or "").split("|")]
-                brand, model = parse_family(row.get("title", ""))
+                brand, model, variant = parse_vehicle(row.get("title", ""))
                 price = row.get("price_idr") or ""
                 records.append(
                     (
@@ -328,6 +374,7 @@ def load_lots() -> pd.DataFrame:
                         row.get("title", ""),
                         brand,
                         model or brand,
+                        variant,
                         parse_model_year(row.get("year_build", ""), row.get("title", "")),
                         segments[1] if len(segments) > 1 and segments[1] in {"MT", "AT"} else "",
                         segments[2] if len(segments) > 2 else "",
@@ -344,4 +391,5 @@ def load_lots() -> pd.DataFrame:
     frame["first_seen"] = pd.to_datetime(frame["first_seen"], errors="coerce")
     frame.attrs["dropped_undated"] = dropped_undated
     frame.attrs["dropped_stray"] = dropped_stray
+    frame.attrs["dropped_nonvehicle"] = dropped_nonvehicle
     return frame

@@ -316,3 +316,153 @@ def default_charts(bundle: Bundle, palette: str = "light") -> list[tuple[Dataset
             ]
         out.append((dataset, charts))
     return out
+
+
+# ---------------------------------------------------------------------------
+# ibid distributions: what sold, and what it went for
+
+PRICE_UNIT = "IDR million"
+#: Rows drawn in a bar chart or a box plot.  The table under each one carries
+#: every row, so nothing is hidden by the cut.
+TOP_SHOWN = 12
+TOP_PRICED = 10
+
+
+@dataclass
+class Panel:
+    """A figure with the table that carries the same numbers, already formatted."""
+
+    key: str
+    title: str
+    figure: go.Figure
+    table: pd.DataFrame
+    note: str = ""
+
+
+def _in_category(lots: pd.DataFrame, category: str, sold_only: bool) -> pd.DataFrame:
+    subset = lots[lots["category"] == category]
+    return subset[subset["sold"]] if sold_only else subset
+
+
+def family(lots: pd.DataFrame) -> pd.Series:
+    """``'TOYOTA AVANZA'``: the brand and the model, which is how a reader names a car."""
+    return lots["brand"].str.cat(lots["model"], sep=" ").str.strip()
+
+
+def _counts(values: pd.Series, total: int) -> pd.DataFrame:
+    counts = values.value_counts()
+    return pd.DataFrame(
+        {
+            "label": list(counts.index),
+            "lots": counts.to_numpy(),
+            "share": counts.to_numpy() / max(total, 1) * 100.0,
+        }
+    )
+
+
+def brand_counts(lots: pd.DataFrame, category: str, *, sold_only: bool = True) -> pd.DataFrame:
+    subset = _in_category(lots, category, sold_only)
+    return _counts(subset["brand"], len(subset))
+
+
+def model_counts(lots: pd.DataFrame, category: str, *, sold_only: bool = True) -> pd.DataFrame:
+    subset = _in_category(lots, category, sold_only)
+    return _counts(family(subset), len(subset))
+
+
+def price_ranges(
+    lots: pd.DataFrame, category: str, *, sold_only: bool = True, limit: int = TOP_PRICED
+) -> pd.DataFrame:
+    """The spread of listed prices within each of the most-sold models.
+
+    Quartiles and the true extremes, in millions of rupiah, for the models with
+    the most lots.  A model with few lots would show a range that is an
+    accident of which two cars happened to come up, so which models qualify is
+    decided by count; they are then ordered by median price, because reading
+    one range against another is what the chart is for.
+    """
+    subset = _in_category(lots, category, sold_only)
+    subset = subset[subset["price_idr"].notna()]
+    labels = family(subset)
+    rows = []
+    for label in labels.value_counts().head(limit).index:
+        prices = subset.loc[labels == label, "price_idr"] / 1e6
+        rows.append(
+            {
+                "label": label,
+                "lots": len(prices),
+                "minimum": float(prices.min()),
+                "p25": float(prices.quantile(0.25)),
+                "median": float(prices.median()),
+                "p75": float(prices.quantile(0.75)),
+                "maximum": float(prices.max()),
+            }
+        )
+    ranges = pd.DataFrame(rows, columns=["label", "lots", "minimum", "p25", "median", "p75", "maximum"])
+    return ranges.sort_values("median", ascending=False, ignore_index=True)
+
+
+def _count_panel(
+    counts: pd.DataFrame, *, key: str, title: str, what: str, noun: str, palette: str, limit: int = TOP_SHOWN
+) -> Panel:
+    shown = counts.head(limit)
+    figure = figures.ranked_bar(
+        list(shown["label"]),
+        list(shown["lots"]),
+        text=[f"{int(n):,}" for n in shown["lots"]],
+        hovertemplate="%{y}<br>%{x:,} lots<extra></extra>",
+        colour=theme.CATEGORICAL[palette][0],
+        palette=palette,
+    )
+    table = pd.DataFrame(
+        {
+            what: counts["label"],
+            "Lots": counts["lots"].map(lambda n: f"{int(n):,}"),
+            "Share of lots": counts["share"].map(lambda s: f"{s:.1f}%"),
+        }
+    )
+    hidden = len(counts) - len(shown)
+    note = f"The {len(shown)} most-sold of {len(counts)} {noun}; the table lists all of them." if hidden > 0 else ""
+    return Panel(key, title, figure, table, note)
+
+
+def brand_panel(lots: pd.DataFrame, category: str, *, sold_only: bool = True, palette: str = "light") -> Panel:
+    counts = brand_counts(lots, category, sold_only=sold_only)
+    return _count_panel(
+        counts, key=f"brands_{category}", title="Lots by brand", what="Brand", noun="brands", palette=palette
+    )
+
+
+def model_panel(lots: pd.DataFrame, category: str, *, sold_only: bool = True, palette: str = "light") -> Panel:
+    counts = model_counts(lots, category, sold_only=sold_only)
+    return _count_panel(
+        counts, key=f"models_{category}", title="Lots by model", what="Model", noun="models", palette=palette
+    )
+
+
+def price_panel(lots: pd.DataFrame, category: str, *, sold_only: bool = True, palette: str = "light") -> Panel:
+    ranges = price_ranges(lots, category, sold_only=sold_only)
+    figure = figures.range_box(
+        ranges, colour=theme.CATEGORICAL[palette][0], unit=PRICE_UNIT, palette=palette
+    )
+    money = lambda value: f"{value:,.1f}"  # noqa: E731
+    table = pd.DataFrame(
+        {
+            "Model": ranges["label"],
+            "Lots": ranges["lots"].map(lambda n: f"{int(n):,}"),
+            "Lowest": ranges["minimum"].map(money),
+            "25th percentile": ranges["p25"].map(money),
+            "Median": ranges["median"].map(money),
+            "75th percentile": ranges["p75"].map(money),
+            "Highest": ranges["maximum"].map(money),
+        }
+    )
+    return Panel(
+        f"prices_{category}",
+        "Listed price by model",
+        figure,
+        table,
+        f"The {len(ranges)} most-sold models, ordered by median price, in {PRICE_UNIT.lower()}. The box spans the "
+        "middle half of the lots and the line in it is the median; the whiskers reach the cheapest and the dearest "
+        "lot. Prices are the ones shown on the lot card, not confirmed hammer prices.",
+    )
