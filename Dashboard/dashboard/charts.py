@@ -49,6 +49,8 @@ class Chart:
     frequency: str = ""
     note: str = ""
     mode: str = SHOW_AS[0]
+    #: The sub-heading the chart's group sits under on its page.
+    heading: str = ""
 
 
 # ---------------------------------------------------------------------------
@@ -84,7 +86,7 @@ def group_chart(
         title=title,
     )
     table = transform.latest_table(frame, frequency, group.labels, group.unit)
-    return Chart(group.key, group.title, group.unit, figure, table, frequency, group.note, mode)
+    return Chart(group.key, group.title, group.unit, figure, table, frequency, group.note, mode, group.heading)
 
 
 # ---------------------------------------------------------------------------

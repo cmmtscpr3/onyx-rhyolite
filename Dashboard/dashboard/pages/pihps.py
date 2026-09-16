@@ -5,7 +5,7 @@ from __future__ import annotations
 import streamlit as st
 
 from .. import catalogue, charts, data, ui
-from ..transform import SHOW_AS
+from ..transform import SHOW_AS, SHOW_AS_HELP
 
 KEY = "pihps"
 
@@ -30,7 +30,7 @@ def render() -> None:
         key=f"{KEY}:commodities",
     )
     left, right = st.columns([3, 1])
-    mode = left.radio("Show as", SHOW_AS, horizontal=True, key=f"{KEY}:mode")
+    mode = left.radio("Show as", SHOW_AS, horizontal=True, key=f"{KEY}:mode", help=SHOW_AS_HELP)
     years = ui.years_available(pihps["week"].drop_duplicates())
     since = right.selectbox(
         "From", options=years, format_func=lambda y: "All history" if y is None else str(y), key=f"{KEY}:since"

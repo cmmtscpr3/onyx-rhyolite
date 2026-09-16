@@ -140,12 +140,21 @@ EMONEY = (
             "bi_emoney.float_funds_nonbank": "Non-bank issuers",
         },
     ),
+    Group(
+        key="emoney_outstanding",
+        heading="E-money",
+        title="Instruments outstanding (SPIP table 2)",
+        unit="million instruments",
+        series=("bi_payment_system.emoney_instruments_outstanding",),
+        labels={"bi_payment_system.emoney_instruments_outstanding": "E-money instruments (table 2)"},
+        note="SPIP table 2 (settlement media) counts e-money instruments on a different basis from table 5e: the two series do not match, and BI publishes both.",
+    ),
 )
 
 CARDS = (
     Group(
         key="cards_value",
-        heading="Card transactions",
+        heading="Cards",
         title="Transaction value",
         unit="IDR billion",
         series=("bi_card_transactions.atm_debit.value", "bi_card_transactions.credit.value"),
@@ -156,7 +165,7 @@ CARDS = (
     ),
     Group(
         key="cards_volume",
-        heading="Card transactions",
+        heading="Cards",
         title="Transaction volume",
         unit="thousand transactions",
         series=("bi_card_transactions.atm_debit.volume", "bi_card_transactions.credit.volume"),
@@ -167,7 +176,7 @@ CARDS = (
     ),
     Group(
         key="cards_outstanding",
-        heading="Card transactions",
+        heading="Cards",
         title="Cards outstanding",
         unit="million units",
         series=("bi_card_transactions.atm_debit.cards", "bi_card_transactions.credit.cards"),
@@ -181,7 +190,7 @@ CARDS = (
 PAYMENT_SYSTEM = (
     Group(
         key="money",
-        heading="Payment system indicators",
+        heading="Currency and BI-RTGS",
         title="Currency and narrow money",
         unit="IDR billion",
         series=(
@@ -198,7 +207,7 @@ PAYMENT_SYSTEM = (
     ),
     Group(
         key="rtgs_value",
-        heading="Payment system indicators",
+        heading="Currency and BI-RTGS",
         title="BI-RTGS settlement value",
         unit="IDR billion",
         series=("bi_payment_system.rtgs.value",),
@@ -206,7 +215,7 @@ PAYMENT_SYSTEM = (
     ),
     Group(
         key="rtgs_volume",
-        heading="Payment system indicators",
+        heading="Currency and BI-RTGS",
         title="BI-RTGS settlement volume",
         unit="thousand transactions",
         series=("bi_payment_system.rtgs.volume",),
@@ -214,7 +223,7 @@ PAYMENT_SYSTEM = (
     ),
     Group(
         key="cash_intensity",
-        heading="Payment system indicators",
+        heading="Currency and BI-RTGS",
         title="Cash intensity (quarterly)",
         unit="percent",
         series=(
@@ -227,14 +236,6 @@ PAYMENT_SYSTEM = (
         },
         markers=True,
         note="Quarterly ratios, dated to the quarter's final month.",
-    ),
-    Group(
-        key="emoney_outstanding",
-        heading="Payment system indicators",
-        title="E-money instruments outstanding (SPIP table 2)",
-        unit="million instruments",
-        series=("bi_payment_system.emoney_instruments_outstanding",),
-        labels={"bi_payment_system.emoney_instruments_outstanding": "E-money instruments"},
     ),
 )
 
@@ -549,7 +550,7 @@ DATASETS: tuple[Dataset, ...] = (
         collector="bi_spip",
         late_after_days=95,
         notes=(
-            "Monthly, published with a lag of one to two months. E-money is SPIP table 5e, cards tables 5a and 5c, the indicators tables 1 and 2.",
+            "Monthly, published with a lag of one to two months. E-money is SPIP table 5e (plus the instrument count of table 2), cards tables 5a and 5c, currency and BI-RTGS tables 1 and 2.",
             "BI revises recent months; the collectors overwrite revised values, so the latest months can move between runs.",
         ),
         groups=EMONEY + CARDS + PAYMENT_SYSTEM,

@@ -36,3 +36,10 @@ def test_export_fragment_has_no_skeleton(series, pihps, lots):
     fragment = export.build_offline_html(bundle, standalone=False).decode("utf-8")
     assert fragment.startswith("<title>")
     assert "<html" not in fragment and "<body" not in fragment
+
+
+def test_export_marks_the_sub_headings(html):
+    expected = [heading for dataset in catalogue.DATASETS for heading in dataset.headings if heading and heading != "Discontinued series"]
+    assert html.count('<h3 class="subhead">') == len(expected)
+    for heading in ("E-money", "Cards", "Currency and BI-RTGS", "Confidence indices"):
+        assert f'<h3 class="subhead">{heading}</h3>' in html, heading

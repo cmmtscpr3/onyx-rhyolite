@@ -36,3 +36,14 @@ def test_each_page_renders(page):
     assert at.title, "every page has a title"
     if page != "overview":
         assert at.dataframe, "every dataset page shows a latest-values table"
+
+
+def test_spip_page_groups_charts_by_category_tabs():
+    at = AppTest.from_function(_page_script, kwargs={"page_name": "spip", "root": str(ROOT)}, default_timeout=300)
+    at.run()
+    assert not at.exception, [e.message for e in at.exception]
+    assert [tab.label for tab in at.tabs] == ["E-money", "Cards", "Currency and BI-RTGS"]
+    # One chart per tab, chosen with a measure switch, instead of a stack of twelve.
+    measures = [radio for radio in at.radio if radio.label == "Measure"]
+    assert [len(radio.options) for radio in measures] == [5, 3, 4]
+    assert len(at.dataframe) == 3
