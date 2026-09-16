@@ -1,0 +1,6 @@
+# The tracker app and the offline HTML export.  Streamlit Community Cloud reads
+# this file because it sits next to the entrypoint, Dashboard/app.py.
+streamlit>=1.64
+plotly>=6
+pandas>=2.2
+openpyxl>=3.1     # PIHPS workbooks, read through the collectors' own reader
