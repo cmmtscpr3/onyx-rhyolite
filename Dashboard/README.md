@@ -46,6 +46,14 @@ its change on the previous observation and on a year earlier (percentages,
 or points for series that are already percentages or indices). Plotly's range
 buttons (1y / 3y / 5y / All) and the slider under the x-axis zoom the time span.
 
+Every page keeps what a reader can change in **one bordered filter bar**,
+directly above the charts it scopes: the pickers along the top and the series
+list, which is the control that needs the width, under them. A page that shows
+one chart out of several (SPIP's measures, SEKI's price basis, the consumer
+survey's budget shares) puts that switch at the head of the same bar rather
+than in a row of its own, and the switch then names the chart, so the heading
+above the bar does not repeat it.
+
 The ibid page is the exception to the one-line-chart-per-group rule. Its rows
 are lots, not a series, so its one chart over time is drawn from the auction
 dates: each tab opens on the **lots in auction each week against the lots
@@ -142,7 +150,7 @@ Dashboard/
     theme.py             palette and Plotly template
     charts.py            data + choices -> a chart with its table (no Streamlit)
     export.py            the offline HTML
-    ui.py                Streamlit pieces shared by pages
+    ui.py                Streamlit pieces shared by pages, including the filter bar
     pages/               one module per page, each with render()
   tests/                 pytest, offline, against the real Dataset/
 ```

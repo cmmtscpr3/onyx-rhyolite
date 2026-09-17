@@ -7,6 +7,7 @@ import streamlit as st
 from .. import catalogue, charts, ui
 
 KEY = "seki"
+BASES = ("gdp_current", "gdp_constant")
 
 
 def render() -> None:
@@ -15,9 +16,9 @@ def render() -> None:
     ui.page_header(dataset, charts.latest_observation(bundle, dataset))
 
     st.subheader("National accounts: GDP by expenditure")
-    basis = st.radio("Price basis", ["Current prices", "Constant prices"], horizontal=True, key=f"{KEY}:basis")
-    group = catalogue.group(KEY, "gdp_current" if basis == "Current prices" else "gdp_constant")
-    ui.render_group(bundle, dataset, group, title=f"GDP by expenditure, {basis.lower()}")
+    groups = [catalogue.group(KEY, key) for key in BASES]
+    switch = ui.Switch("Price basis", tuple(group.title for group in groups))
+    ui.render_switched(bundle, dataset, groups, switch, key=f"{KEY}:gdp")
 
     st.subheader("Bank deposits by owner group")
-    ui.render_group(bundle, dataset, catalogue.group(KEY, "deposits"))
+    ui.render_group(bundle, dataset, catalogue.group(KEY, "deposits"), title="")

@@ -1,11 +1,11 @@
 """ibid vehicle auctions: how much went under the hammer, and what it went for.
 
-Each category opens with the auctions ibid ran each week, then a control
-block and two layers of breakdown.  The top layer is what the vehicle is
-called; open one brand or model up and the layer below shows what its
-condition and its age do to the price.  Only one layer is on screen at a
-time, because showing every cut at once was the quickest way to make the page
-unreadable.
+Each category opens with the lots it put into auction week by week against the
+ones it sold, then a filter bar and two layers of breakdown.  The top layer is
+what the vehicle is called; open one brand or model up and the layer below
+shows what its condition and its age do to the price.  Only one layer is on
+screen at a time, because showing every cut at once was the quickest way to
+make the page unreadable.
 """
 
 from __future__ import annotations
@@ -15,6 +15,8 @@ import streamlit as st
 from .. import catalogue, charts, ui
 
 KEY = "ibid"
+#: The two answers the auction filter takes; the first is what a page opens on.
+HELD_ONLY, EVERYTHING = "Completed", "All"
 
 
 def render() -> None:
@@ -35,31 +37,38 @@ def render() -> None:
     )
 
 
-def _segmented(container, label: str, specs, key: str, **kwargs) -> charts.Breakdown:
-    """A breakdown picker, as one row of buttons rather than a column of dots."""
+def _breakdown(container, label: str, specs, key: str, **kwargs) -> charts.Breakdown:
+    """One of the breakdowns, picked by its label."""
     labels = [spec.label for spec in specs]
-    chosen = container.segmented_control(label, labels, default=labels[0], key=key, **kwargs)
-    return specs[labels.index(chosen)] if chosen else specs[0]
+    return specs[labels.index(ui.choice(container, label, labels, key, **kwargs))]
 
 
-def _category(lots, category: str) -> None:
-    palette = ui.palette()
-    ui.show_panel(charts.weekly_panel(lots, category, palette=palette), f"{KEY}:{category}:weekly")
+def _filters(lots, category: str) -> tuple[charts.Breakdown, str, charts.Breakdown, bool]:
+    """The one bar that scopes everything below it, read left to right.
 
+    Four cells of equal weight: what to break the lots down by, which one of
+    them to open up, what to cut that one by, and which auctions count.  The
+    last is read before the second, because which brands are worth opening
+    depends on it.
+    """
     with st.container(border=True):
-        naming, held = st.columns([3, 2], vertical_alignment="bottom")
-        top = _segmented(naming, "Break down by", charts.TOP_BREAKDOWNS, f"{KEY}:{category}:top")
-        held_only = held.toggle(
-            "Completed auctions only",
-            value=True,
-            key=f"{KEY}:{category}:held",
-            help=(
-                "Leaves out lots whose auction had not been held when ibid was last read, whose price is an asking "
-                "price rather than one the auction settled on. Everything below this block is scoped by it."
-            ),
+        naming, within, layer, auctions = st.columns(4, vertical_alignment="bottom")
+        top = _breakdown(naming, "Break down by", charts.TOP_BREAKDOWNS, f"{KEY}:{category}:top")
+        held_only = (
+            ui.choice(
+                auctions,
+                "Auctions",
+                [HELD_ONLY, EVERYTHING],
+                f"{KEY}:{category}:held",
+                help=(
+                    "Completed leaves out lots whose auction had not been held when ibid was last read, whose "
+                    "price is an asking price rather than one the auction settled on. Everything below this bar "
+                    "is scoped by it."
+                ),
+            )
+            == HELD_ONLY
         )
         whole = charts.narrowed(lots, category, top, sold_only=held_only)
-        within, layer = st.columns([3, 2], vertical_alignment="bottom")
         scope = within.selectbox(
             "Within",
             ["", *charts.drillable(whole, top)],
@@ -70,10 +79,17 @@ def _category(lots, category: str) -> None:
                 "are offered, because a smaller one has nothing left to say once it is cut again."
             ),
         )
-        second = _segmented(
+        second = _breakdown(
             layer, "then by", charts.SECOND_BREAKDOWNS, f"{KEY}:{category}:second", disabled=not scope
         )
+    return top, scope, second, held_only
 
+
+def _category(lots, category: str) -> None:
+    palette = ui.palette()
+    ui.show_panel(charts.weekly_panel(lots, category, palette=palette), f"{KEY}:{category}:weekly")
+
+    top, scope, second, held_only = _filters(lots, category)
     subset = charts.narrowed(lots, category, top, scope, sold_only=held_only)
     spec = second if scope else top
     # The metrics answer for the same lots the charts draw, so opening one

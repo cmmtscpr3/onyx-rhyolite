@@ -21,27 +21,35 @@ def render() -> None:
     commodities = rows["commodity"].tolist()
     indent = {row.commodity: (row.commodity if row.level == 1 else f"   ↳ {row.commodity}") for row in rows.itertuples()}
 
-    top_left, top_right = st.columns([2, 3])
-    market = top_left.radio("Market level", list(data.MARKETS), horizontal=True, key=f"{KEY}:market")
-    chosen = top_right.multiselect(
-        "Commodities",
-        options=commodities,
-        default=[c for c in charts.PIHPS_DEFAULT if c in commodities],
-        format_func=lambda c: indent[c],
-        key=f"{KEY}:commodities",
-    )
-    left, right = st.columns([3, 1])
-    mode = left.radio(
-        "Show as",
-        transform.show_as_options(FREQUENCY),
-        horizontal=True,
-        key=f"{KEY}:mode",
-        help=transform.show_as_help(FREQUENCY),
-    )
-    years = ui.years_available(pihps["week"].drop_duplicates())
-    since = right.selectbox(
-        "From", options=years, format_func=lambda y: "All history" if y is None else str(y), key=f"{KEY}:since"
-    )
+    # One bordered bar, as on every other page: what to show along the top,
+    # and the long commodity list on its own row underneath rather than
+    # squeezed in beside the rest.
+    with st.container(border=True):
+        left, middle, right = st.columns([3, 3, 2], vertical_alignment="bottom")
+        # "Market" is already in the control's own label, and repeating it in
+        # every option pushed the last one off the end of the cell.
+        market = ui.choice(
+            left,
+            "Market level",
+            list(data.MARKETS),
+            f"{KEY}:market",
+            format_func=lambda name: name.replace(" Market", ""),
+        )
+        mode = ui.choice(
+            middle,
+            "Show as",
+            transform.show_as_options(FREQUENCY),
+            f"{KEY}:mode",
+            help=transform.show_as_help(FREQUENCY),
+        )
+        since = ui.since_control(right, "From", ui.years_available(pihps["week"].drop_duplicates()), f"{KEY}:since")
+        chosen = st.multiselect(
+            "Commodities",
+            options=commodities,
+            default=[c for c in charts.PIHPS_DEFAULT if c in commodities],
+            format_func=lambda c: indent[c],
+            key=f"{KEY}:commodities",
+        )
     if not chosen:
         st.info("Pick at least one commodity.")
         return

@@ -1,7 +1,8 @@
 """Bank Indonesia SPIP: e-money, cards, and currency and BI-RTGS indicators.
 
 One tab per main category and one chart at a time inside it, chosen with a
-measure switch; the page used to stack twelve charts under three headings.
+measure switch at the head of the tab's filter bar; the page used to stack
+twelve charts under three headings.
 """
 
 from __future__ import annotations
@@ -22,7 +23,7 @@ def render() -> None:
     for tab, heading in zip(st.tabs(headings), headings):
         with tab:
             groups = [group for group in dataset.groups if group.heading == heading]
-            titles = [group.title for group in groups]
-            chosen = st.radio("Measure", titles, horizontal=True, key=f"{KEY}:{heading}:measure")
-            group = groups[titles.index(chosen)]
-            ui.render_group(bundle, dataset, group, title=f"{heading}: {group.title.lower()}")
+            # A dropdown rather than buttons: several of these measures are a
+            # line long, and a row of them would not fit the bar's first cell.
+            switch = ui.Switch("Measure", tuple(group.title for group in groups), dropdown=True)
+            ui.render_switched(bundle, dataset, groups, switch, key=f"{KEY}:{heading}")
