@@ -213,6 +213,7 @@ def count_bar(
     colour: str,
     unit: str = "lots",
     vertical: bool = False,
+    empty: str = "Nothing to show",
     palette: str = "light",
     title: str | None = None,
 ) -> go.Figure:
@@ -265,6 +266,8 @@ def count_bar(
         margin=margin,
         **axes,
     )
+    if not len(labels):
+        _say_empty(fig, empty, palette)
     return fig
 
 
@@ -274,6 +277,7 @@ def range_box(
     colour: str,
     unit: str,
     vertical: bool = False,
+    empty: str = "Nothing to show",
     palette: str = "light",
     title: str | None = None,
 ) -> go.Figure:
@@ -349,5 +353,75 @@ def range_box(
         margin=dict(l=8, r=16, t=32 if title else 8, b=8),
         xaxis=dict(type="category", **category_axis) if vertical else value_axis,
         yaxis=value_axis if vertical else dict(autorange="reversed", **category_axis),
+    )
+    if rows.empty:
+        _say_empty(fig, empty, palette)
+    return fig
+
+
+def _say_empty(fig: go.Figure, message: str, palette: str) -> None:
+    """A cut that narrowed everything away says so, rather than drawing nothing."""
+    fig.add_annotation(
+        text=message,
+        xref="paper",
+        yref="paper",
+        x=0.5,
+        y=0.5,
+        showarrow=False,
+        font=dict(color=theme.CHROME[palette]["muted"], size=13),
+    )
+
+
+def weekly_volume(
+    table: pd.DataFrame,
+    *,
+    label: str,
+    unit: str,
+    colour: str,
+    share: bool = False,
+    palette: str = "light",
+) -> go.Figure:
+    """Auctions held per week: one line, because the weeks are one measure over time.
+
+    ``share`` divides each week by the whole period instead of leaving it as a
+    count, so the weeks are read against each other rather than against an axis
+    of lots.  The shape does not change; only what the axis calls it does.
+    """
+    chrome = theme.CHROME[palette]
+    weeks = list(table.index)
+    held = [int(n) for n in table["held"]] if "held" in table else []
+    total = sum(held)
+    values = [seen / total * 100 if total else 0.0 for seen in held] if share else held
+    fig = go.Figure(
+        go.Scatter(
+            x=weeks,
+            y=values,
+            name=label,
+            mode="lines+markers",
+            line=dict(width=2, color=colour),
+            marker=dict(size=9, color=colour, line=dict(width=2, color=chrome["surface"])),
+            customdata=[[seen, total] for seen in held],
+            hovertemplate=(
+                "%{y:.1f}% – %{customdata[0]:,} of %{customdata[1]:,} lots<extra></extra>"
+                if share
+                else "%{y:,} lots<extra></extra>"
+            ),
+        )
+    )
+    if table.empty:
+        _say_empty(fig, "No auction weeks on file", palette)
+    fig.update_layout(
+        template=theme.template(palette),
+        height=COLUMN_HEIGHT_PX,
+        hovermode="x unified",
+        showlegend=False,
+        margin=dict(l=8, r=8, t=16, b=8),
+        xaxis=dict(type="date", hoverformat="%d %b %Y", showgrid=False, ticks="outside"),
+        yaxis=dict(
+            title=dict(text=unit),
+            rangemode="tozero",
+            separatethousands=True,
+            **(dict(ticksuffix="%") if share else {}),
+        ),
     )
     return fig

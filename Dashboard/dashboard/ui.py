@@ -107,9 +107,14 @@ def show_chart(chart: charts.Chart, key: str) -> None:
         st.caption(chart.note)
 
 
-def show_panel(panel: charts.Panel, key: str) -> None:
-    """A distribution figure with its own already-formatted table underneath."""
-    st.markdown(f"#### {panel.title}")
+def show_panel(panel: charts.Panel, key: str, *, heading: bool = True) -> None:
+    """A distribution figure with its own already-formatted table underneath.
+
+    ``heading`` is turned off by a caller that has already written the title
+    itself, to sit it on one row with the control that changes it.
+    """
+    if heading and panel.title:
+        st.markdown(f"#### {panel.title}")
     st.plotly_chart(panel.figure, width="stretch", theme="streamlit", config=PLOTLY_CONFIG, key=f"{key}:chart")
     if not panel.table.empty:
         st.dataframe(panel.table, hide_index=True, width="stretch")

@@ -212,3 +212,26 @@ def freshness_status(latest, late_after_days: int | None, now: dt.date, forced: 
     if age <= 2 * late_after_days:
         return ("late", age)
     return ("stale", age)
+
+
+def weekly_lots(lots: pd.DataFrame, date: str = "auction_date", seen: str = "first_seen") -> pd.DataFrame:
+    """Lots per auction week, and whether the week was scraped end to end.
+
+    Each scrape sees the lots ibid still lists, which is the auctions of the
+    few weeks around it, so a week at the edge of a scrape's reach is counted
+    only in part.  The weeks a scrape covered from Monday to Sunday are the
+    ones whose totals can be compared with each other, and the frame says
+    which those are rather than leaving a reader to trust a truncated end.
+    """
+    columns = ["lots", "held", "complete"]
+    if lots.empty:
+        return pd.DataFrame(columns=columns, index=pd.DatetimeIndex([], name="week"))
+    weeks = lots[date].dt.to_period("W-SUN").dt.start_time
+    table = lots.assign(week=weeks).groupby("week").agg(lots=(date, "size"), held=("sold", "sum"))
+    reach = lots.groupby(lots[seen].dt.tz_localize(None).dt.normalize())[date].agg(["min", "max"])
+    starts = pd.DatetimeIndex(table.index)
+    table["complete"] = [
+        bool(((reach["min"] <= start) & (reach["max"] >= start + pd.Timedelta(days=6))).any()) for start in starts
+    ]
+    table.index.name = "week"
+    return table.sort_index()

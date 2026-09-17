@@ -233,7 +233,7 @@ def default_charts(bundle: Bundle, palette: str = "light") -> list[tuple[Dataset
         if dataset.key == "pihps":
             charts = [pihps_chart(bundle.pihps, market=market, palette=palette) for market in data.MARKETS]
         elif dataset.key == "ibid":
-            charts = ibid_panels(bundle.lots, BREAKDOWNS[0], palette=palette)
+            charts = ibid_panels(bundle.lots, TOP_BREAKDOWNS[0], palette=palette)
         else:
             charts = [
                 group_chart(bundle.series, group, annotations=dataset.annotations, palette=palette)
@@ -279,12 +279,17 @@ class Breakdown:
         return not self.ranked
 
 
-BREAKDOWNS: tuple[Breakdown, ...] = (
+#: The top layer: what the vehicle is called.
+TOP_BREAKDOWNS: tuple[Breakdown, ...] = (
     Breakdown("brand", "Brand", "brands"),
     Breakdown("model", "Model", "models"),
+)
+#: The layer below it: what that vehicle's condition and age do to its price.
+SECOND_BREAKDOWNS: tuple[Breakdown, ...] = (
     Breakdown("grade", "Grade", "grades", ranked=False),
     Breakdown("year", "Model year", "model years", ranked=False),
 )
+BREAKDOWNS: tuple[Breakdown, ...] = TOP_BREAKDOWNS + SECOND_BREAKDOWNS
 BY_BREAKDOWN: dict[str, Breakdown] = {spec.key: spec for spec in BREAKDOWNS}
 
 
@@ -330,9 +335,29 @@ def _ordered(labels: pd.Series, spec: Breakdown) -> list[str]:
     return sorted(seen)
 
 
-def counts(lots: pd.DataFrame, category: str, spec: Breakdown, *, sold_only: bool = True) -> pd.DataFrame:
-    """Lots per category, in the breakdown's own order, with each one's share."""
+def narrowed(
+    lots: pd.DataFrame, category: str, spec: Breakdown, value: str = "", *, sold_only: bool = True
+) -> pd.DataFrame:
+    """One category's lots, narrowed to a single brand or model when one is named."""
     subset = lots_subset(lots, category, sold_only=sold_only)
+    if not value:
+        return subset
+    labels = labelled(subset, spec)
+    return subset.loc[labels.index[labels == value]]
+
+
+def drillable(subset: pd.DataFrame, spec: Breakdown, *, min_lots: int = MIN_PRICED_LOTS) -> list[str]:
+    """The brands or models worth opening up, most lots first.
+
+    One with only a handful of lots has nothing left to say once it is cut
+    again by grade or by year, so it is not offered.
+    """
+    tally = labelled(subset, spec).value_counts()
+    return [str(name) for name, lots in tally.items() if lots >= min_lots]
+
+
+def counts(subset: pd.DataFrame, spec: Breakdown) -> pd.DataFrame:
+    """Lots per category, in the breakdown's own order, with each one's share."""
     labels = labelled(subset, spec)
     tally = labels.value_counts()
     order = _ordered(labels, spec)
@@ -346,11 +371,9 @@ def counts(lots: pd.DataFrame, category: str, spec: Breakdown, *, sold_only: boo
 
 
 def price_ranges(
-    lots: pd.DataFrame,
-    category: str,
+    subset: pd.DataFrame,
     spec: Breakdown,
     *,
-    sold_only: bool = True,
     limit: int = TOP_SHOWN,
     min_lots: int = MIN_PRICED_LOTS,
 ) -> pd.DataFrame:
@@ -362,7 +385,6 @@ def price_ranges(
     ones with the most lots are kept; an ordered scale keeps all of them so the
     sequence is not broken by a gap.
     """
-    subset = lots_subset(lots, category, sold_only=sold_only)
     subset = subset[subset["price_idr"].notna()]
     labels = labelled(subset, spec)
     subset = subset.loc[labels.index]
@@ -396,10 +418,12 @@ def price_ranges(
     return ranges
 
 
-def count_panel(
-    lots: pd.DataFrame, category: str, spec: Breakdown, *, sold_only: bool = True, palette: str = "light"
-) -> Panel:
-    tally = counts(lots, category, spec, sold_only=sold_only)
+def _titled(what: str, spec: Breakdown, scope: str) -> str:
+    return f"{what} by {spec.label.lower()}" + (f", {scope}" if scope else "")
+
+
+def count_panel(subset: pd.DataFrame, spec: Breakdown, *, scope: str = "", palette: str = "light") -> Panel:
+    tally = counts(subset, spec)
     shown = tally.head(TOP_SHOWN) if spec.ranked else tally
     figure = figures.count_bar(
         list(shown["label"]),
@@ -408,6 +432,7 @@ def count_panel(
         hovertemplate=("%{x}<br>%{y:,} lots<extra></extra>" if spec.vertical else "%{y}<br>%{x:,} lots<extra></extra>"),
         colour=theme.CATEGORICAL[palette][0],
         vertical=spec.vertical,
+        empty="No lots to count",
         palette=palette,
     )
     table = pd.DataFrame(
@@ -419,18 +444,19 @@ def count_panel(
     )
     hidden = len(tally) - len(shown)
     note = f"The {len(shown)} largest of {len(tally)} {spec.noun}; the table lists all of them." if hidden else ""
-    return Panel(f"lots_by_{spec.key}_{category}", f"Lots by {spec.label.lower()}", figure, table, note, "lots")
+    return Panel(
+        f"lots_by_{spec.key}_{_slug(scope)}", _titled("Lots", spec, scope), figure, table, note, "lots"
+    )
 
 
-def price_panel(
-    lots: pd.DataFrame, category: str, spec: Breakdown, *, sold_only: bool = True, palette: str = "light"
-) -> Panel:
-    ranges = price_ranges(lots, category, spec, sold_only=sold_only)
+def price_panel(subset: pd.DataFrame, spec: Breakdown, *, scope: str = "", palette: str = "light") -> Panel:
+    ranges = price_ranges(subset, spec)
     figure = figures.range_box(
         ranges,
         colour=theme.CATEGORICAL[palette][0],
         unit=PRICE_UNIT,
         vertical=spec.vertical,
+        empty=f"No {spec.noun} here with {MIN_PRICED_LOTS} lots or more",
         palette=palette,
     )
     money = lambda value: f"{value:,.1f}"  # noqa: E731
@@ -456,14 +482,65 @@ def price_panel(
         "not confirmed hammer prices."
     )
     return Panel(
-        f"price_by_{spec.key}_{category}", f"Listed price by {spec.label.lower()}", figure, table, note, PRICE_UNIT
+        f"price_by_{spec.key}_{_slug(scope)}",
+        _titled("Listed price", spec, scope),
+        figure,
+        table,
+        note,
+        PRICE_UNIT,
     )
 
 
+def _slug(text: str) -> str:
+    return "".join(ch if ch.isalnum() else "_" for ch in text).strip("_").lower() or "all"
+
+
 def ibid_panels(lots: pd.DataFrame, spec: Breakdown, *, palette: str = "light") -> list[Panel]:
-    """Both panels for every category, at the breakdown a page opens on."""
-    return [
-        panel
-        for category in CATEGORY_LABEL
-        for panel in (count_panel(lots, category, spec, palette=palette), price_panel(lots, category, spec, palette=palette))
-    ]
+    """Both panels for every category, at the top layer a page opens on."""
+    out: list[Panel] = []
+    for category in CATEGORY_LABEL:
+        subset = lots_subset(lots, category)
+        scope = CATEGORY_LABEL[category]
+        out += [
+            count_panel(subset, spec, scope=scope, palette=palette),
+            price_panel(subset, spec, scope=scope, palette=palette),
+        ]
+    return out
+
+
+def weekly_panel(lots: pd.DataFrame, category: str, *, share: bool = False, palette: str = "light") -> Panel:
+    """How much went under the hammer week by week, as a count or as a share."""
+    subset = lots_subset(lots, category, sold_only=False)
+    weekly = transform.weekly_lots(subset)
+    figure = figures.weekly_volume(
+        weekly,
+        label="Auctions held",
+        unit="share of all auctions held" if share else "auctions held",
+        colour=theme.CATEGORICAL[palette][0],
+        share=share,
+        palette=palette,
+    )
+    held = weekly["held"].astype(int) if not weekly.empty else weekly["held"]
+    listed = weekly["lots"].astype(int) if not weekly.empty else weekly["lots"]
+    total = int(held.sum()) if not weekly.empty else 0
+    table = pd.DataFrame(
+        {
+            "Auction week": [week.strftime("%d %b %Y") for week in weekly.index],
+            "Lots listed": listed.map(lambda n: f"{n:,}"),
+            "Auctions held": held.map(lambda n: f"{n:,}"),
+            "Share of all": held.map(lambda n: f"{n / total:.1%}" if total else "–"),
+            "Fully scraped": weekly["complete"].map(lambda whole: "Yes" if whole else "No"),
+        }
+    )
+    return Panel(
+        f"weekly_{category}",
+        "Each week's share of all auctions held" if share else "Auctions held each week",
+        figure,
+        table,
+        "Lots listed is every lot ibid dated into that week; auctions held is the part of them ibid had already run "
+        "when it was last read, which it marks Terjual. They part company only at the edge of a scrape, because no "
+        "lot whose auction has been held is marked anything else: nothing on file failed to sell. The count here is "
+        "of auctions held, so a week ibid has not finished running, or one a scrape saw only part of, is short for "
+        "reasons that have nothing to do with the market. The table says which weeks those are.",
+        "% of all auctions held" if share else "auctions held",
+    )
