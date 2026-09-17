@@ -496,46 +496,65 @@ def _slug(text: str) -> str:
 
 
 def ibid_panels(lots: pd.DataFrame, spec: Breakdown, *, palette: str = "light") -> list[Panel]:
-    """Both panels for every category, at the top layer a page opens on."""
+    """What a category's tab opens on: its weekly counts, then the top layer."""
     out: list[Panel] = []
-    for category in CATEGORY_LABEL:
+    for category, scope in CATEGORY_LABEL.items():
         subset = lots_subset(lots, category)
-        scope = CATEGORY_LABEL[category]
         out += [
+            weekly_panel(lots, category, scope=scope, palette=palette),
             count_panel(subset, spec, scope=scope, palette=palette),
             price_panel(subset, spec, scope=scope, palette=palette),
         ]
     return out
 
 
-def weekly_panel(lots: pd.DataFrame, category: str, *, palette: str = "light") -> Panel:
-    """How many auctions ibid ran week by week."""
+#: The two weekly counts, in the order :func:`figures.weekly_volume` draws them.
+WEEKLY_LABELS: tuple[str, str] = ("Lots in auction", "Lots sold")
+
+
+def weekly_panel(lots: pd.DataFrame, category: str, *, scope: str = "", palette: str = "light") -> Panel:
+    """The lots ibid put up each week and, of those, the ones it sold.
+
+    The two counts together are the weekly sold volume: the lower line is the
+    volume itself and the band above it is what has yet to go under the
+    hammer, so the week a scrape caught mid-flight is visibly mid-flight
+    rather than a collapse in sales.
+    """
     subset = lots_subset(lots, category, sold_only=False)
     weekly = transform.weekly_lots(subset)
     figure = figures.weekly_volume(
         weekly,
-        label="Auctions held",
-        unit="auctions held",
-        colour=theme.CATEGORICAL[palette][0],
+        labels=WEEKLY_LABELS,
+        colours=theme.CATEGORICAL[palette][:2],
+        unit="lots",
         palette=palette,
     )
-    # No table under this one: the weeks are a plain count anyone can read off
-    # the line.  The one thing the figure cannot say is which weeks a scrape
-    # only saw part of, so the note names them.
+    listed, sold = weekly["lots"], weekly["held"]
+    table = pd.DataFrame(
+        {
+            "Auction week": [week.strftime("%d %b %Y") for week in weekly.index],
+            WEEKLY_LABELS[0]: [f"{int(n):,}" for n in listed],
+            WEEKLY_LABELS[1]: [f"{int(n):,}" for n in sold],
+            "Share sold": [f"{s / n * 100:.0f}%" if n else "–" for n, s in zip(listed, sold)],
+            "Week seen whole": ["Yes" if seen else "In part" for seen in weekly["complete"]],
+        }
+    )
     partial = [week.strftime("%d %b") for week in weekly.index[~weekly["complete"].astype(bool)]]
     caveat = (
-        f" A scrape sees only the few weeks ibid still lists, so {', '.join(partial)} were caught in part and count "
-        "short for that reason alone."
+        " A scrape sees only the few weeks ibid still lists, so the hollow points "
+        f"({', '.join(partial)}) are weeks the scrapes did not cover day by day and count short on both lines for "
+        "that reason alone."
         if partial
         else ""
     )
     return Panel(
         f"weekly_{category}",
-        "Auctions held each week",
+        "Lots in auction and lots sold each week" + (f", {scope}" if scope else ""),
         figure,
-        pd.DataFrame(),
-        "Every lot whose auction ibid has run is marked Terjual and nothing on file failed to sell, so this is both "
-        "the auctions held and the lots sold. A week ibid has not finished running is short for the same kind of "
-        f"reason as one seen in part: the auctions are still to come.{caveat}",
-        "auctions held",
+        table,
+        "ibid marks a lot Terjual once its auction has been held and nothing on file is marked unsold, so the sold "
+        "line counts the lots whose auction had been run when each was last read rather than the ones that found a "
+        "buyer. The lines part where the auctions are still to come, and where a lot dropped off the site before a "
+        f"scrape could see it sold.{caveat}",
+        "lots",
     )

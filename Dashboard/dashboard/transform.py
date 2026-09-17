@@ -215,13 +215,15 @@ def freshness_status(latest, late_after_days: int | None, now: dt.date, forced: 
 
 
 def weekly_lots(lots: pd.DataFrame, date: str = "auction_date", seen: str = "first_seen") -> pd.DataFrame:
-    """Lots per auction week, and whether the week was scraped end to end.
+    """Lots per auction week, and whether every day of the week was scraped.
 
     Each scrape sees the lots ibid still lists, which is the auctions of the
-    few weeks around it, so a week at the edge of a scrape's reach is counted
-    only in part.  The weeks a scrape covered from Monday to Sunday are the
-    ones whose totals can be compared with each other, and the frame says
-    which those are rather than leaving a reader to trust a truncated end.
+    few weeks around it, so a week at the edge of what the scrapes reached
+    between them is counted only in part.  Their reaches are taken together:
+    two scrapes that meet cover the week they meet in, although neither
+    covers it alone.  The weeks covered day by day are the ones whose totals
+    can be compared with each other, and the frame says which those are
+    rather than leaving a reader to trust a truncated end.
     """
     columns = ["lots", "held", "complete"]
     if lots.empty:
@@ -229,9 +231,11 @@ def weekly_lots(lots: pd.DataFrame, date: str = "auction_date", seen: str = "fir
     weeks = lots[date].dt.to_period("W-SUN").dt.start_time
     table = lots.assign(week=weeks).groupby("week").agg(lots=(date, "size"), held=("sold", "sum"))
     reach = lots.groupby(lots[seen].dt.tz_localize(None).dt.normalize())[date].agg(["min", "max"])
-    starts = pd.DatetimeIndex(table.index)
+    spans = list(zip(reach["min"], reach["max"]))
+    scraped = lambda day: any(low <= day <= high for low, high in spans)  # noqa: E731
     table["complete"] = [
-        bool(((reach["min"] <= start) & (reach["max"] >= start + pd.Timedelta(days=6))).any()) for start in starts
+        all(scraped(start + pd.Timedelta(days=offset)) for offset in range(7))
+        for start in pd.DatetimeIndex(table.index)
     ]
     table.index.name = "week"
     return table.sort_index()

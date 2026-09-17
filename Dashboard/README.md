@@ -23,15 +23,15 @@ python Dashboard/export_html.py                 # Dashboard/dist/indonesia-indic
 | OJK | SPI third-party funds (stale at source since June 2025) | `ojk_dpk` |
 | Other sources | ASPI QRIS (transcribed, quarterly) | `qris_transactions` |
 | Other sources | Magpie IQ e-commerce GMV | `ecommerce_gmv` |
-| Other sources | ibid vehicle auctions: lots and listed price by brand, model, grade or model year | `ibid_car_data`, `ibid_motor_data` |
+| Other sources | ibid vehicle auctions: lots in auction and lots sold each week, then lots and listed price by brand and model, and by grade and model year within one of them | `ibid_car_data`, `ibid_motor_data` |
 
-Every chart has a **Show as** switch with two settings: the level as published,
-or the % change over the interval that dataset's own publication frequency
-calls for.
+Every line chart has a **Show as** switch with two settings: the level as
+published, or the % change over the interval that dataset's own publication
+frequency calls for.
 
 | Frequency | Compared with | Pages |
 |---|---|---|
-| weekly | a week earlier | PIHPS food prices, ibid vehicle auctions |
+| weekly | a week earlier | PIHPS food prices |
 | monthly | a month earlier | SPIP, SEKI deposits, Survei Konsumen, OJK, e-commerce GMV |
 | quarterly or rarer | a year earlier | SEKI GDP, SPIP cash intensity, QRIS |
 
@@ -47,13 +47,27 @@ or points for series that are already percentages or indices). Plotly's range
 buttons (1y / 3y / 5y / All) and the slider under the x-axis zoom the time span.
 
 The ibid page is the exception to the one-line-chart-per-group rule. Its rows
-are lots rather than a time series, so it has no line charts at all. Each of
-its two tabs carries one **Break down by** switch, and the two charts under it
-answer the same question of whichever cut is chosen: how many lots, and at what
-price. Brand and model are ranked by lots and read down the side; grade and
-model year keep their own order and run along the bottom, because their
-sequence is the point. Every chart is cut to what stays readable and the table
-beneath it lists every row.
+are lots, not a series, so its one chart over time is drawn from the auction
+dates: each tab opens on the **lots in auction each week against the lots
+sold**, which is as close to a weekly sold volume as the listings get. ibid
+marks a lot Terjual once its auction has been held and nothing on file is
+marked unsold, so the sold line counts the lots whose auction had been run when
+each was last read, not the ones that found a buyer; the lines part where the
+auctions are still to come and where a lot dropped off the site before a scrape
+could see it sold. Weeks the scrapes did not cover day by day -- taking their
+reaches together, so two scrapes that meet cover the week they meet in -- are
+drawn with a hollow point and count short on both lines.
+
+Under that come two layers of breakdown. **Brand** or **model** names the
+vehicle; open one of them up in **Within** and **grade** or **model year** says
+what condition and age do to its price. Only one layer is on screen at a time,
+and a brand or model is offered for opening only once it has enough lots to
+survive being cut again. The two charts under the bar answer the same pair of
+questions of whichever cut is chosen: how many lots, and at what price. Brand
+and model are ranked by lots and read down the side; grade and model year keep
+their own order and run along the bottom, because their sequence is the point.
+Every chart is cut to what stays readable and the table beneath it lists every
+row.
 
 The price boxes span the middle half of the lots with the median marked, and
 their whiskers stop at the 5th and 95th percentile. One lot at eight times the
@@ -123,8 +137,8 @@ Dashboard/
     catalogue.py         the buckets: datasets, their groups of series, labels, notes
     definitions.py       the publishers' own definitions, quoted verbatim, by series, chart and dataset
     data.py              loaders, through the collectors' own readers
-    transform.py         the per-frequency comparisons, latest-value tables, weekly medians, freshness
-    figures.py           the line chart, the ranked bar and the range box (Plotly)
+    transform.py         the per-frequency comparisons, latest-value tables, weekly auction counts, freshness
+    figures.py           the line chart, the weekly pair, the ranked bar and the range box (Plotly)
     theme.py             palette and Plotly template
     charts.py            data + choices -> a chart with its table (no Streamlit)
     export.py            the offline HTML

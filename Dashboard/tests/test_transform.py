@@ -147,6 +147,18 @@ def test_weekly_lots_counts_auction_weeks_and_flags_the_part_scraped_ones():
     )
     assert wide.loc["2026-08-10", "complete"]  # one scrape covering Monday to Sunday
     assert not wide.loc["2026-08-24", "complete"]  # its week runs past the scrape
+    # Two scrapes that meet cover the week they meet in, although neither covers
+    # it alone: the reaches are taken together, not one at a time.
+    joined = transform.weekly_lots(
+        pd.DataFrame(
+            {
+                "auction_date": pd.to_datetime(["2026-08-10", "2026-08-13", "2026-08-14", "2026-08-16"]),
+                "sold": [True, True, True, False],
+                "first_seen": pd.to_datetime(["2026-08-13"] * 2 + ["2026-08-17"] * 2),
+            }
+        )
+    )
+    assert joined.loc["2026-08-10", "complete"]
 
 
 def test_weekly_lots_is_empty_rather_than_broken_without_lots():

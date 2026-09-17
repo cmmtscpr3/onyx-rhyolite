@@ -372,36 +372,78 @@ def _say_empty(fig: go.Figure, message: str, palette: str) -> None:
     )
 
 
+#: The two weekly counts, in the order their colours are assigned.
+WEEKLY_COLUMNS: tuple[str, str] = ("lots", "held")
+
+
 def weekly_volume(
     table: pd.DataFrame,
     *,
-    label: str,
-    unit: str,
-    colour: str,
+    labels: Sequence[str],
+    colours: Sequence[str],
+    unit: str = "lots",
+    empty: str = "No auction weeks on file",
     palette: str = "light",
 ) -> go.Figure:
-    """Auctions held per week: one line, because the weeks are one measure over time."""
+    """The lots in auction each week and, of those, the ones sold.
+
+    Both series count lots, so they share one axis and the gap between them
+    reads straight off the chart.  It is washed in the first series' hue,
+    which keeps a week where the two meet legible as a closed band rather
+    than as a line that went missing.
+
+    A week the scrapes did not cover day by day carries a hollow marker: both
+    its counts are short for a reason that has nothing to do with the market.
+    """
     chrome = theme.CHROME[palette]
-    held = [int(n) for n in table["held"]] if "held" in table else []
-    fig = go.Figure(
-        go.Scatter(
-            x=list(table.index),
-            y=held,
-            name=label,
-            mode="lines+markers",
-            line=dict(width=2, color=colour),
-            marker=dict(size=9, color=colour, line=dict(width=2, color=chrome["surface"])),
-            hovertemplate="%{y:,} lots<extra></extra>",
+    whole = table["complete"].astype(bool).tolist() if "complete" in table else [True] * len(table)
+    fig = go.Figure()
+    # Sold is drawn first so that lots in auction, the outer envelope, lands on
+    # top of it and fills back down to it.  A week whose auctions have all been
+    # run puts the two lines in exactly the same place, which is why the upper
+    # one is dashed: the reader still sees both, and reads the closed band as
+    # the whole week having gone under the hammer.
+    for index in (1, 0):
+        upper = index == 0
+        column, label, colour = WEEKLY_COLUMNS[index], labels[index], colours[index]
+        fig.add_trace(
+            go.Scatter(
+                x=list(table.index),
+                y=[int(value) for value in table[column]] if column in table else [],
+                name=label,
+                mode="lines+markers",
+                line=dict(width=2, color=colour, dash="dash" if upper else "solid"),
+                marker=dict(
+                    size=9,
+                    color=[colour if seen else chrome["surface"] for seen in whole],
+                    line=dict(width=2, color=colour),
+                ),
+                fill="tonexty" if upper else None,
+                fillcolor=theme.translucent(colours[0], 0.12) if upper else None,
+                hovertemplate="%{y:,} lots<extra></extra>",
+            )
         )
-    )
     if table.empty:
-        _say_empty(fig, "No auction weeks on file", palette)
+        _say_empty(fig, empty, palette)
+    legend = legend_height(list(labels))
     fig.update_layout(
         template=theme.template(palette),
-        height=COLUMN_HEIGHT_PX,
+        height=COLUMN_HEIGHT_PX + legend,
         hovermode="x unified",
-        showlegend=False,
-        margin=dict(l=8, r=8, t=16, b=8),
+        showlegend=not table.empty,
+        # Reversed, so the legend reads in the order the labels are given rather
+        # than in the order the fill forced the traces to be drawn.
+        legend=dict(
+            orientation="v",
+            traceorder="reversed",
+            yref="container",
+            yanchor="top",
+            y=1,
+            xanchor="left",
+            x=0,
+            tracegroupgap=0,
+        ),
+        margin=dict(l=8, r=8, t=8 + legend, b=8),
         xaxis=dict(type="date", hoverformat="%d %b %Y", showgrid=False, ticks="outside"),
         yaxis=dict(title=dict(text=unit), rangemode="tozero", separatethousands=True),
     )
