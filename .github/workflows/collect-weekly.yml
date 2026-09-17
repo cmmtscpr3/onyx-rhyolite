@@ -1,10 +1,10 @@
 # Weekly collection: PIHPS food prices and ibid vehicle auctions
 #
-# NOTE: GitHub fires `schedule` only from the repository's DEFAULT branch.  This
-# repo's default is still `claude/indonesia-economic-indicators-n6ihpj`, so this
-# cron will not run until `Indonesia-indicators-dashboard` is made the default (or
-# this file also exists on the default branch).  `workflow_dispatch` works from
-# any branch today, so manual runs are unaffected.
+# NOTE: GitHub fires `schedule` only from the repository's DEFAULT branch, and
+# only from the copy of this file that lives there.  `main` is both the default
+# and the branch the datasets live on, so the cron fires and lands where it
+# should.  `workflow_dispatch` runs from any branch, and checks out and pushes
+# TARGET_BRANCH regardless of which branch it was dispatched from.
 #
 # Every collector merges into the datasets and dedupes, so running twice is
 # harmless: the second run finds nothing to do and writes nothing.
@@ -32,7 +32,10 @@ concurrency:
   cancel-in-progress: false   # two runs must never write the same files
 
 env:
-  TARGET_BRANCH: Indonesia-indicators-dashboard
+  # The branch the datasets live on, which is this repository's default.  Named
+  # rather than inherited from the trigger so that a run dispatched from a
+  # feature branch still commits its data here and nowhere else.
+  TARGET_BRANCH: main
 
 jobs:
   collect:
