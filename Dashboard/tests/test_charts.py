@@ -155,9 +155,13 @@ def test_counts_rank_names_and_keep_an_ordered_scale_in_order(bundle):
 
 def test_price_ranges_are_quartiles_and_true_extremes(bundle):
     by = charts.BY_BREAKDOWN
-    models = charts.price_ranges(charts.lots_subset(bundle.lots, "cars"), by["model"])
+    cars = charts.lots_subset(bundle.lots, "cars")
+    models = charts.price_ranges(cars, by["model"])
     assert len(models) == charts.TOP_SHOWN
-    assert models["median"].is_monotonic_decreasing  # names read against each other in price order
+    # Names run most lots first, the order the chart of lots above uses, so the
+    # two read down the side together rather than each in an order of its own.
+    assert models["lots"].is_monotonic_decreasing
+    assert list(models["label"]) == list(charts.counts(cars, by["model"])["label"].head(charts.TOP_SHOWN))
     for row in models.itertuples(index=False):
         assert row.minimum <= row.p5 <= row.p25 <= row.median <= row.p75 <= row.p95 <= row.maximum
         assert row.lots >= charts.MIN_PRICED_LOTS

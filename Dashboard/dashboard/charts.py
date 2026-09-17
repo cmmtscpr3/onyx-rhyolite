@@ -382,8 +382,9 @@ def price_ranges(
     Quartiles, the 5th and 95th percentiles that the whiskers are drawn to, and
     the true extremes for the table.  Categories with too few lots to have a
     meaningful spread are left out, and when the categories are names only the
-    ones with the most lots are kept; an ordered scale keeps all of them so the
-    sequence is not broken by a gap.
+    ones with the most lots are kept, in that order, so that the brands and
+    models read down the side in the same order as the chart of lots above;
+    an ordered scale keeps all of them so the sequence is not broken by a gap.
     """
     subset = subset[subset["price_idr"].notna()]
     labels = labelled(subset, spec)
@@ -411,10 +412,6 @@ def price_ranges(
     ranges = pd.DataFrame(
         rows, columns=["label", "lots", "minimum", "p5", "p25", "median", "p75", "p95", "maximum"]
     )
-    if spec.ranked and not ranges.empty:
-        # Names read against each other best in price order; an ordered scale
-        # would lose its sequence, which is the whole point of it.
-        ranges = ranges.sort_values("median", ascending=False, ignore_index=True)
     return ranges
 
 
@@ -473,7 +470,7 @@ def price_panel(subset: pd.DataFrame, spec: Breakdown, *, scope: str = "", palet
             "Highest": ranges["maximum"].map(money),
         }
     )
-    ordering = "ordered by median price" if spec.ranked else f"in {spec.label.lower()} order"
+    ordering = "most lots first" if spec.ranked else f"in {spec.label.lower()} order"
     note = (
         f"{len(ranges)} {spec.noun} with at least {MIN_PRICED_LOTS} lots, {ordering}, in {PRICE_UNIT.lower()}. "
         "The box spans the middle half of the lots and the line in it is the median; the whiskers stop at the 5th "
