@@ -1,4 +1,4 @@
-"""Landing page: how Updated each dataset is, and where to go."""
+"""Landing page: how up to date each dataset is, and where to go."""
 
 from __future__ import annotations
 
@@ -7,13 +7,13 @@ import streamlit as st
 from .. import catalogue, charts, theme, ui
 
 STATUS_TEXT = {
-    "Updated": "Updated",
+    "fresh": "Updated",
     "late": "Late",
-    "Outdated": "Outdated",
+    "stale": "Outdated",
     "manual": "Manual",
     "no data": "No data",
 }
-STATUS_ICON = {"Updated": "🟢", "late": "🟡", "Outdated": "🔴", "manual": "⚪", "no data": "⚪"}
+STATUS_ICON = {"fresh": "🟢", "late": "🟡", "stale": "🔴", "manual": "⚪", "no data": "⚪"}
 
 
 def render() -> None:
@@ -23,7 +23,7 @@ def render() -> None:
         "Line charts for every indicator the collectors maintain, bucketed by the dataset it comes from. "
         "Pick a dataset in the sidebar; each page shows its series with a table of latest values."
     )
-    table = charts.Updatedness_table(bundle)
+    table = charts.freshness_table(bundle)
     shown = table.drop(columns=["key", "Collector"]).copy()
     shown["Status"] = shown["Status"].map(lambda s: f"{STATUS_ICON.get(s, '⚪')} {STATUS_TEXT.get(s, s)}")
     st.subheader("Updatedness")
