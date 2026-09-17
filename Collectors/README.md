@@ -25,9 +25,8 @@ Three GitHub Actions workflows in `.github/workflows/`, one per cadence:
 | `quarterly` | *(reserved for BPS)* | `0 4 20 1,4,7,10 *` | 20th 11:00 WIB |
 
 The cadence lives in `cli.GROUPS`, not in the YAML, so `python Collectors/run.py weekly` is
-exactly what the cron runs. A run that finds new data commits it straight to
-`Indonesia-indicators-dashboard`, touching `Dataset/` only; a run that finds nothing writes
-nothing and adds no commit.
+exactly what the cron runs. A run that finds new data commits it straight to `main`,
+touching `Dataset/` only; a run that finds nothing writes nothing and adds no commit.
 
 Saturday for the weekly run because PIHPS anchors its weekly column to the weekday of 1
 January — or the next Monday when that is a weekend — so the anchor shifts every year (2026
@@ -36,11 +35,13 @@ where a fixed weekday slot would drift in and out of lag.
 
 Three things to know:
 
-- **`schedule` fires only from the repository's default branch.** This repo's default is
-  still `claude/indonesia-economic-indicators-n6ihpj`, so the crons will not fire until
-  `Indonesia-indicators-dashboard` is made the default in the repository settings. The
-  workflows check out and push `TARGET_BRANCH` explicitly, so they behave correctly either
-  way, and `workflow_dispatch` already works from this branch today.
+- **`schedule` fires only from the repository's default branch**, and only from the copy of
+  the workflow file that lives there. `main` is the default here and is also where the
+  datasets live, so a cron change has to reach `main` before it takes effect. The workflows
+  check out and push `TARGET_BRANCH` (`main`) explicitly rather than following the trigger,
+  so a `workflow_dispatch` from a feature branch still lands its data on `main` — which also
+  means that branch name is the one thing to change if these files are ever moved to another
+  repository.
 - **GitHub disables scheduled workflows after 60 days of repository inactivity.** Committed
   data counts as activity, so a live schedule sustains itself; a long quiet spell does not.
 - **`qris` is on no schedule.** ASPI blocks datacentre addresses, so a cron could only ever
@@ -318,8 +319,7 @@ Collectors/
 ```
 
 `http.py`, `excelio.py` and `dates.py`, and the parsers and configs in
-`sources/`, are ported from the collection pipeline on the
-`claude/indonesia-indicators-plan-z6lw6w` branch. What is new here is the sink
-layer: that pipeline wrote to a Parquet store, whereas these collectors write
-back into the dataset files that already exist, in the formats they already
-use.
+`sources/`, are ported from an earlier collection pipeline that predates this
+repository. What is new here is the sink layer: that pipeline wrote to a Parquet
+store, whereas these collectors write back into the dataset files that already
+exist, in the formats they already use.

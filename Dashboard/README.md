@@ -120,8 +120,8 @@ The app reads the files under `Dataset/` when it starts and caches them until
 any file's size or modification time changes, so:
 
 - **Streamlit Community Cloud** (recommended): at share.streamlit.io choose
-  *New app*, repository `cmmtscpr3/Indonesia-Indicators`, branch
-  `Indonesia-indicators-dashboard`, main file `Dashboard/app.py`. Community
+  *New app*, repository `cmmtscpr3/onyx-rhyolite`, branch `main`, main file
+  `Dashboard/app.py`. Community
   Cloud installs `Dashboard/requirements.txt` and redeploys on every push, so
   each dataset commit the collectors make is live within minutes. Nothing else
   to schedule.

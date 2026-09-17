@@ -16,7 +16,8 @@ from collectors import cli
 from collectors.paths import REPO_ROOT
 
 WORKFLOWS = sorted((REPO_ROOT / ".github" / "workflows").glob("collect-*.yml"))
-BRANCH = "Indonesia-indicators-dashboard"
+#: The branch the datasets live on, and the one the workflows must land on.
+BRANCH = "main"
 
 
 def _load(path: Path) -> dict:
@@ -51,7 +52,9 @@ def test_each_workflow_may_write_and_never_runs_twice_at_once(path):
 
 @pytest.mark.parametrize("path", WORKFLOWS, ids=lambda p: p.stem)
 def test_each_workflow_targets_the_dataset_branch(path):
-    """Scheduled runs must not land on whatever branch happens to be default."""
+    """A run must land on the dataset branch, not on whatever branch it was
+    dispatched from, and must name that branch rather than leave it to the
+    trigger -- naming it is what a migration between repositories breaks."""
     document = _load(path)
     assert document["env"]["TARGET_BRANCH"] == BRANCH
     checkout = document["jobs"]["collect"]["steps"][0]
