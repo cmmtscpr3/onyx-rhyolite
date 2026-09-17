@@ -44,25 +44,7 @@ def _segmented(container, label: str, specs, key: str, **kwargs) -> charts.Break
 
 def _category(lots, category: str) -> None:
     palette = ui.palette()
-    heading, view = st.columns([3, 2], vertical_alignment="bottom")
-    weekly = charts.weekly_panel(
-        lots,
-        category,
-        share=view.segmented_control(
-            "Weekly view",
-            ["Count", "Share of all"],
-            default="Count",
-            key=f"{KEY}:{category}:weekly_view",
-            help=(
-                "The number of auctions ibid ran that week, or that week's part of every auction it has run, so the "
-                "weeks are read against each other rather than against a count."
-            ),
-        )
-        == "Share of all",
-        palette=palette,
-    )
-    heading.markdown(f"#### {weekly.title}")
-    ui.show_panel(weekly, f"{KEY}:{category}:weekly", heading=False)
+    ui.show_panel(charts.weekly_panel(lots, category, palette=palette), f"{KEY}:{category}:weekly")
 
     with st.container(border=True):
         naming, held = st.columns([3, 2], vertical_alignment="bottom")

@@ -508,33 +508,30 @@ def ibid_panels(lots: pd.DataFrame, spec: Breakdown, *, palette: str = "light") 
     return out
 
 
-def weekly_panel(lots: pd.DataFrame, category: str, *, share: bool = False, palette: str = "light") -> Panel:
-    """How much went under the hammer week by week, as a count or as a share."""
+def weekly_panel(lots: pd.DataFrame, category: str, *, palette: str = "light") -> Panel:
+    """How many auctions ibid ran week by week."""
     subset = lots_subset(lots, category, sold_only=False)
     weekly = transform.weekly_lots(subset)
     figure = figures.weekly_volume(
         weekly,
         label="Auctions held",
-        unit="share of all auctions held" if share else "auctions held",
+        unit="auctions held",
         colour=theme.CATEGORICAL[palette][0],
-        share=share,
         palette=palette,
     )
     held = weekly["held"].astype(int) if not weekly.empty else weekly["held"]
     listed = weekly["lots"].astype(int) if not weekly.empty else weekly["lots"]
-    total = int(held.sum()) if not weekly.empty else 0
     table = pd.DataFrame(
         {
             "Auction week": [week.strftime("%d %b %Y") for week in weekly.index],
             "Lots listed": listed.map(lambda n: f"{n:,}"),
             "Auctions held": held.map(lambda n: f"{n:,}"),
-            "Share of all": held.map(lambda n: f"{n / total:.1%}" if total else "–"),
             "Fully scraped": weekly["complete"].map(lambda whole: "Yes" if whole else "No"),
         }
     )
     return Panel(
         f"weekly_{category}",
-        "Each week's share of all auctions held" if share else "Auctions held each week",
+        "Auctions held each week",
         figure,
         table,
         "Lots listed is every lot ibid dated into that week; auctions held is the part of them ibid had already run "
@@ -542,5 +539,5 @@ def weekly_panel(lots: pd.DataFrame, category: str, *, share: bool = False, pale
         "lot whose auction has been held is marked anything else: nothing on file failed to sell. The count here is "
         "of auctions held, so a week ibid has not finished running, or one a scrape saw only part of, is short for "
         "reasons that have nothing to do with the market. The table says which weeks those are.",
-        "% of all auctions held" if share else "auctions held",
+        "auctions held",
     )

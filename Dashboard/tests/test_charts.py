@@ -271,6 +271,7 @@ def test_the_weekly_panel_counts_the_auctions_ibid_has_run(bundle):
     (line,) = panel.figure.data
     assert list(line.y) == [int(n) for n in weekly["held"]]
     assert not panel.figure.layout.showlegend and not panel.figure.layout.annotations
+    assert list(panel.table.columns) == ["Auction week", "Lots listed", "Auctions held", "Fully scraped"]
     assert set(panel.table["Fully scraped"]) == {"Yes", "No"}
     # Listed and held part company only where a scrape cut the week short; no
     # lot on file was auctioned and left unsold.
@@ -279,23 +280,8 @@ def test_the_weekly_panel_counts_the_auctions_ibid_has_run(bundle):
     assert "nothing on file failed to sell" in panel.note
 
 
-def test_the_weekly_panel_can_show_each_week_as_a_share_of_the_period(bundle):
-    panel = charts.weekly_panel(bundle.lots, "cars", share=True)
-    assert panel.title == "Each week's share of all auctions held"
-    weekly = transform.weekly_lots(charts.lots_subset(bundle.lots, "cars", sold_only=False))
-    held = weekly["held"].astype(int)
-    line = panel.figure.data[0]
-    assert list(line.y) == list(held / held.sum() * 100)
-    assert sum(line.y) == pytest.approx(100)
-    assert panel.figure.layout.yaxis.ticksuffix == "%"
-    # The count travels with the point, so a share is never read without it.
-    assert list(line.customdata[0]) == [int(held.iloc[0]), int(held.sum())]
-    # The table carries the same numbers whichever way the figure is drawn.
-    assert list(panel.table.columns) == ["Auction week", "Lots listed", "Auctions held", "Share of all", "Fully scraped"]
-
-
 def test_the_weekly_panel_survives_a_category_with_no_lots(bundle):
     empty = bundle.lots.head(0)
-    panel = charts.weekly_panel(empty, "cars", share=True)
+    panel = charts.weekly_panel(empty, "cars")
     assert [note.text for note in panel.figure.layout.annotations] == ["No auction weeks on file"]
     assert panel.table.empty

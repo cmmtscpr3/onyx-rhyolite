@@ -378,34 +378,20 @@ def weekly_volume(
     label: str,
     unit: str,
     colour: str,
-    share: bool = False,
     palette: str = "light",
 ) -> go.Figure:
-    """Auctions held per week: one line, because the weeks are one measure over time.
-
-    ``share`` divides each week by the whole period instead of leaving it as a
-    count, so the weeks are read against each other rather than against an axis
-    of lots.  The shape does not change; only what the axis calls it does.
-    """
+    """Auctions held per week: one line, because the weeks are one measure over time."""
     chrome = theme.CHROME[palette]
-    weeks = list(table.index)
     held = [int(n) for n in table["held"]] if "held" in table else []
-    total = sum(held)
-    values = [seen / total * 100 if total else 0.0 for seen in held] if share else held
     fig = go.Figure(
         go.Scatter(
-            x=weeks,
-            y=values,
+            x=list(table.index),
+            y=held,
             name=label,
             mode="lines+markers",
             line=dict(width=2, color=colour),
             marker=dict(size=9, color=colour, line=dict(width=2, color=chrome["surface"])),
-            customdata=[[seen, total] for seen in held],
-            hovertemplate=(
-                "%{y:.1f}% – %{customdata[0]:,} of %{customdata[1]:,} lots<extra></extra>"
-                if share
-                else "%{y:,} lots<extra></extra>"
-            ),
+            hovertemplate="%{y:,} lots<extra></extra>",
         )
     )
     if table.empty:
@@ -417,11 +403,6 @@ def weekly_volume(
         showlegend=False,
         margin=dict(l=8, r=8, t=16, b=8),
         xaxis=dict(type="date", hoverformat="%d %b %Y", showgrid=False, ticks="outside"),
-        yaxis=dict(
-            title=dict(text=unit),
-            rangemode="tozero",
-            separatethousands=True,
-            **(dict(ticksuffix="%") if share else {}),
-        ),
+        yaxis=dict(title=dict(text=unit), rangemode="tozero", separatethousands=True),
     )
     return fig
