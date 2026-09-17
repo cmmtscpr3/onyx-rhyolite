@@ -1,18 +1,18 @@
-"""ibid vehicle auctions: what sold, what it went for, and how the weekly market moved.
+"""ibid vehicle auctions: what sold, and what it went for.
 
-One tab per category, each answering three questions in order: which brands and
-models came up, what they went for, and how the week-by-week market moved.
+One tab per category.  A single switch chooses how to cut the lots, and the
+two charts under it answer the same question of that cut: how many, and at
+what price.  Showing every cut at once was the quickest way to make the page
+unreadable.
 """
 
 from __future__ import annotations
 
 import streamlit as st
 
-from .. import catalogue, charts, transform, ui
+from .. import catalogue, charts, ui
 
 KEY = "ibid"
-#: Lots are aggregated into auction weeks, so changes are week on week.
-FREQUENCY = "weekly"
 
 
 def render() -> None:
@@ -34,16 +34,25 @@ def render() -> None:
 
 
 def _category(lots, category: str) -> None:
-    sold_only = st.checkbox(
+    left, right = st.columns([1, 3])
+    sold_only = left.checkbox(
         "Sold lots only",
         value=True,
         key=f"{KEY}:{category}:sold",
         help="Everything on this tab is scoped by this switch. Unsold lots carry a listed price but found no buyer.",
     )
+    labels = [spec.label for spec in charts.BREAKDOWNS]
+    chosen = right.radio(
+        "Break down by",
+        labels,
+        horizontal=True,
+        key=f"{KEY}:{category}:breakdown",
+        help="One cut at a time: the two charts below both answer for whichever one is chosen.",
+    )
+    spec = charts.BREAKDOWNS[labels.index(chosen)]
+
     subset = charts.lots_subset(lots, category, sold_only=sold_only)
     every_lot = charts.lots_subset(lots, category, sold_only=False)
-    palette = ui.palette()
-
     first, second, third, fourth = st.columns(4)
     first.metric("Lots", f"{len(subset):,}")
     second.metric("Distinct plates", f"{subset['plate'].nunique():,}")
@@ -53,28 +62,7 @@ def _category(lots, category: str) -> None:
     )
     fourth.metric("Sold share", f"{every_lot['sold'].mean():.0%}" if not every_lot.empty else "–")
 
-    ui.show_panel(charts.brand_panel(lots, category, sold_only=sold_only, palette=palette), f"{KEY}:{category}:brands")
-    ui.show_panel(charts.model_panel(lots, category, sold_only=sold_only, palette=palette), f"{KEY}:{category}:models")
-    ui.show_panel(charts.price_panel(lots, category, sold_only=sold_only, palette=palette), f"{KEY}:{category}:prices")
-
-    st.subheader("Week by week")
-    left, right = st.columns([2, 3])
-    models = charts.top_models(lots, category)
-    model = left.selectbox(
-        "Model",
-        options=[None, *models],
-        format_func=lambda name: "All models" if name is None else name,
-        key=f"{KEY}:{category}:model",
-    )
-    mode = right.radio(
-        "Show as",
-        transform.show_as_options(FREQUENCY),
-        horizontal=True,
-        key=f"{KEY}:{category}:mode",
-        help=transform.show_as_help(FREQUENCY),
-    )
-    for chart in charts.lots_charts(
-        lots, category=category, model=model, sold_only=sold_only, mode=mode, palette=palette
-    ):
-        st.markdown(f"#### {chart.title}")
-        ui.show_chart(chart, f"{KEY}:{category}:{chart.key}:{model or 'all'}:{sold_only}")
+    palette = ui.palette()
+    key = f"{KEY}:{category}:{spec.key}"
+    ui.show_panel(charts.count_panel(lots, category, spec, sold_only=sold_only, palette=palette), f"{key}:lots")
+    ui.show_panel(charts.price_panel(lots, category, spec, sold_only=sold_only, palette=palette), f"{key}:price")

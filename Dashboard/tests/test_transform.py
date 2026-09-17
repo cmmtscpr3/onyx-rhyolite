@@ -115,19 +115,6 @@ def test_formatting():
     assert transform.change_label("index") == "points"
 
 
-def test_weekly_median_groups_monday_weeks():
-    lots = pd.DataFrame(
-        {
-            "auction_date": pd.to_datetime(["2026-08-11", "2026-08-13", "2026-08-18"]),
-            "price_idr": [100.0, 300.0, 50.0],
-        }
-    )
-    table = transform.weekly_median(lots)
-    assert list(table.index) == [pd.Timestamp("2026-08-10"), pd.Timestamp("2026-08-17")]
-    assert table.loc["2026-08-10", "median_price"] == 200.0
-    assert table.loc["2026-08-10", "lots"] == 2
-
-
 def test_freshness_status():
     today = dt.date(2026, 9, 16)
     assert transform.freshness_status(pd.Timestamp("2026-09-10"), 21, today) == ("fresh", 6)

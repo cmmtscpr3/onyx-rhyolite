@@ -23,9 +23,11 @@ def test_every_default_chart_builds(bundle):
             figure = chart.figure
             assert figure.data, f"{dataset.key}/{chart.key} has no traces"
             assert "yaxis2" not in figure.layout, "one axis per chart"
+            assert not chart.table.empty, f"{dataset.key}/{chart.key} has no table"
+            if isinstance(chart, charts.Panel):
+                continue  # a distribution: bars or boxes, checked in their own tests
             for trace in figure.data:
                 assert any(y is not None and y == y for y in trace.y), f"{chart.key}: {trace.name} is empty"
-            assert not chart.table.empty
             assert figure.layout.showlegend == (len(figure.data) >= 2)
             assert all(trace.line.width == 2 for trace in figure.data)
 
@@ -55,8 +57,6 @@ def test_each_chart_compares_over_its_own_publication_interval(bundle):
     assert quarterly.figure.layout.yaxis.title.text == "% change on a year earlier"
     weekly = charts.pihps_chart(bundle.pihps, mode=comparison("weekly").label, since_year=2025)
     assert weekly.figure.layout.yaxis.title.text == "% change on a week earlier"
-    lots = charts.lots_charts(bundle.lots, category="cars", mode=comparison("weekly").label)[0]
-    assert lots.figure.layout.yaxis.title.text == "% change on a week earlier"
     # The table under each chart stays on levels whatever the chart shows.
     assert monthly.table.loc[monthly.table["Series"].str.startswith("Consumer Confidence"), "Value"].iloc[0] == pytest.approx(118.5)
 
@@ -92,17 +92,6 @@ def test_pihps_chart_defaults_and_styles(bundle):
     assert beras["Value"] == 16350 or beras["Latest"].year >= 2026
 
 
-def test_lots_charts_and_models(bundle):
-    models = charts.top_models(bundle.lots, "cars")
-    assert models[0] == "TOYOTA AVANZA" and len(models) == 15
-    assert charts.top_models(bundle.lots, "motorcycles")[0] == "HONDA BEAT"
-    price, count = charts.lots_charts(bundle.lots, category="cars", model="TOYOTA AVANZA")
-    assert price.unit == "IDR" and count.unit == "lots"
-    assert len(price.figure.data) == 1 and len(count.figure.data) == 1
-    weeks = list(count.figure.data[0].x)
-    assert len(weeks) >= 8
-
-
 def test_freshness_table_marks_the_known_states(bundle):
     import datetime as dt
 
@@ -135,49 +124,86 @@ def test_precision_follows_magnitude():
     assert figures.precision(big, "IDR billion", comparison("monthly").label) == 1
 
 
-def test_brand_and_model_distributions_count_sold_lots(bundle):
-    brands = charts.brand_counts(bundle.lots, "cars")
+def test_breakdowns_label_every_lot_they_can_place(bundle):
+    cars = charts.lots_subset(bundle.lots, "cars")
+    by = charts.BY_BREAKDOWN
+    assert len(charts.labelled(cars, by["brand"])) == len(cars)
+    assert charts.labelled(cars, by["model"]).iloc[0].count(" ") >= 1
+    # Ungraded lots are named, not dropped, and years read as plain years.
+    assert charts.UNGRADED in set(charts.labelled(cars, by["grade"]))
+    assert charts.labelled(cars, by["year"]).str.fullmatch(r"\d{4}").all()
+
+
+def test_counts_rank_names_and_keep_an_ordered_scale_in_order(bundle):
+    by = charts.BY_BREAKDOWN
+    brands = charts.counts(bundle.lots, "cars", by["brand"])
     assert list(brands["label"][:2]) == ["TOYOTA", "DAIHATSU"]
-    assert brands["lots"].sum() == int(bundle.lots.query("category == 'cars' and sold").shape[0])
-    assert brands["share"].sum() == pytest.approx(100.0)
     assert brands["lots"].is_monotonic_decreasing
-    models = charts.model_counts(bundle.lots, "cars")
+    assert brands["lots"].sum() == len(charts.lots_subset(bundle.lots, "cars"))
+    assert brands["share"].sum() == pytest.approx(100.0)
+    models = charts.counts(bundle.lots, "cars", by["model"])
     assert models["label"].iloc[0] == "TOYOTA AVANZA"
-    assert "DAIHATSU GRAN MAX" in list(models["label"][:4])
-    bikes = charts.model_counts(bundle.lots, "motorcycles")
-    assert bikes["label"].iloc[0] == "HONDA BEAT"
+    assert charts.counts(bundle.lots, "motorcycles", by["model"])["label"].iloc[0] == "HONDA BEAT"
+    # Grades keep ibid's own order, best first and ungraded last, however many sold.
+    grades = charts.counts(bundle.lots, "cars", by["grade"])
+    assert list(grades["label"]) == ["A", "B", "C", "D", "E", charts.UNGRADED]
+    years = charts.counts(bundle.lots, "cars", by["year"])
+    assert years["label"].is_monotonic_increasing
     # Unsold lots are in scope only when asked for.
-    assert charts.brand_counts(bundle.lots, "cars", sold_only=False)["lots"].sum() > brands["lots"].sum()
+    assert charts.counts(bundle.lots, "cars", by["brand"], sold_only=False)["lots"].sum() > brands["lots"].sum()
 
 
 def test_price_ranges_are_quartiles_and_true_extremes(bundle):
-    ranges = charts.price_ranges(bundle.lots, "cars")
-    assert len(ranges) == charts.TOP_PRICED
-    # Chosen by how many sold, then ordered by price so the ranges read against each other.
-    assert set(ranges["label"]) >= {"TOYOTA AVANZA", "DAIHATSU GRAN MAX"}
-    assert ranges["median"].is_monotonic_decreasing
-    for row in ranges.itertuples(index=False):
-        assert row.minimum <= row.p25 <= row.median <= row.p75 <= row.maximum
-        assert row.lots > 0
-    # In millions of rupiah, so a car reads as a two- or three-digit number.
-    assert 10 < ranges["median"].iloc[0] < 1000
+    by = charts.BY_BREAKDOWN
+    models = charts.price_ranges(bundle.lots, "cars", by["model"])
+    assert len(models) == charts.TOP_SHOWN
+    assert models["median"].is_monotonic_decreasing  # names read against each other in price order
+    for row in models.itertuples(index=False):
+        assert row.minimum <= row.p5 <= row.p25 <= row.median <= row.p75 <= row.p95 <= row.maximum
+        assert row.lots >= charts.MIN_PRICED_LOTS
+    assert 10 < models["median"].iloc[0] < 1000  # millions of rupiah, so a car is a two- or three-digit number
+    # An ordered scale keeps its sequence and is not cut to the top rows.
+    grades = charts.price_ranges(bundle.lots, "cars", by["grade"])
+    assert list(grades["label"]) == ["A", "B", "C", "D", "E", charts.UNGRADED]
+    assert grades.loc[grades["label"] == "A", "median"].iloc[0] > grades.loc[grades["label"] == "E", "median"].iloc[0]
+    years = charts.price_ranges(bundle.lots, "cars", by["year"])
+    assert years["label"].is_monotonic_increasing and len(years) > charts.TOP_SHOWN
+    assert (years["lots"] >= charts.MIN_PRICED_LOTS).all()  # a year of one lot has no range worth drawing
 
 
-def test_distribution_panels_carry_a_figure_and_the_whole_table(bundle):
-    brands = charts.brand_panel(bundle.lots, "cars")
-    assert len(brands.figure.data) == 1
+def test_panels_carry_a_figure_and_the_whole_table(bundle):
+    by = charts.BY_BREAKDOWN
+    brands = charts.count_panel(bundle.lots, "cars", by["brand"])
     bars = brands.figure.data[0]
     assert len(bars.y) == charts.TOP_SHOWN and bars.orientation == "h"
-    # One hue for every bar: the categories are names, not an ordered scale.
-    assert isinstance(bars.marker.color, str)
+    assert isinstance(bars.marker.color, str)  # one hue: the bar length already carries the count
     assert not brands.figure.layout.showlegend
     # The chart is cut to the top rows; the table keeps all of them.
-    assert len(brands.table) == len(charts.brand_counts(bundle.lots, "cars"))
+    assert len(brands.table) == len(charts.counts(bundle.lots, "cars", by["brand"]))
     assert "Brand" in brands.table.columns and "Share of lots" in brands.table.columns
-    prices = charts.price_panel(bundle.lots, "motorcycles")
-    assert len(prices.figure.data) == charts.TOP_PRICED
-    assert prices.figure.data[0].lowerfence is not None
-    assert list(prices.table.columns)[:3] == ["Model", "Lots", "Lowest"]
-    # The unit is named once, on the axis and in the note, not twice.
-    assert prices.figure.layout.xaxis.title.text == charts.PRICE_UNIT
-    assert charts.PRICE_UNIT not in prices.title and "million" in prices.note
+    # An ordered scale runs along the bottom instead, so its sequence reads left to right.
+    years = charts.count_panel(bundle.lots, "cars", by["year"])
+    assert years.figure.data[0].orientation != "h"
+    assert years.figure.layout.xaxis.type == "category"
+    ranges = charts.price_ranges(bundle.lots, "motorcycles", by["grade"])
+    prices = charts.price_panel(bundle.lots, "motorcycles", by["grade"])
+    # One box per grade, plus the single hover layer that answers for all of them.
+    assert len(prices.figure.data) == len(ranges) + 1
+    assert prices.figure.layout.yaxis.title.text == charts.PRICE_UNIT  # vertical: price on the y-axis
+    assert list(prices.table.columns)[:3] == ["Grade", "Lots", "Lowest"]
+    # The whiskers are the 5th and 95th percentile, and say so rather than claiming to be the extremes.
+    box = prices.figure.data[0]
+    assert box.lowerfence[0] == pytest.approx(ranges["p5"].iloc[0])
+    assert box.upperfence[0] == pytest.approx(ranges["p95"].iloc[0])
+    assert box.hoverinfo == "skip"
+    assert "5th to 95th" in prices.figure.data[-1].hovertemplate
+    assert "5th and 95th percentile" in prices.note
+
+
+def test_the_export_carries_the_ibid_panels(bundle):
+    built = dict((dataset.key, items) for dataset, items in charts.default_charts(bundle))
+    panels = built["ibid"]
+    assert [panel.title for panel in panels] == [
+        "Lots by brand", "Listed price by brand", "Lots by brand", "Listed price by brand",
+    ]
+    assert all(isinstance(panel, charts.Panel) for panel in panels)
