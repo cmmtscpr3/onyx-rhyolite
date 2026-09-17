@@ -23,7 +23,7 @@ python Dashboard/export_html.py                 # Dashboard/dist/indonesia-indic
 | OJK | SPI third-party funds (stale at source since June 2025) | `ojk_dpk` |
 | Other sources | ASPI QRIS (transcribed, quarterly) | `qris_transactions` |
 | Other sources | Magpie IQ e-commerce GMV | `ecommerce_gmv` |
-| Other sources | ibid vehicle auctions: lots by brand and model, listed price by model, weekly median price and lot counts | `ibid_car_data`, `ibid_motor_data` |
+| Other sources | ibid vehicle auctions: lots and listed price by brand, model, grade or model year | `ibid_car_data`, `ibid_motor_data` |
 
 Every chart has a **Show as** switch with two settings: the level as published,
 or the % change over the interval that dataset's own publication frequency
@@ -47,9 +47,22 @@ or points for series that are already percentages or indices). Plotly's range
 buttons (1y / 3y / 5y / All) and the slider under the x-axis zoom the time span.
 
 The ibid page is the exception to the one-line-chart-per-group rule. Its rows
-are lots rather than a time series, so each of its two tabs opens with the
-distribution of lots by brand and by model, then the spread of listed prices
-within the most-sold models, before the weekly series. A lot's title is split
+are lots rather than a time series, so it has no line charts at all. Each of
+its two tabs carries one **Break down by** switch, and the two charts under it
+answer the same question of whichever cut is chosen: how many lots, and at what
+price. Brand and model are ranked by lots and read down the side; grade and
+model year keep their own order and run along the bottom, because their
+sequence is the point. Every chart is cut to what stays readable and the table
+beneath it lists every row.
+
+The price boxes span the middle half of the lots with the median marked, and
+their whiskers stop at the 5th and 95th percentile. One lot at eight times the
+price of the rest is common enough here to flatten every box in the chart, so
+the true cheapest and dearest sit in the table and the hover instead. A
+category with fewer than eight lots is left out of the price chart, since its
+range would be an accident of which two vehicles happened to come up.
+
+A lot's title is split
 into brand, model and trim on the way in: the model is the single word after
 the brand, so an Avanza G and an Avanza Veloz both count as an Avanza, and the
 handful of nameplates whose first word never stands alone, Gran Max, Grand

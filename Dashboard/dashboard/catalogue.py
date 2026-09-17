@@ -661,6 +661,7 @@ DATASETS: tuple[Dataset, ...] = (
         notes=(
             "Every lot the scraper has seen, cars and motorcycles, with the price shown on its card. That is the listed price, not a confirmed hammer price.",
             "Rows are lots, not vehicles: about a third of plates appear in more than one lot (relisted after an auction), usually at the same price.",
+            "ibid marks a lot Terjual once its auction has been held and leaves the label empty until then, with no exceptions on file, so what sold and what was merely auctioned are the same count here.",
             "Two scrapes so far (17 August and 15 September 2026) covering auctions from mid July 2026. The scrape is opt-in and slow, so it runs by hand.",
         ),
     ),

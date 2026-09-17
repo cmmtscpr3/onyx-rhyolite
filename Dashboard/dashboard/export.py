@@ -131,6 +131,20 @@ def _latest_table_html(table: pd.DataFrame, unit: str) -> str:
     return f'<div class=tablewrap><table class=latest><thead>{head}</thead><tbody>{"".join(rows)}</tbody></table></div>'
 
 
+def _plain_table_html(table: pd.DataFrame) -> str:
+    """A table that arrives ready to print, as the ibid panels do."""
+    if table.empty:
+        return ""
+    head = "".join(f"<th{' class=num' if i else ''}>{html.escape(str(name))}</th>" for i, name in enumerate(table.columns))
+    rows = []
+    for row in table.itertuples(index=False):
+        cells = "".join(
+            f"<td{' class=num' if i else ''}>{html.escape(str(value))}</td>" for i, value in enumerate(row)
+        )
+        rows.append(f"<tr>{cells}</tr>")
+    return f'<div class=tablewrap><table class=latest><thead><tr>{head}</tr></thead><tbody>{"".join(rows)}</tbody></table></div>'
+
+
 def _freshness_html(bundle: charts.Bundle, now: dt.date) -> str:
     table = charts.freshness_table(bundle, now)
     head = "<tr><th>Dataset</th><th>Publisher</th><th>Cadence</th><th>Latest observation</th><th class=num>Age (days)</th><th>Status</th></tr>"
@@ -243,7 +257,10 @@ def build_offline_html(bundle: charts.Bundle, *, now: dt.datetime | None = None,
             parts.append(f"<h3>{html.escape(chart.title)}</h3>")
             parts.append(f'<p class="unit">{html.escape(chart.unit)}</p>')
             parts.append(figure_html)
-            parts.append(_latest_table_html(chart.table, chart.unit))
+            if isinstance(chart, charts.Panel):
+                parts.append(_plain_table_html(chart.table))
+            else:
+                parts.append(_latest_table_html(chart.table, chart.unit))
             if chart.note:
                 parts.append(f'<p class="note">{html.escape(chart.note)}</p>')
             group = next((candidate for candidate in dataset.groups if candidate.key == chart.key), None)

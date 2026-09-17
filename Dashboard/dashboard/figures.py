@@ -200,47 +200,74 @@ def bar_height(rows: int, title: str | None = None) -> int:
     return BAR_CHROME_PX + BAR_ROW_PX * max(rows, 1) + (24 if title else 0)
 
 
-def ranked_bar(
+#: A column chart is read at a glance, so it needs no row-by-row height.
+COLUMN_HEIGHT_PX = 360
+
+
+def count_bar(
     labels: Sequence[str],
     values: Sequence[float],
     *,
     text: Sequence[str],
     hovertemplate: str,
     colour: str,
+    unit: str = "lots",
+    vertical: bool = False,
+    empty: str = "Nothing to show",
     palette: str = "light",
     title: str | None = None,
 ) -> go.Figure:
-    """A ranked horizontal bar chart, largest at the top.
+    """One bar per category, in the order given.
 
-    One colour for every bar: the categories here are names, not an ordered
-    scale, and the length of the bar already carries the magnitude, so a
-    colour ramp would encode the same number twice.  The value is written at
-    the end of each bar, which lets the x-axis go away entirely.
+    One colour for every bar: the bar's length already carries the count, so a
+    colour ramp would encode the same number twice.  Names run down the side
+    with the count written at the end of each bar, which lets the value axis
+    go away; an ordered scale runs along the bottom and keeps its axis, because
+    a label on each of thirty columns is unreadable.
     """
     chrome = theme.CHROME[palette]
-    fig = go.Figure(
-        go.Bar(
-            x=list(values),
-            y=list(labels),
-            orientation="h",
-            marker=dict(color=colour, cornerradius=4),
-            text=list(text),
-            textposition="outside",
-            textfont=dict(color=chrome["secondary"], size=12),
-            cliponaxis=False,
-            hovertemplate=hovertemplate,
-        )
+    bar = dict(
+        marker=dict(color=colour, cornerradius=4),
+        hovertemplate=hovertemplate,
+        cliponaxis=False,
     )
+    if vertical:
+        fig = go.Figure(go.Bar(x=list(labels), y=list(values), **bar))
+        axes = dict(
+            xaxis=dict(type="category", showgrid=False, zeroline=False, title=None),
+            yaxis=dict(showgrid=True, gridcolor=chrome["grid"], zeroline=False, ticks="", title=dict(text=unit)),
+        )
+        margin = dict(l=8, r=8, t=32 if title else 8, b=8)
+        height = COLUMN_HEIGHT_PX + (24 if title else 0)
+    else:
+        fig = go.Figure(
+            go.Bar(
+                x=list(values),
+                y=list(labels),
+                orientation="h",
+                text=list(text),
+                textposition="outside",
+                textfont=dict(color=chrome["secondary"], size=12),
+                **bar,
+            )
+        )
+        axes = dict(
+            xaxis=dict(visible=False, showgrid=False),
+            yaxis=dict(autorange="reversed", showgrid=False, zeroline=False, ticks="", title=None),
+        )
+        margin = dict(l=8, r=BAR_LABEL_PX, t=32 if title else 8, b=8)
+        height = bar_height(len(labels), title)
     fig.update_layout(
         template=theme.template(palette),
         title=dict(text=title, yref="container", y=1, yanchor="top", pad=dict(t=8)) if title else None,
-        height=bar_height(len(labels), title),
+        height=height,
         bargap=0.34,
         showlegend=False,
-        margin=dict(l=8, r=BAR_LABEL_PX, t=32 if title else 8, b=8),
-        xaxis=dict(visible=False, showgrid=False),
-        yaxis=dict(autorange="reversed", showgrid=False, zeroline=False, ticks="", title=None),
+        margin=margin,
+        **axes,
     )
+    if not len(labels):
+        _say_empty(fig, empty, palette)
     return fig
 
 
@@ -249,52 +276,133 @@ def range_box(
     *,
     colour: str,
     unit: str,
+    vertical: bool = False,
+    empty: str = "Nothing to show",
     palette: str = "light",
     title: str | None = None,
 ) -> go.Figure:
-    """One box per category: the quartiles, with whiskers at the true extremes.
+    """One box per category: the quartiles, with whiskers at the 5th and 95th.
 
-    The quantiles are computed by the caller and handed over, so the whiskers
-    reach the real minimum and maximum rather than a multiple of the
-    interquartile range.  That is what a reader asking for "the range" means,
-    and it keeps the figure small however many observations sit behind it.
+    The quantiles are computed by the caller and handed over, which keeps the
+    figure small however many observations sit behind it.  The whiskers stop
+    at the 5th and 95th percentile rather than at the extremes, because one
+    lot at eight times the price of the rest flattens every box in the chart
+    into a line; the cheapest and the dearest are in the table and the hover.
+
+    Plotly labels a precomputed box's fences "min" and "max", which those are
+    not, so the boxes carry no hover of their own and one scatter layer over
+    the medians answers for all of them.
     """
     chrome = theme.CHROME[palette]
+    value_axis = dict(
+        showgrid=True,
+        gridcolor=chrome["grid"],
+        showline=False,
+        ticks="",
+        title=dict(text=unit),
+        rangemode="tozero",
+        separatethousands=True,
+    )
+    category_axis = dict(showgrid=False, zeroline=False, ticks="", title=None)
     fig = go.Figure()
     for row in rows.itertuples(index=False):
+        along = dict(x=[row.label]) if vertical else dict(y=[row.label], orientation="h")
         fig.add_trace(
             go.Box(
                 name=row.label,
-                y=[row.label],
                 q1=[row.p25],
                 median=[row.median],
                 q3=[row.p75],
-                lowerfence=[row.minimum],
-                upperfence=[row.maximum],
-                orientation="h",
+                lowerfence=[row.p5],
+                upperfence=[row.p95],
                 marker=dict(color=colour),
                 fillcolor=theme.translucent(colour, 0.18),
                 line=dict(width=2),
-                hoverinfo="x",
+                hoverinfo="skip",
+                showlegend=False,
+                **along,
+            )
+        )
+    if not rows.empty:
+        medians = list(rows["median"])
+        labels = list(rows["label"])
+        fig.add_trace(
+            go.Scatter(
+                x=labels if vertical else medians,
+                y=medians if vertical else labels,
+                mode="markers",
+                marker=dict(size=20, color="rgba(0,0,0,0)"),
+                customdata=rows[["label", "lots", "minimum", "p5", "p25", "median", "p75", "p95", "maximum"]].to_numpy(),
+                hovertemplate=(
+                    "<b>%{customdata[0]}</b><br>"
+                    "%{customdata[1]:,} lots<br>"
+                    "Median %{customdata[5]:,.1f}<br>"
+                    "Middle half %{customdata[4]:,.1f} to %{customdata[6]:,.1f}<br>"
+                    "5th to 95th %{customdata[3]:,.1f} to %{customdata[7]:,.1f}<br>"
+                    "Cheapest %{customdata[2]:,.1f}, dearest %{customdata[8]:,.1f}"
+                    "<extra></extra>"
+                ),
                 showlegend=False,
             )
         )
     fig.update_layout(
         template=theme.template(palette),
         title=dict(text=title, yref="container", y=1, yanchor="top", pad=dict(t=8)) if title else None,
-        height=bar_height(len(rows), title),
+        height=(COLUMN_HEIGHT_PX + (24 if title else 0)) if vertical else bar_height(len(rows), title),
         boxgap=0.34,
         margin=dict(l=8, r=16, t=32 if title else 8, b=8),
-        xaxis=dict(
-            visible=True,
-            showgrid=True,
-            gridcolor=chrome["grid"],
-            showline=False,
-            ticks="",
-            title=dict(text=unit),
-            rangemode="tozero",
-            separatethousands=True,
-        ),
-        yaxis=dict(autorange="reversed", showgrid=False, zeroline=False, ticks="", title=None),
+        xaxis=dict(type="category", **category_axis) if vertical else value_axis,
+        yaxis=value_axis if vertical else dict(autorange="reversed", **category_axis),
+    )
+    if rows.empty:
+        _say_empty(fig, empty, palette)
+    return fig
+
+
+def _say_empty(fig: go.Figure, message: str, palette: str) -> None:
+    """A cut that narrowed everything away says so, rather than drawing nothing."""
+    fig.add_annotation(
+        text=message,
+        xref="paper",
+        yref="paper",
+        x=0.5,
+        y=0.5,
+        showarrow=False,
+        font=dict(color=theme.CHROME[palette]["muted"], size=13),
+    )
+
+
+def weekly_volume(
+    table: pd.DataFrame,
+    *,
+    label: str,
+    unit: str,
+    colour: str,
+    palette: str = "light",
+) -> go.Figure:
+    """Auctions held per week: one line, because the weeks are one measure over time."""
+    chrome = theme.CHROME[palette]
+    held = [int(n) for n in table["held"]] if "held" in table else []
+    fig = go.Figure(
+        go.Scatter(
+            x=list(table.index),
+            y=held,
+            name=label,
+            mode="lines+markers",
+            line=dict(width=2, color=colour),
+            marker=dict(size=9, color=colour, line=dict(width=2, color=chrome["surface"])),
+            hovertemplate="%{y:,} lots<extra></extra>",
+        )
+    )
+    if table.empty:
+        _say_empty(fig, "No auction weeks on file", palette)
+    fig.update_layout(
+        template=theme.template(palette),
+        height=COLUMN_HEIGHT_PX,
+        hovermode="x unified",
+        showlegend=False,
+        margin=dict(l=8, r=8, t=16, b=8),
+        xaxis=dict(type="date", hoverformat="%d %b %Y", showgrid=False, ticks="outside"),
+        yaxis=dict(title=dict(text=unit), rangemode="tozero", separatethousands=True),
     )
     return fig

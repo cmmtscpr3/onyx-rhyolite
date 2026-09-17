@@ -185,82 +185,10 @@ def pihps_chart(
 CATEGORY_LABEL = {"cars": "Cars", "motorcycles": "Motorcycles"}
 
 
-def top_models(lots: pd.DataFrame, category: str, limit: int = 15) -> list[str]:
+def lots_subset(lots: pd.DataFrame, category: str, *, sold_only: bool = True) -> pd.DataFrame:
+    """One category's lots, narrowed to the ones that found a buyer by default."""
     subset = lots[lots["category"] == category]
-    counts = subset.groupby(["brand", "model"]).size().sort_values(ascending=False).head(limit)
-    return [f"{brand} {model}" for brand, model in counts.index]
-
-
-def lots_subset(lots: pd.DataFrame, category: str, model: str | None = None, sold_only: bool = True) -> pd.DataFrame:
-    subset = lots[lots["category"] == category]
-    if sold_only:
-        subset = subset[subset["sold"]]
-    if model:
-        subset = subset[(subset["brand"] + " " + subset["model"]) == model]
-    return subset
-
-
-def lots_charts(
-    lots: pd.DataFrame,
-    *,
-    category: str = "cars",
-    model: str | None = None,
-    sold_only: bool = True,
-    mode: str = LEVEL,
-    palette: str = "light",
-) -> list[Chart]:
-    subset = lots_subset(lots, category, model, sold_only)
-    weekly = transform.weekly_median(subset)
-    what = model or CATEGORY_LABEL[category].lower()
-    qualifier = "sold lots" if sold_only else "all lots"
-    hues = theme.CATEGORICAL[palette]
-
-    price = weekly[["median_price"]].rename(columns={"median_price": "median"})
-    price_labels = {"median": f"Median listed price, {what} ({qualifier})"}
-    price_fig = figures.line_chart(
-        transform.show_as(price, mode, "weekly"),
-        labels=price_labels,
-        unit="IDR",
-        colours={"median": hues[0]},
-        mode=mode,
-        markers=True,
-        palette=palette,
-        range_slider=False,
-    )
-    count = weekly[["lots"]]
-    count_labels = {"lots": f"Lots per auction week, {what} ({qualifier})"}
-    count_fig = figures.line_chart(
-        transform.show_as(count, mode, "weekly"),
-        labels=count_labels,
-        unit="lots",
-        colours={"lots": hues[1]},
-        mode=mode,
-        markers=True,
-        palette=palette,
-        range_slider=False,
-    )
-    return [
-        Chart(
-            key=f"ibid_price_{category}",
-            title=f"{CATEGORY_LABEL[category]}: median listed price per auction week",
-            unit="IDR",
-            figure=price_fig,
-            table=transform.latest_table(price, "weekly", price_labels, "IDR"),
-            frequency="weekly",
-            note="Weeks start on Monday. The price is the one shown on the lot card, not a confirmed hammer price.",
-            mode=mode,
-        ),
-        Chart(
-            key=f"ibid_count_{category}",
-            title=f"{CATEGORY_LABEL[category]}: lots per auction week",
-            unit="lots",
-            figure=count_fig,
-            table=transform.latest_table(count, "weekly", count_labels, "lots"),
-            frequency="weekly",
-            note="Lots, not vehicles: a vehicle relisted after an auction counts again.",
-            mode=mode,
-        ),
-    ]
+    return subset[subset["sold"]] if sold_only else subset
 
 
 # ---------------------------------------------------------------------------
@@ -298,16 +226,14 @@ def freshness_table(bundle: Bundle, now: dt.date | None = None) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-def default_charts(bundle: Bundle, palette: str = "light") -> list[tuple[Dataset, list[Chart]]]:
+def default_charts(bundle: Bundle, palette: str = "light") -> list[tuple[Dataset, list[Chart | Panel]]]:
     """Every dataset's charts at their default selections, for the export."""
-    out: list[tuple[Dataset, list[Chart]]] = []
+    out: list[tuple[Dataset, list[Chart | Panel]]] = []
     for dataset in catalogue.DATASETS:
         if dataset.key == "pihps":
             charts = [pihps_chart(bundle.pihps, market=market, palette=palette) for market in data.MARKETS]
         elif dataset.key == "ibid":
-            charts = lots_charts(bundle.lots, category="cars", palette=palette) + lots_charts(
-                bundle.lots, category="motorcycles", palette=palette
-            )
+            charts = ibid_panels(bundle.lots, TOP_BREAKDOWNS[0], palette=palette)
         else:
             charts = [
                 group_chart(bundle.series, group, annotations=dataset.annotations, palette=palette)
@@ -319,13 +245,52 @@ def default_charts(bundle: Bundle, palette: str = "light") -> list[tuple[Dataset
 
 
 # ---------------------------------------------------------------------------
-# ibid distributions: what sold, and what it went for
+# ibid breakdowns: what sold, and what it went for
 
 PRICE_UNIT = "IDR million"
-#: Rows drawn in a bar chart or a box plot.  The table under each one carries
+#: Rows drawn when the categories are names.  The table under each chart lists
 #: every row, so nothing is hidden by the cut.
 TOP_SHOWN = 12
-TOP_PRICED = 10
+#: A category with fewer lots than this has a "range" that is an accident of
+#: which two vehicles happened to come up, so it is left out of the price chart.
+MIN_PRICED_LOTS = 8
+#: Grades as ibid awards them, best first; anything ungraded sits at the end.
+GRADE_ORDER: tuple[str, ...] = ("A", "B", "C", "D", "E")
+UNGRADED = "Ungraded"
+
+
+@dataclass(frozen=True)
+class Breakdown:
+    """One way of cutting a category's lots, and how to draw it.
+
+    Names (brand, model) are ranked by how many lots there are and read down
+    the side of the chart.  An ordered scale (grade, model year) keeps its own
+    order and runs along the bottom, because its sequence is the point.
+    """
+
+    key: str
+    label: str
+    noun: str
+    #: Ranked by lots, and drawn with the names down the side.
+    ranked: bool = True
+
+    @property
+    def vertical(self) -> bool:
+        return not self.ranked
+
+
+#: The top layer: what the vehicle is called.
+TOP_BREAKDOWNS: tuple[Breakdown, ...] = (
+    Breakdown("brand", "Brand", "brands"),
+    Breakdown("model", "Model", "models"),
+)
+#: The layer below it: what that vehicle's condition and age do to its price.
+SECOND_BREAKDOWNS: tuple[Breakdown, ...] = (
+    Breakdown("grade", "Grade", "grades", ranked=False),
+    Breakdown("year", "Model year", "model years", ranked=False),
+)
+BREAKDOWNS: tuple[Breakdown, ...] = TOP_BREAKDOWNS + SECOND_BREAKDOWNS
+BY_BREAKDOWN: dict[str, Breakdown] = {spec.key: spec for spec in BREAKDOWNS}
 
 
 @dataclass
@@ -337,11 +302,8 @@ class Panel:
     figure: go.Figure
     table: pd.DataFrame
     note: str = ""
-
-
-def _in_category(lots: pd.DataFrame, category: str, sold_only: bool) -> pd.DataFrame:
-    subset = lots[lots["category"] == category]
-    return subset[subset["sold"]] if sold_only else subset
+    unit: str = ""
+    heading: str = ""
 
 
 def family(lots: pd.DataFrame) -> pd.Series:
@@ -349,120 +311,233 @@ def family(lots: pd.DataFrame) -> pd.Series:
     return lots["brand"].str.cat(lots["model"], sep=" ").str.strip()
 
 
-def _counts(values: pd.Series, total: int) -> pd.DataFrame:
-    counts = values.value_counts()
+def labelled(lots: pd.DataFrame, spec: Breakdown) -> pd.Series:
+    """The lots labelled by the chosen breakdown, dropping rows it cannot place."""
+    if spec.key == "brand":
+        return lots["brand"].replace("", pd.NA).dropna()
+    if spec.key == "model":
+        return family(lots).replace("", pd.NA).dropna()
+    if spec.key == "grade":
+        return lots["grade"].replace({"-": UNGRADED, "": UNGRADED})
+    years = lots["model_year"].dropna()
+    return years.astype(int).astype(str)
+
+
+def _ordered(labels: pd.Series, spec: Breakdown) -> list[str]:
+    """The categories in the order the chart draws them."""
+    if spec.ranked:
+        return list(labels.value_counts().index)
+    seen = set(labels)
+    if spec.key == "grade":
+        return [grade for grade in (*GRADE_ORDER, UNGRADED) if grade in seen] + sorted(
+            seen - {*GRADE_ORDER, UNGRADED}
+        )
+    return sorted(seen)
+
+
+def narrowed(
+    lots: pd.DataFrame, category: str, spec: Breakdown, value: str = "", *, sold_only: bool = True
+) -> pd.DataFrame:
+    """One category's lots, narrowed to a single brand or model when one is named."""
+    subset = lots_subset(lots, category, sold_only=sold_only)
+    if not value:
+        return subset
+    labels = labelled(subset, spec)
+    return subset.loc[labels.index[labels == value]]
+
+
+def drillable(subset: pd.DataFrame, spec: Breakdown, *, min_lots: int = MIN_PRICED_LOTS) -> list[str]:
+    """The brands or models worth opening up, most lots first.
+
+    One with only a handful of lots has nothing left to say once it is cut
+    again by grade or by year, so it is not offered.
+    """
+    tally = labelled(subset, spec).value_counts()
+    return [str(name) for name, lots in tally.items() if lots >= min_lots]
+
+
+def counts(subset: pd.DataFrame, spec: Breakdown) -> pd.DataFrame:
+    """Lots per category, in the breakdown's own order, with each one's share."""
+    labels = labelled(subset, spec)
+    tally = labels.value_counts()
+    order = _ordered(labels, spec)
     return pd.DataFrame(
         {
-            "label": list(counts.index),
-            "lots": counts.to_numpy(),
-            "share": counts.to_numpy() / max(total, 1) * 100.0,
+            "label": order,
+            "lots": [int(tally[name]) for name in order],
+            "share": [tally[name] / max(len(labels), 1) * 100.0 for name in order],
         }
     )
 
 
-def brand_counts(lots: pd.DataFrame, category: str, *, sold_only: bool = True) -> pd.DataFrame:
-    subset = _in_category(lots, category, sold_only)
-    return _counts(subset["brand"], len(subset))
-
-
-def model_counts(lots: pd.DataFrame, category: str, *, sold_only: bool = True) -> pd.DataFrame:
-    subset = _in_category(lots, category, sold_only)
-    return _counts(family(subset), len(subset))
-
-
 def price_ranges(
-    lots: pd.DataFrame, category: str, *, sold_only: bool = True, limit: int = TOP_PRICED
+    subset: pd.DataFrame,
+    spec: Breakdown,
+    *,
+    limit: int = TOP_SHOWN,
+    min_lots: int = MIN_PRICED_LOTS,
 ) -> pd.DataFrame:
-    """The spread of listed prices within each of the most-sold models.
+    """The spread of listed prices within each category, in millions of rupiah.
 
-    Quartiles and the true extremes, in millions of rupiah, for the models with
-    the most lots.  A model with few lots would show a range that is an
-    accident of which two cars happened to come up, so which models qualify is
-    decided by count; they are then ordered by median price, because reading
-    one range against another is what the chart is for.
+    Quartiles, the 5th and 95th percentiles that the whiskers are drawn to, and
+    the true extremes for the table.  Categories with too few lots to have a
+    meaningful spread are left out, and when the categories are names only the
+    ones with the most lots are kept; an ordered scale keeps all of them so the
+    sequence is not broken by a gap.
     """
-    subset = _in_category(lots, category, sold_only)
     subset = subset[subset["price_idr"].notna()]
-    labels = family(subset)
+    labels = labelled(subset, spec)
+    subset = subset.loc[labels.index]
+    tally = labels.value_counts()
+    keep = [name for name in _ordered(labels, spec) if tally[name] >= min_lots]
+    if spec.ranked:
+        keep = keep[:limit]
     rows = []
-    for label in labels.value_counts().head(limit).index:
-        prices = subset.loc[labels == label, "price_idr"] / 1e6
+    for name in keep:
+        prices = subset.loc[labels == name, "price_idr"] / 1e6
         rows.append(
             {
-                "label": label,
+                "label": name,
                 "lots": len(prices),
                 "minimum": float(prices.min()),
+                "p5": float(prices.quantile(0.05)),
                 "p25": float(prices.quantile(0.25)),
                 "median": float(prices.median()),
                 "p75": float(prices.quantile(0.75)),
+                "p95": float(prices.quantile(0.95)),
                 "maximum": float(prices.max()),
             }
         )
-    ranges = pd.DataFrame(rows, columns=["label", "lots", "minimum", "p25", "median", "p75", "maximum"])
-    return ranges.sort_values("median", ascending=False, ignore_index=True)
+    ranges = pd.DataFrame(
+        rows, columns=["label", "lots", "minimum", "p5", "p25", "median", "p75", "p95", "maximum"]
+    )
+    if spec.ranked and not ranges.empty:
+        # Names read against each other best in price order; an ordered scale
+        # would lose its sequence, which is the whole point of it.
+        ranges = ranges.sort_values("median", ascending=False, ignore_index=True)
+    return ranges
 
 
-def _count_panel(
-    counts: pd.DataFrame, *, key: str, title: str, what: str, noun: str, palette: str, limit: int = TOP_SHOWN
-) -> Panel:
-    shown = counts.head(limit)
-    figure = figures.ranked_bar(
+def _titled(what: str, spec: Breakdown, scope: str) -> str:
+    return f"{what} by {spec.label.lower()}" + (f", {scope}" if scope else "")
+
+
+def count_panel(subset: pd.DataFrame, spec: Breakdown, *, scope: str = "", palette: str = "light") -> Panel:
+    tally = counts(subset, spec)
+    shown = tally.head(TOP_SHOWN) if spec.ranked else tally
+    figure = figures.count_bar(
         list(shown["label"]),
         list(shown["lots"]),
         text=[f"{int(n):,}" for n in shown["lots"]],
-        hovertemplate="%{y}<br>%{x:,} lots<extra></extra>",
+        hovertemplate=("%{x}<br>%{y:,} lots<extra></extra>" if spec.vertical else "%{y}<br>%{x:,} lots<extra></extra>"),
         colour=theme.CATEGORICAL[palette][0],
+        vertical=spec.vertical,
+        empty="No lots to count",
         palette=palette,
     )
     table = pd.DataFrame(
         {
-            what: counts["label"],
-            "Lots": counts["lots"].map(lambda n: f"{int(n):,}"),
-            "Share of lots": counts["share"].map(lambda s: f"{s:.1f}%"),
+            spec.label: tally["label"],
+            "Lots": tally["lots"].map(lambda n: f"{int(n):,}"),
+            "Share of lots": tally["share"].map(lambda s: f"{s:.1f}%"),
         }
     )
-    hidden = len(counts) - len(shown)
-    note = f"The {len(shown)} most-sold of {len(counts)} {noun}; the table lists all of them." if hidden > 0 else ""
-    return Panel(key, title, figure, table, note)
-
-
-def brand_panel(lots: pd.DataFrame, category: str, *, sold_only: bool = True, palette: str = "light") -> Panel:
-    counts = brand_counts(lots, category, sold_only=sold_only)
-    return _count_panel(
-        counts, key=f"brands_{category}", title="Lots by brand", what="Brand", noun="brands", palette=palette
+    hidden = len(tally) - len(shown)
+    note = f"The {len(shown)} largest of {len(tally)} {spec.noun}; the table lists all of them." if hidden else ""
+    return Panel(
+        f"lots_by_{spec.key}_{_slug(scope)}", _titled("Lots", spec, scope), figure, table, note, "lots"
     )
 
 
-def model_panel(lots: pd.DataFrame, category: str, *, sold_only: bool = True, palette: str = "light") -> Panel:
-    counts = model_counts(lots, category, sold_only=sold_only)
-    return _count_panel(
-        counts, key=f"models_{category}", title="Lots by model", what="Model", noun="models", palette=palette
-    )
-
-
-def price_panel(lots: pd.DataFrame, category: str, *, sold_only: bool = True, palette: str = "light") -> Panel:
-    ranges = price_ranges(lots, category, sold_only=sold_only)
+def price_panel(subset: pd.DataFrame, spec: Breakdown, *, scope: str = "", palette: str = "light") -> Panel:
+    ranges = price_ranges(subset, spec)
     figure = figures.range_box(
-        ranges, colour=theme.CATEGORICAL[palette][0], unit=PRICE_UNIT, palette=palette
+        ranges,
+        colour=theme.CATEGORICAL[palette][0],
+        unit=PRICE_UNIT,
+        vertical=spec.vertical,
+        empty=f"No {spec.noun} here with {MIN_PRICED_LOTS} lots or more",
+        palette=palette,
     )
     money = lambda value: f"{value:,.1f}"  # noqa: E731
     table = pd.DataFrame(
         {
-            "Model": ranges["label"],
+            spec.label: ranges["label"],
             "Lots": ranges["lots"].map(lambda n: f"{int(n):,}"),
             "Lowest": ranges["minimum"].map(money),
-            "25th percentile": ranges["p25"].map(money),
+            "5th pct": ranges["p5"].map(money),
+            "25th pct": ranges["p25"].map(money),
             "Median": ranges["median"].map(money),
-            "75th percentile": ranges["p75"].map(money),
+            "75th pct": ranges["p75"].map(money),
+            "95th pct": ranges["p95"].map(money),
             "Highest": ranges["maximum"].map(money),
         }
     )
+    ordering = "ordered by median price" if spec.ranked else f"in {spec.label.lower()} order"
+    note = (
+        f"{len(ranges)} {spec.noun} with at least {MIN_PRICED_LOTS} lots, {ordering}, in {PRICE_UNIT.lower()}. "
+        "The box spans the middle half of the lots and the line in it is the median; the whiskers stop at the 5th "
+        "and 95th percentile, because a single lot at several times the price of the rest would flatten every box "
+        "in the chart. The cheapest and the dearest are in the table. Prices are the ones shown on the lot card, "
+        "not confirmed hammer prices."
+    )
     return Panel(
-        f"prices_{category}",
-        "Listed price by model",
+        f"price_by_{spec.key}_{_slug(scope)}",
+        _titled("Listed price", spec, scope),
         figure,
         table,
-        f"The {len(ranges)} most-sold models, ordered by median price, in {PRICE_UNIT.lower()}. The box spans the "
-        "middle half of the lots and the line in it is the median; the whiskers reach the cheapest and the dearest "
-        "lot. Prices are the ones shown on the lot card, not confirmed hammer prices.",
+        note,
+        PRICE_UNIT,
+    )
+
+
+def _slug(text: str) -> str:
+    return "".join(ch if ch.isalnum() else "_" for ch in text).strip("_").lower() or "all"
+
+
+def ibid_panels(lots: pd.DataFrame, spec: Breakdown, *, palette: str = "light") -> list[Panel]:
+    """Both panels for every category, at the top layer a page opens on."""
+    out: list[Panel] = []
+    for category in CATEGORY_LABEL:
+        subset = lots_subset(lots, category)
+        scope = CATEGORY_LABEL[category]
+        out += [
+            count_panel(subset, spec, scope=scope, palette=palette),
+            price_panel(subset, spec, scope=scope, palette=palette),
+        ]
+    return out
+
+
+def weekly_panel(lots: pd.DataFrame, category: str, *, palette: str = "light") -> Panel:
+    """How many auctions ibid ran week by week."""
+    subset = lots_subset(lots, category, sold_only=False)
+    weekly = transform.weekly_lots(subset)
+    figure = figures.weekly_volume(
+        weekly,
+        label="Auctions held",
+        unit="auctions held",
+        colour=theme.CATEGORICAL[palette][0],
+        palette=palette,
+    )
+    held = weekly["held"].astype(int) if not weekly.empty else weekly["held"]
+    listed = weekly["lots"].astype(int) if not weekly.empty else weekly["lots"]
+    table = pd.DataFrame(
+        {
+            "Auction week": [week.strftime("%d %b %Y") for week in weekly.index],
+            "Lots listed": listed.map(lambda n: f"{n:,}"),
+            "Auctions held": held.map(lambda n: f"{n:,}"),
+            "Fully scraped": weekly["complete"].map(lambda whole: "Yes" if whole else "No"),
+        }
+    )
+    return Panel(
+        f"weekly_{category}",
+        "Auctions held each week",
+        figure,
+        table,
+        "Lots listed is every lot ibid dated into that week; auctions held is the part of them ibid had already run "
+        "when it was last read, which it marks Terjual. They part company only at the edge of a scrape, because no "
+        "lot whose auction has been held is marked anything else: nothing on file failed to sell. The count here is "
+        "of auctions held, so a week ibid has not finished running, or one a scrape saw only part of, is short for "
+        "reasons that have nothing to do with the market. The table says which weeks those are.",
+        "auctions held",
     )

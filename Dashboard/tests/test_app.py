@@ -42,7 +42,6 @@ def test_each_page_renders(page):
     "page, expected",
     [
         ("pihps", "Week-on-week % change"),
-        ("ibid", "Week-on-week % change"),
         ("spip", "Month-on-month % change"),
         ("ecommerce", "Month-on-month % change"),
         ("qris", "Year-on-year % change"),

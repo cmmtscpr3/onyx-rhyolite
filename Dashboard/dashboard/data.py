@@ -215,6 +215,10 @@ def pihps_commodities(pihps: pd.DataFrame) -> pd.DataFrame:
 # ---------------------------------------------------------------------------
 # ibid listings
 
+#: ibid labels a lot "Terjual" once its auction has been held and leaves the
+#: label empty until then, with no exceptions anywhere on file.  The ``sold``
+#: column mirrors that label, so it records that the auction has run rather
+#: than that the vehicle found a buyer; the two cannot be told apart here.
 LISTING_FILES: dict[str, str] = {
     "cars": "ibid_car_data.csv",
     "motorcycles": "ibid_motor_data.csv",
