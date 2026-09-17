@@ -1,9 +1,10 @@
-"""Streamlit pieces shared by every page: data loading, headers, controls,
-and the chart-plus-table block."""
+"""Streamlit pieces shared by every page: data loading, headers, the filter
+bar, and the chart-plus-table block."""
 
 from __future__ import annotations
 
 import datetime as dt
+from dataclasses import dataclass
 from typing import Sequence
 
 import pandas as pd
@@ -71,32 +72,92 @@ def years_available(frame_index: pd.DatetimeIndex) -> list[int | None]:
     return [None, *range(last, first - 1, -1)]
 
 
-def controls(group: Group, key: str, years: list[int | None], frequency: str) -> tuple[list[str], str, int | None]:
-    """One row: which series, how to show them, and from which year."""
-    left, middle, right = st.columns([3, 2, 1])
-    selected = left.multiselect(
-        "Series",
-        options=list(group.series),
-        default=list(group.shown),
-        format_func=group.label,
-        key=f"{key}:series",
-    )
-    mode = middle.radio(
-        "Show as",
-        transform.show_as_options(frequency),
-        horizontal=True,
-        key=f"{key}:mode",
-        help=transform.show_as_help(frequency),
-    )
-    since = right.selectbox(
-        "From",
+@dataclass(frozen=True)
+class Switch:
+    """The picker that chooses which of a page's charts the filter bar scopes.
+
+    It shares the bar with that chart's own controls rather than sitting above
+    it, so a page never stacks one row of inputs on another.
+    """
+
+    label: str
+    options: tuple[str, ...]
+    help: str = ""
+    #: Buttons do not fit a long list, so those pages ask for a dropdown.
+    dropdown: bool = False
+
+
+def choice(container, label: str, options: Sequence[str], key: str, **kwargs) -> str:
+    """A one-of-N picker, as one row of buttons rather than a column of dots.
+
+    Clicking the chosen option clears a segmented control, which would leave
+    the page with nothing selected, so an empty answer falls back to the first.
+    """
+    picked = container.segmented_control(label, list(options), default=options[0], key=key, **kwargs)
+    return picked if picked else options[0]
+
+
+def since_control(container, label: str, years: list[int | None], key: str):
+    return container.selectbox(
+        label,
         options=years,
         format_func=lambda y: "All history" if y is None else str(y),
-        key=f"{key}:since",
+        key=key,
     )
+
+
+def pick(container, switch: Switch, key: str) -> str:
+    """The switch itself: a row of buttons, or a dropdown when it asks for one."""
+    if switch.dropdown:
+        return container.selectbox(switch.label, switch.options, key=key, help=switch.help)
+    return choice(container, switch.label, switch.options, key, help=switch.help)
+
+
+def controls(
+    bundle_: charts.Bundle,
+    groups: Sequence[Group],
+    key: str,
+    switch: Switch | None = None,
+) -> tuple[Group, list[str], str, int | None]:
+    """The filter bar: one bordered block holding everything a reader can change.
+
+    The pickers run along the top -- which chart, when the page offers a
+    switch, then how to show it and from which year -- and the series list,
+    which is the one control that needs the width, sits under them once the
+    switch has taken a cell of its own.
+    """
+    with st.container(border=True):
+        group = groups[0]
+        if switch is not None:
+            # The switch decides which series the rest of the bar offers, so it
+            # is read first and the long list it picks gets a row of its own.
+            picker, shown, first = st.columns([3, 4, 2], vertical_alignment="bottom")
+            group = groups[switch.options.index(pick(picker, switch, f"{key}:switch"))]
+            series_cell = st
+        else:
+            series_cell, shown, first = st.columns([4, 4, 2], vertical_alignment="bottom")
+        scoped = f"{key}:{group.key}"
+        frequency = data.frequency_of(bundle_.series, group.series)
+        selected = series_cell.multiselect(
+            "Series",
+            options=list(group.series),
+            default=list(group.shown),
+            format_func=group.label,
+            key=f"{scoped}:series",
+        )
+        mode = choice(
+            shown,
+            "Show as",
+            transform.show_as_options(frequency),
+            f"{scoped}:mode",
+            help=transform.show_as_help(frequency),
+        )
+        since = since_control(
+            first, "From", years_available(data.wide(bundle_.series, group.series).index), f"{scoped}:since"
+        )
     if len(selected) > 8:
         st.caption("More than eight series share the grey tone; click a legend entry to isolate one.")
-    return selected, mode, since
+    return group, selected, mode, since
 
 
 def show_chart(chart: charts.Chart, key: str) -> None:
@@ -170,11 +231,40 @@ def show_definitions(dataset: Dataset, group: Group) -> None:
 
 
 def render_group(bundle_: charts.Bundle, dataset: Dataset, group: Group, *, title: str | None = None) -> None:
-    key = f"{dataset.key}:{group.key}"
-    st.markdown(f"#### {title or group.title}")
-    frame = data.wide(bundle_.series, group.series)
-    frequency = data.frequency_of(bundle_.series, group.series)
-    selected, mode, since = controls(group, key, years_available(frame.index), frequency)
+    """One chart, with the filter bar that scopes it."""
+    _render(bundle_, dataset, [group], dataset.key, None, title)
+
+
+def render_switched(
+    bundle_: charts.Bundle,
+    dataset: Dataset,
+    groups: Sequence[Group],
+    switch: Switch,
+    *,
+    key: str = "",
+    title: str | None = "",
+) -> None:
+    """Several charts behind one switch, which shares their filter bar.
+
+    The switch is the heading by default: it sits at the head of the bar and
+    names the chart under it, so repeating that name above the bar says the
+    same thing twice.
+    """
+    _render(bundle_, dataset, list(groups), key or dataset.key, switch, title)
+
+
+def _render(
+    bundle_: charts.Bundle,
+    dataset: Dataset,
+    groups: Sequence[Group],
+    key: str,
+    switch: Switch | None,
+    title: str | None,
+) -> None:
+    heading = groups[0].title if title is None else title
+    if heading:
+        st.markdown(f"#### {heading}")
+    group, selected, mode, since = controls(bundle_, groups, key, switch)
     if not selected:
         st.info("Pick at least one series.")
         return
@@ -187,7 +277,7 @@ def render_group(bundle_: charts.Bundle, dataset: Dataset, group: Group, *, titl
         annotations=dataset.annotations,
         palette=palette(),
     )
-    show_chart(chart, key)
+    show_chart(chart, f"{key}:{group.key}")
     show_definitions(dataset, group)
 
 

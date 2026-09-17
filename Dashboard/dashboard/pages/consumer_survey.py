@@ -20,11 +20,20 @@ def render() -> None:
     ui.page_header(dataset, charts.latest_observation(bundle, dataset))
 
     st.subheader("Confidence indices")
-    ui.render_group(bundle, dataset, catalogue.group(KEY, "confidence"))
+    ui.render_group(bundle, dataset, catalogue.group(KEY, "confidence"), title="")
 
     st.subheader("Household budget shares by monthly expenditure group")
-    share = st.radio("Share of income going to", list(SHARES), horizontal=True, key=f"{KEY}:share", help="Respondents are grouped by their monthly household expenditure (BI's \"Pengeluaran per bulan\" brackets), not by income.")
-    ui.render_group(bundle, dataset, catalogue.group(KEY, SHARES[share]))
+    switch = ui.Switch(
+        "Share of income going to",
+        tuple(SHARES),
+        help=(
+            "Respondents are grouped by their monthly household expenditure "
+            '(BI\'s "Pengeluaran per bulan" brackets), not by income.'
+        ),
+    )
+    ui.render_switched(
+        bundle, dataset, [catalogue.group(KEY, key) for key in SHARES.values()], switch, key=f"{KEY}:share"
+    )
 
     with st.expander("Discontinued series (last published 2019–2020)"):
         for group in dataset.groups:

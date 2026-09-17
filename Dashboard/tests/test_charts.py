@@ -204,8 +204,10 @@ def test_the_export_carries_the_ibid_panels(bundle):
     built = dict((dataset.key, items) for dataset, items in charts.default_charts(bundle))
     panels = built["ibid"]
     assert [panel.title for panel in panels] == [
+        "Lots in auction and lots sold each week, Cars",
         "Lots by brand, Cars",
         "Listed price by brand, Cars",
+        "Lots in auction and lots sold each week, Motorcycles",
         "Lots by brand, Motorcycles",
         "Listed price by brand, Motorcycles",
     ]
@@ -262,28 +264,58 @@ def test_a_cut_that_narrows_everything_away_says_so(bundle):
     assert [note.text for note in counted.figure.layout.annotations] == ["No lots to count"]
 
 
-def test_the_weekly_panel_counts_the_auctions_ibid_has_run(bundle):
+def test_the_weekly_panel_pairs_lots_in_auction_with_lots_sold(bundle):
     panel = charts.weekly_panel(bundle.lots, "cars")
-    assert panel.title == "Auctions held each week" and panel.unit == "auctions held"
+    assert panel.title == "Lots in auction and lots sold each week" and panel.unit == "lots"
     weekly = transform.weekly_lots(charts.lots_subset(bundle.lots, "cars", sold_only=False))
-    # One line and nothing else, and no table under it.
-    (line,) = panel.figure.data
-    assert list(line.y) == [int(n) for n in weekly["held"]]
-    assert not panel.figure.layout.showlegend and not panel.figure.layout.annotations
-    assert panel.table.empty
-    # Losing the table loses the only place the part-scraped weeks were named,
-    # so the note has to name them itself.
+    traces = {trace.name: trace for trace in panel.figure.data}
+    assert set(traces) == set(charts.WEEKLY_LABELS)
+    listed, sold = traces["Lots in auction"], traces["Lots sold"]
+    assert list(listed.y) == [int(n) for n in weekly["lots"]]
+    assert list(sold.y) == [int(n) for n in weekly["held"]]
+    # One axis, both counts in lots, and the gap between them washed in.
+    assert "yaxis2" not in panel.figure.layout
+    assert listed.fill == "tonexty" and sold.fill is None
+    # Sold is drawn first and lots in auction dashed over it, so the weeks where
+    # the two meet still show both lines; the legend still reads the other way.
+    assert [trace.name for trace in panel.figure.data] == ["Lots sold", "Lots in auction"]
+    assert listed.line.dash == "dash" and sold.line.dash == "solid"
+    assert panel.figure.layout.legend.traceorder == "reversed"
+    assert panel.figure.layout.showlegend
+    # A week a scrape saw only in part is drawn hollow, and the note names those weeks.
+    hollow = theme.CHROME["light"]["surface"]
+    assert [colour == hollow for colour in listed.marker.color] == list(~weekly["complete"].astype(bool))
     for week in weekly.index[~weekly["complete"].astype(bool)]:
         assert week.strftime("%d %b") in panel.note
-    # Listed and held part company only where a scrape cut the week short; no
-    # lot on file was auctioned and left unsold.
-    apart = weekly[weekly["lots"] != weekly["held"]]
-    assert not apart.empty and apart["complete"].eq(False).all()
-    assert "nothing on file failed to sell" in panel.note
+    # Terjual is the auction having been held, not a buyer having been found,
+    # and the note says so rather than letting the label speak for itself.
+    assert "Terjual" in panel.note and "found a buyer" in panel.note
+
+
+def test_the_weekly_table_carries_the_share_sold(bundle):
+    panel = charts.weekly_panel(bundle.lots, "motorcycles")
+    weekly = transform.weekly_lots(charts.lots_subset(bundle.lots, "motorcycles", sold_only=False))
+    assert list(panel.table.columns) == [
+        "Auction week",
+        "Lots in auction",
+        "Lots sold",
+        "Share sold",
+        "Week seen whole",
+    ]
+    assert len(panel.table) == len(weekly)
+    # The share is the one number the two lines do not give a reader directly.
+    assert list(panel.table["Share sold"]) == [
+        f"{sold / listed * 100:.0f}%" for listed, sold in zip(weekly["lots"], weekly["held"])
+    ]
+    # Most settled weeks sold every lot, and the ones that did not are the lots
+    # that left the site before a scrape could see them sold.
+    settled = panel.table[panel.table["Week seen whole"] == "Yes"]
+    assert (settled["Share sold"] == "100%").sum() > len(settled) / 2
+    assert (panel.table["Week seen whole"] == "In part").any()
 
 
 def test_the_weekly_panel_survives_a_category_with_no_lots(bundle):
     empty = bundle.lots.head(0)
     panel = charts.weekly_panel(empty, "cars")
     assert [note.text for note in panel.figure.layout.annotations] == ["No auction weeks on file"]
-    assert panel.table.empty
+    assert panel.table.empty and not panel.figure.layout.showlegend
