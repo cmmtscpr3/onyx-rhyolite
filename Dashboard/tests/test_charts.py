@@ -266,13 +266,15 @@ def test_the_weekly_panel_counts_the_auctions_ibid_has_run(bundle):
     panel = charts.weekly_panel(bundle.lots, "cars")
     assert panel.title == "Auctions held each week" and panel.unit == "auctions held"
     weekly = transform.weekly_lots(charts.lots_subset(bundle.lots, "cars", sold_only=False))
-    # One line and nothing else: the part-scraped weeks are called out in the
-    # table rather than ringed on the figure.
+    # One line and nothing else, and no table under it.
     (line,) = panel.figure.data
     assert list(line.y) == [int(n) for n in weekly["held"]]
     assert not panel.figure.layout.showlegend and not panel.figure.layout.annotations
-    assert list(panel.table.columns) == ["Auction week", "Lots listed", "Auctions held", "Fully scraped"]
-    assert set(panel.table["Fully scraped"]) == {"Yes", "No"}
+    assert panel.table.empty
+    # Losing the table loses the only place the part-scraped weeks were named,
+    # so the note has to name them itself.
+    for week in weekly.index[~weekly["complete"].astype(bool)]:
+        assert week.strftime("%d %b") in panel.note
     # Listed and held part company only where a scrape cut the week short; no
     # lot on file was auctioned and left unsold.
     apart = weekly[weekly["lots"] != weekly["held"]]

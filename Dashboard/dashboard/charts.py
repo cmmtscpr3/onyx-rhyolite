@@ -519,25 +519,23 @@ def weekly_panel(lots: pd.DataFrame, category: str, *, palette: str = "light") -
         colour=theme.CATEGORICAL[palette][0],
         palette=palette,
     )
-    held = weekly["held"].astype(int) if not weekly.empty else weekly["held"]
-    listed = weekly["lots"].astype(int) if not weekly.empty else weekly["lots"]
-    table = pd.DataFrame(
-        {
-            "Auction week": [week.strftime("%d %b %Y") for week in weekly.index],
-            "Lots listed": listed.map(lambda n: f"{n:,}"),
-            "Auctions held": held.map(lambda n: f"{n:,}"),
-            "Fully scraped": weekly["complete"].map(lambda whole: "Yes" if whole else "No"),
-        }
+    # No table under this one: the weeks are a plain count anyone can read off
+    # the line.  The one thing the figure cannot say is which weeks a scrape
+    # only saw part of, so the note names them.
+    partial = [week.strftime("%d %b") for week in weekly.index[~weekly["complete"].astype(bool)]]
+    caveat = (
+        f" A scrape sees only the few weeks ibid still lists, so {', '.join(partial)} were caught in part and count "
+        "short for that reason alone."
+        if partial
+        else ""
     )
     return Panel(
         f"weekly_{category}",
         "Auctions held each week",
         figure,
-        table,
-        "Lots listed is every lot ibid dated into that week; auctions held is the part of them ibid had already run "
-        "when it was last read, which it marks Terjual. They part company only at the edge of a scrape, because no "
-        "lot whose auction has been held is marked anything else: nothing on file failed to sell. The count here is "
-        "of auctions held, so a week ibid has not finished running, or one a scrape saw only part of, is short for "
-        "reasons that have nothing to do with the market. The table says which weeks those are.",
+        pd.DataFrame(),
+        "Every lot whose auction ibid has run is marked Terjual and nothing on file failed to sell, so this is both "
+        "the auctions held and the lots sold. A week ibid has not finished running is short for the same kind of "
+        f"reason as one seen in part: the auctions are still to come.{caveat}",
         "auctions held",
     )
