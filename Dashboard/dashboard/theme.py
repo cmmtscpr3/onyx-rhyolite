@@ -120,6 +120,13 @@ def template(mode: str = "light") -> go.layout.Template:
     )
 
 
+def translucent(colour: str, alpha: float) -> str:
+    """``'#2a78d6'`` at the given opacity, for a fill under a solid outline."""
+    hexed = colour.lstrip("#")
+    red, green, blue = (int(hexed[i : i + 2], 16) for i in (0, 2, 4))
+    return f"rgba({red}, {green}, {blue}, {alpha})"
+
+
 def status_swatch(status: str) -> str:
     return STATUS.get(status, STATUS["no data"])
 

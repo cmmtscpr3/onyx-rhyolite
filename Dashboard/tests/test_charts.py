@@ -133,3 +133,51 @@ def test_precision_follows_magnitude():
     assert figures.precision(small, "IDR billion") == 2
     assert figures.precision(big, "index") == 1
     assert figures.precision(big, "IDR billion", comparison("monthly").label) == 1
+
+
+def test_brand_and_model_distributions_count_sold_lots(bundle):
+    brands = charts.brand_counts(bundle.lots, "cars")
+    assert list(brands["label"][:2]) == ["TOYOTA", "DAIHATSU"]
+    assert brands["lots"].sum() == int(bundle.lots.query("category == 'cars' and sold").shape[0])
+    assert brands["share"].sum() == pytest.approx(100.0)
+    assert brands["lots"].is_monotonic_decreasing
+    models = charts.model_counts(bundle.lots, "cars")
+    assert models["label"].iloc[0] == "TOYOTA AVANZA"
+    assert "DAIHATSU GRAN MAX" in list(models["label"][:4])
+    bikes = charts.model_counts(bundle.lots, "motorcycles")
+    assert bikes["label"].iloc[0] == "HONDA BEAT"
+    # Unsold lots are in scope only when asked for.
+    assert charts.brand_counts(bundle.lots, "cars", sold_only=False)["lots"].sum() > brands["lots"].sum()
+
+
+def test_price_ranges_are_quartiles_and_true_extremes(bundle):
+    ranges = charts.price_ranges(bundle.lots, "cars")
+    assert len(ranges) == charts.TOP_PRICED
+    # Chosen by how many sold, then ordered by price so the ranges read against each other.
+    assert set(ranges["label"]) >= {"TOYOTA AVANZA", "DAIHATSU GRAN MAX"}
+    assert ranges["median"].is_monotonic_decreasing
+    for row in ranges.itertuples(index=False):
+        assert row.minimum <= row.p25 <= row.median <= row.p75 <= row.maximum
+        assert row.lots > 0
+    # In millions of rupiah, so a car reads as a two- or three-digit number.
+    assert 10 < ranges["median"].iloc[0] < 1000
+
+
+def test_distribution_panels_carry_a_figure_and_the_whole_table(bundle):
+    brands = charts.brand_panel(bundle.lots, "cars")
+    assert len(brands.figure.data) == 1
+    bars = brands.figure.data[0]
+    assert len(bars.y) == charts.TOP_SHOWN and bars.orientation == "h"
+    # One hue for every bar: the categories are names, not an ordered scale.
+    assert isinstance(bars.marker.color, str)
+    assert not brands.figure.layout.showlegend
+    # The chart is cut to the top rows; the table keeps all of them.
+    assert len(brands.table) == len(charts.brand_counts(bundle.lots, "cars"))
+    assert "Brand" in brands.table.columns and "Share of lots" in brands.table.columns
+    prices = charts.price_panel(bundle.lots, "motorcycles")
+    assert len(prices.figure.data) == charts.TOP_PRICED
+    assert prices.figure.data[0].lowerfence is not None
+    assert list(prices.table.columns)[:3] == ["Model", "Lots", "Lowest"]
+    # The unit is named once, on the axis and in the note, not twice.
+    assert prices.figure.layout.xaxis.title.text == charts.PRICE_UNIT
+    assert charts.PRICE_UNIT not in prices.title and "million" in prices.note

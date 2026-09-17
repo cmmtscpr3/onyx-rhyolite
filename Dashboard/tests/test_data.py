@@ -143,17 +143,47 @@ def test_lots_parse_dates_plates_and_cities(lots):
 @pytest.mark.parametrize(
     "title, expected",
     [
-        ("TOYOTA AVANZA 1.3 E MT (2019 - MT)", ("TOYOTA", "AVANZA")),
-        ("TOYOTA AVANZA E 1.3 (2019 - MT)", ("TOYOTA", "AVANZA")),
-        ("DAIHATSU GRAN MAX BV AC 1.3 (2021 - MT)", ("DAIHATSU", "GRAN MAX")),
-        ("HONDA BEAT - 110 (2019 - AT)", ("HONDA", "BEAT")),
-        ("HONDA SUPRA X - 125 (2019 - MT)", ("HONDA", "SUPRA")),
-        ("MERCEDES-BENZ C-CLASS C 200 2.0 (2008 -…", ("MERCEDES-BENZ", "C-CLASS")),
-        ("", ("", "")),
+        # The trim is split off, so every Avanza counts as one Avanza.
+        ("TOYOTA AVANZA 1.3 E MT (2019 - MT)", ("TOYOTA", "AVANZA", "")),
+        ("TOYOTA AVANZA G 1.5 (2022 - MT)", ("TOYOTA", "AVANZA", "G")),
+        # A body code no longer splits one nameplate into several models.
+        ("DAIHATSU GRAN MAX PU STD 1.5 (2019 - MT)", ("DAIHATSU", "GRAN MAX", "PU STD")),
+        ("DAIHATSU GRAN MAX BV AC 1.3 (2021 - MT)", ("DAIHATSU", "GRAN MAX", "BV AC")),
+        # Two bikes that used to collapse into one keep their own trim.
+        ("HONDA SUPRA X - 125 (2019 - MT)", ("HONDA", "SUPRA", "X")),
+        ("HONDA SUPRA GTR - 150 (2016 - MT)", ("HONDA", "SUPRA", "GTR")),
+        ("HONDA BEAT - 110 (2019 - AT)", ("HONDA", "BEAT", "")),
+        ("HONDA REVO FIT FI 110 (2020 - MT)", ("HONDA", "REVO", "FIT FI")),
+        # Brands of more than one word, and models that carry a digit.
+        ("LAND ROVER RANGE ROVER EVQ 2.0 (2013 -", ("LAND ROVER", "RANGE ROVER", "EVQ")),
+        ("HARLEY DAVIDSON FXLRST - 1923 (2024 -", ("HARLEY DAVIDSON", "FXLRST", "")),
+        ("NISSAN GRAND LIVINA XV 1.5", ("NISSAN", "GRAND LIVINA", "XV")),
+        ("HYUNDAI SANTA FE CRDI 2.2 (2018 - AT)", ("HYUNDAI", "SANTA FE", "CRDI")),
+        ("MERCEDES-BENZ C-CLASS C 200 2.0 (2008 -", ("MERCEDES-BENZ", "C-CLASS", "C")),
+        ("HYUNDAI H-1 - 2.4 (2016 - AT)", ("HYUNDAI", "H-1", "")),
+        ("MAZDA 3 HATCHBACK 2.0 (2019 - AT)", ("MAZDA", "3", "HATCHBACK")),
+        ("", ("", "", "")),
     ],
 )
-def test_parse_family(title, expected):
-    assert data.parse_family(title) == expected
+def test_parse_vehicle_splits_brand_model_and_trim(title, expected):
+    assert data.parse_vehicle(title) == expected
+
+
+def test_rows_that_are_not_one_vehicle_are_left_out(lots):
+    assert not data.is_vehicle("PAKET 4 UNIT MOBIL")
+    assert not data.is_vehicle("2 23 43 57")
+    assert data.is_vehicle("TOYOTA AVANZA G 1.5 (2022 - MT)")
+    assert lots.attrs["dropped_nonvehicle"] >= 1
+
+
+def test_the_split_keeps_one_nameplate_together(lots):
+    cars = lots[lots["category"] == "cars"]
+    gran_max = cars[(cars["brand"] == "DAIHATSU") & (cars["model"] == "GRAN MAX")]
+    # Every body code sits in the variant column, not in a model of its own.
+    assert gran_max["variant"].str.startswith("PU").any()
+    assert gran_max["variant"].str.startswith("BOX").any()
+    assert not cars["model"].str.fullmatch(r"GRAN MAX (PU|BOX).*").any()
+    assert "LAND ROVER" in set(cars["brand"]) and "LAND" not in set(cars["brand"])
 
 
 def test_parse_auction_date_and_city():
