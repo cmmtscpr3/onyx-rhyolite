@@ -1,0 +1,8 @@
+# The STL analysis.  Separate from Dashboard/requirements.txt because this is an
+# offline analysis rather than part of the app: it needs statsmodels and matplotlib,
+# which the tracker does not, and it does not need Streamlit or Plotly.
+pandas>=2.2        # the panel, via Dashboard/dashboard/data.py's loader
+numpy>=1.26        # variances, the block bootstrap, the Idul Fitri least squares
+statsmodels>=0.14  # statsmodels.tsa.seasonal.STL and the ACF plots
+matplotlib>=3.8    # static PNG figures; the tracker's Plotly work is a separate thing
+openpyxl>=3.1      # PIHPS workbooks, read through the collectors' own reader
