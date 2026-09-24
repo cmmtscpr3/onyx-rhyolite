@@ -30,12 +30,6 @@ def render() -> None:
         with tab:
             _category(lots, category)
 
-    st.caption(
-        f"{lots.attrs.get('dropped_undated', 0)} lots without an auction date, "
-        f"{lots.attrs.get('dropped_stray', 0)} with a stray pre-2025 date and "
-        f"{lots.attrs.get('dropped_nonvehicle', 0)} that are not a single vehicle are left out."
-    )
-
 
 def _breakdown(container, label: str, specs, key: str, **kwargs) -> charts.Breakdown:
     """One of the breakdowns, picked by its label."""
