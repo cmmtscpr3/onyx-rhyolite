@@ -201,7 +201,7 @@ def test_panels_carry_a_figure_and_the_whole_table(bundle):
     assert box.upperfence[0] == pytest.approx(ranges["p95"].iloc[0])
     assert box.hoverinfo == "skip"
     assert "5th to 95th" in prices.figure.data[-1].hovertemplate
-    assert "5th and 95th percentile" in prices.note
+    assert prices.note == ""
 
 
 def test_the_export_carries_the_ibid_panels(bundle):

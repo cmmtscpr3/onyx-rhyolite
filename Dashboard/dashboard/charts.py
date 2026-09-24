@@ -470,20 +470,12 @@ def price_panel(subset: pd.DataFrame, spec: Breakdown, *, scope: str = "", palet
             "Highest": ranges["maximum"].map(money),
         }
     )
-    ordering = "most lots first" if spec.ranked else f"in {spec.label.lower()} order"
-    note = (
-        f"{len(ranges)} {spec.noun} with at least {MIN_PRICED_LOTS} lots, {ordering}, in {PRICE_UNIT.lower()}. "
-        "The box spans the middle half of the lots and the line in it is the median; the whiskers stop at the 5th "
-        "and 95th percentile, because a single lot at several times the price of the rest would flatten every box "
-        "in the chart. The cheapest and the dearest are in the table. Prices are the ones shown on the lot card, "
-        "not confirmed hammer prices."
-    )
     return Panel(
         f"price_by_{spec.key}_{_slug(scope)}",
         _titled("Listed price", spec, scope),
         figure,
         table,
-        note,
+        "",
         PRICE_UNIT,
     )
 
