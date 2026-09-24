@@ -70,6 +70,13 @@ def test_spip_page_groups_charts_by_category_tabs():
     assert len(at.dataframe) == 3
 
 
+def test_seki_page_splits_gdp_and_deposits_into_tabs():
+    at = AppTest.from_function(_page_script, kwargs={"page_name": "seki", "root": str(ROOT)}, default_timeout=300)
+    at.run()
+    assert not at.exception, [e.message for e in at.exception]
+    assert [tab.label for tab in at.tabs] == ["SEKI - GDP by Expenditure", "SEKI - Bank Deposits"]
+
+
 def test_every_page_gathers_its_inputs_into_one_filter_bar():
     """Every input a page offers is a segmented control or a dropdown in its
     bar; nothing is left as a loose row of radio buttons beside the chart."""
