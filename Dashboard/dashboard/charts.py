@@ -537,21 +537,11 @@ def weekly_panel(lots: pd.DataFrame, category: str, *, scope: str = "", palette:
         }
     )
     partial = [week.strftime("%d %b") for week in weekly.index[~weekly["complete"].astype(bool)]]
-    caveat = (
-        " A scrape sees only the few weeks ibid still lists, so the hollow points "
-        f"({', '.join(partial)}) are weeks the scrapes did not cover day by day and count short on both lines for "
-        "that reason alone."
-        if partial
-        else ""
-    )
     return Panel(
         f"weekly_{category}",
         "Lots in auction and lots sold each week" + (f", {scope}" if scope else ""),
         figure,
         table,
-        "ibid marks a lot Terjual once its auction has been held and nothing on file is marked unsold, so the sold "
-        "line counts the lots whose auction had been run when each was last read rather than the ones that found a "
-        "buyer. The lines part where the auctions are still to come, and where a lot dropped off the site before a "
-        f"scrape could see it sold.{caveat}",
+        "ibid marks a lot Terjual once its auction has been held",
         "lots",
     )
