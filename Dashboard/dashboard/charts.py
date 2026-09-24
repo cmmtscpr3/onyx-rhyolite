@@ -439,8 +439,6 @@ def count_panel(subset: pd.DataFrame, spec: Breakdown, *, scope: str = "", palet
             "Share of lots": tally["share"].map(lambda s: f"{s:.1f}%"),
         }
     )
-    hidden = len(tally) - len(shown)
-    note = f"The {len(shown)} largest of {len(tally)} {spec.noun}; the table lists all of them." if hidden else ""
     return Panel(
         f"lots_by_{spec.key}_{_slug(scope)}", _titled("Lots", spec, scope), figure, table, note, "lots"
     )
