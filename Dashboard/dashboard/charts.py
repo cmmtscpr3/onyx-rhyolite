@@ -440,7 +440,7 @@ def count_panel(subset: pd.DataFrame, spec: Breakdown, *, scope: str = "", palet
         }
     )
     return Panel(
-        f"lots_by_{spec.key}_{_slug(scope)}", _titled("Lots", spec, scope), figure, table, note, "lots"
+        f"lots_by_{spec.key}_{_slug(scope)}", _titled("Lots", spec, scope), figure, table, "lots"
     )
 
 
