@@ -23,7 +23,7 @@ from dashboard.pages import consumer_survey, ecommerce, ibid, ojk, overview, pih
 
 PAGES = {
     "Overview": [st.Page(overview.render, title="Overview", icon=":material/home:", default=True)],
-    "Inflation": [st.Page(pihps.render, title="PIHPS · Weekly food prices", icon=":material/rice_bowl:", url_path="pihps")]
+    "Inflation": [st.Page(pihps.render, title="PIHPS · Weekly food prices", icon=":material/rice_bowl:", url_path="pihps")],
     "Consumption": [
         st.Page(spip.render, title="SPIP · Payment system statistics", icon=":material/credit_card:", url_path="spip"),
         st.Page(seki.render, title="SEKI · Economic & financial statistics", icon=":material/account_balance:", url_path="seki"),
