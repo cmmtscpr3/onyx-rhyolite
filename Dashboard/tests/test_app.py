@@ -8,7 +8,7 @@ import pytest
 from streamlit.testing.v1 import AppTest
 
 ROOT = Path(__file__).resolve().parents[1]
-PAGES = ["overview", "pihps", "spip", "seki", "consumer_survey", "ojk", "qris", "ecommerce", "ibid"]
+PAGES = ["overview", "pihps", "spip", "seki.render_gdp", "seki.render_deposits", "consumer_survey", "ojk", "qris", "ecommerce", "ibid"]
 
 
 def _page_script(page_name, root):
@@ -17,8 +17,11 @@ def _page_script(page_name, root):
     sys.path.insert(0, root)
     import importlib
 
-    module = importlib.import_module(f"dashboard.pages.{page_name}")
-    module.render()
+    # "module" runs its render(); "module.function" runs that function, for a
+    # module that serves more than one page.
+    module_name, _, function = page_name.partition(".")
+    module = importlib.import_module(f"dashboard.pages.{module_name}")
+    getattr(module, function or "render")()
 
 
 def test_entrypoint_runs_without_exceptions():
@@ -70,11 +73,36 @@ def test_spip_page_groups_charts_by_category_tabs():
     assert len(at.dataframe) == 3
 
 
-def test_seki_page_splits_gdp_and_deposits_into_tabs():
-    at = AppTest.from_function(_page_script, kwargs={"page_name": "seki", "root": str(ROOT)}, default_timeout=300)
+def test_seki_gdp_and_deposits_are_separate_pages_in_the_side_panel(monkeypatch):
+    import runpy
+
+    import streamlit as st
+
+    captured = {}
+
+    class _Nav:
+        def run(self):
+            pass
+
+    def navigation(pages, **kwargs):
+        captured.update(pages)
+        return _Nav()
+
+    # st.Page needs a running app, so record its arguments instead.
+    monkeypatch.setattr(st, "Page", lambda page, **kwargs: kwargs)
+    monkeypatch.setattr(st, "navigation", navigation)
+    runpy.run_path(str(ROOT / "app.py"))
+    pages = {page["title"]: page["url_path"] for page in captured["Bank Indonesia"]}
+    assert pages["SEKI - GDP by Expenditure"] == "seki-gdp"
+    assert pages["SEKI - Bank Deposits"] == "seki-deposits"
+
+
+def test_seki_deposits_page_has_no_gdp_switch():
+    at = AppTest.from_function(_page_script, kwargs={"page_name": "seki.render_deposits", "root": str(ROOT)}, default_timeout=300)
     at.run()
     assert not at.exception, [e.message for e in at.exception]
-    assert [tab.label for tab in at.tabs] == ["SEKI - GDP by Expenditure", "SEKI - Bank Deposits"]
+    assert not [control for control in at.segmented_control if control.key == "seki:gdp:switch"]
+    assert at.dataframe
 
 
 def test_every_page_gathers_its_inputs_into_one_filter_bar():
@@ -88,7 +116,7 @@ def test_every_page_gathers_its_inputs_into_one_filter_bar():
 
 
 def test_a_switch_and_the_chart_it_picks_share_one_bar():
-    at = AppTest.from_function(_page_script, kwargs={"page_name": "seki", "root": str(ROOT)}, default_timeout=300)
+    at = AppTest.from_function(_page_script, kwargs={"page_name": "seki.render_gdp", "root": str(ROOT)}, default_timeout=300)
     at.run()
     basis = at.segmented_control(key="seki:gdp:switch")
     assert list(basis.options) == ["Current prices", "Constant prices"]

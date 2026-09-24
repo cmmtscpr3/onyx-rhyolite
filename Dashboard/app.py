@@ -26,7 +26,8 @@ PAGES = {
     "Inflation": [st.Page(pihps.render, title="PIHPS · Weekly food prices", icon=":material/rice_bowl:", url_path="pihps")],
     "Consumption": [
         st.Page(spip.render, title="SPIP · Payment system statistics", icon=":material/credit_card:", url_path="spip"),
-        st.Page(seki.render, title="SEKI · Economic & financial statistics", icon=":material/account_balance:", url_path="seki"),
+        st.Page(seki.render_gdp, title="SEKI - GDP by Expenditure", icon=":material/account_balance:", url_path="seki-gdp"),
+        st.Page(seki.render_deposits, title="SEKI - Bank Deposits", icon=":material/account_balance_wallet:", url_path="seki-deposits"),
         st.Page(consumer_survey.render, title="Survei Konsumen · Consumer survey", icon=":material/groups:", url_path="consumer-survey"),
         st.Page(ojk.render, title="SPI · Third-party funds (DPK)", icon=":material/savings:", url_path="ojk"),
         st.Page(qris.render, title="ASPI · QRIS transactions", icon=":material/qr_code:", url_path="qris"),
