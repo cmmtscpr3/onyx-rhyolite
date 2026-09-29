@@ -172,9 +172,8 @@ bi_payment_system.currency_in_circulation,0000,Indonesia (national),2026-02-01,1
 bi_payment_system.currency_in_circulation,0000,Indonesia (national),2026-03-01,1206116.3638,IDR billion
 bi_payment_system.currency_in_circulation,0000,Indonesia (national),2026-04-01,1186499.5918,IDR billion
 bi_payment_system.currency_in_circulation,0000,Indonesia (national),2026-05-01,1205707.4927,IDR billion
-bi_payment_system.currency_in_circulation,0000,Indonesia (national),2026-06-01,1204056.4618,IDR billion
-bi_payment_system.currency_in_circulation,0000,Indonesia (national),2026-07-01,1206008.1495,IDR billion
-bi_payment_system.currency_in_circulation,0000,Indonesia (national),2026-08-01,1228384.0888,IDR billion
+bi_payment_system.currency_in_circulation,0000,Indonesia (national),2026-06-01,1204064.6854,IDR billion
+bi_payment_system.currency_in_circulation,0000,Indonesia (national),2026-07-01,1213089.7117,IDR billion
 bi_payment_system.currency_to_gdp,0000,Indonesia (national),2012-03-01,4.226509252871415,percent
 bi_payment_system.currency_to_gdp,0000,Indonesia (national),2012-06-01,4.515291269181112,percent
 bi_payment_system.currency_to_gdp,0000,Indonesia (national),2012-09-01,4.547635860628958,percent
@@ -232,7 +231,7 @@ bi_payment_system.currency_to_gdp,0000,Indonesia (national),2025-06-01,5.0292369
 bi_payment_system.currency_to_gdp,0000,Indonesia (national),2025-09-01,5.139865181595668,percent
 bi_payment_system.currency_to_gdp,0000,Indonesia (national),2025-12-01,5.708951029414103,percent
 bi_payment_system.currency_to_gdp,0000,Indonesia (national),2026-03-01,5.532190952715085,percent
-bi_payment_system.currency_to_gdp,0000,Indonesia (national),2026-06-01,5.27040170039424,percent
+bi_payment_system.currency_to_gdp,0000,Indonesia (national),2026-06-01,5.270401700233903,percent
 bi_payment_system.currency_to_household_consumption,0000,Indonesia (national),2012-03-01,7.773277020125264,percent
 bi_payment_system.currency_to_household_consumption,0000,Indonesia (national),2012-06-01,8.291235046019874,percent
 bi_payment_system.currency_to_household_consumption,0000,Indonesia (national),2012-09-01,8.278436182149147,percent
@@ -290,7 +289,7 @@ bi_payment_system.currency_to_household_consumption,0000,Indonesia (national),20
 bi_payment_system.currency_to_household_consumption,0000,Indonesia (national),2025-09-01,9.535288229556276,percent
 bi_payment_system.currency_to_household_consumption,0000,Indonesia (national),2025-12-01,10.59569066575331,percent
 bi_payment_system.currency_to_household_consumption,0000,Indonesia (national),2026-03-01,10.274668351470579,percent
-bi_payment_system.currency_to_household_consumption,0000,Indonesia (national),2026-06-01,9.831186855335531,percent
+bi_payment_system.currency_to_household_consumption,0000,Indonesia (national),2026-06-01,9.831186855036444,percent
 bi_payment_system.demand_deposits_rupiah,0000,Indonesia (national),2012-01-01,410081.51,IDR billion
 bi_payment_system.demand_deposits_rupiah,0000,Indonesia (national),2012-02-01,403150.11,IDR billion
 bi_payment_system.demand_deposits_rupiah,0000,Indonesia (national),2012-03-01,427211.92,IDR billion
@@ -465,7 +464,6 @@ bi_payment_system.demand_deposits_rupiah,0000,Indonesia (national),2026-03-01,22
 bi_payment_system.demand_deposits_rupiah,0000,Indonesia (national),2026-04-01,2156036.6771,IDR billion
 bi_payment_system.demand_deposits_rupiah,0000,Indonesia (national),2026-05-01,2232400.8883,IDR billion
 bi_payment_system.demand_deposits_rupiah,0000,Indonesia (national),2026-06-01,2114285.4977,IDR billion
-bi_payment_system.demand_deposits_rupiah,0000,Indonesia (national),2026-07-01,2105006.4782,IDR billion
 bi_payment_system.emoney_instruments_outstanding,0000,Indonesia (national),2012-01-01,8.174208,million instruments
 bi_payment_system.emoney_instruments_outstanding,0000,Indonesia (national),2012-02-01,8.58556,million instruments
 bi_payment_system.emoney_instruments_outstanding,0000,Indonesia (national),2012-03-01,8.771716,million instruments
@@ -640,7 +638,6 @@ bi_payment_system.emoney_instruments_outstanding,0000,Indonesia (national),2026-
 bi_payment_system.emoney_instruments_outstanding,0000,Indonesia (national),2026-04-01,901.498,million instruments
 bi_payment_system.emoney_instruments_outstanding,0000,Indonesia (national),2026-05-01,959.125,million instruments
 bi_payment_system.emoney_instruments_outstanding,0000,Indonesia (national),2026-06-01,964.374,million instruments
-bi_payment_system.emoney_instruments_outstanding,0000,Indonesia (national),2026-07-01,982.916,million instruments
 bi_payment_system.narrow_money,0000,Indonesia (national),2012-01-01,1441635.702851,IDR billion
 bi_payment_system.narrow_money,0000,Indonesia (national),2012-02-01,1429411.934622,IDR billion
 bi_payment_system.narrow_money,0000,Indonesia (national),2012-03-01,1461681.840875,IDR billion
@@ -814,8 +811,7 @@ bi_payment_system.narrow_money,0000,Indonesia (national),2026-02-01,5886893.9145
 bi_payment_system.narrow_money,0000,Indonesia (national),2026-03-01,6033775.7606,IDR billion
 bi_payment_system.narrow_money,0000,Indonesia (national),2026-04-01,5936260.0863,IDR billion
 bi_payment_system.narrow_money,0000,Indonesia (national),2026-05-01,6024907.7425,IDR billion
-bi_payment_system.narrow_money,0000,Indonesia (national),2026-06-01,5937471.1006,IDR billion
-bi_payment_system.narrow_money,0000,Indonesia (national),2026-07-01,5908719.2163,IDR billion
+bi_payment_system.narrow_money,0000,Indonesia (national),2026-06-01,5937479.3242,IDR billion
 bi_payment_system.rtgs.value,0000,Indonesia (national),2012-01-01,10679242.84154386,IDR billion
 bi_payment_system.rtgs.value,0000,Indonesia (national),2012-02-01,10391327.730051279,IDR billion
 bi_payment_system.rtgs.value,0000,Indonesia (national),2012-03-01,10336170.387102222,IDR billion
@@ -991,7 +987,6 @@ bi_payment_system.rtgs.value,0000,Indonesia (national),2026-04-01,17519796.43823
 bi_payment_system.rtgs.value,0000,Indonesia (national),2026-05-01,15617622.07776936,IDR billion
 bi_payment_system.rtgs.value,0000,Indonesia (national),2026-06-01,20354107.17906856,IDR billion
 bi_payment_system.rtgs.value,0000,Indonesia (national),2026-07-01,20156066.06526773,IDR billion
-bi_payment_system.rtgs.value,0000,Indonesia (national),2026-08-01,16545485.326567616,IDR billion
 bi_payment_system.rtgs.volume,0000,Indonesia (national),2012-01-01,1384.169,thousand transactions
 bi_payment_system.rtgs.volume,0000,Indonesia (national),2012-02-01,1375.369,thousand transactions
 bi_payment_system.rtgs.volume,0000,Indonesia (national),2012-03-01,1402.863,thousand transactions
@@ -1167,4 +1162,3 @@ bi_payment_system.rtgs.volume,0000,Indonesia (national),2026-04-01,910.227,thous
 bi_payment_system.rtgs.volume,0000,Indonesia (national),2026-05-01,782.717,thousand transactions
 bi_payment_system.rtgs.volume,0000,Indonesia (national),2026-06-01,934.313,thousand transactions
 bi_payment_system.rtgs.volume,0000,Indonesia (national),2026-07-01,990.173,thousand transactions
-bi_payment_system.rtgs.volume,0000,Indonesia (national),2026-08-01,861.263,thousand transactions

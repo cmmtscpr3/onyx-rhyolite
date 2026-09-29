@@ -209,7 +209,6 @@ bi_card_transactions.atm_debit.cards,0000,Indonesia (national),2026-03-01,325.13
 bi_card_transactions.atm_debit.cards,0000,Indonesia (national),2026-04-01,325.882927,million units
 bi_card_transactions.atm_debit.cards,0000,Indonesia (national),2026-05-01,326.37319299999996,million units
 bi_card_transactions.atm_debit.cards,0000,Indonesia (national),2026-06-01,332.282089,million units
-bi_card_transactions.atm_debit.cards,0000,Indonesia (national),2026-07-01,333.381346,million units
 bi_card_transactions.atm_debit.value,0000,Indonesia (national),2009-01-01,155146.58500000002,IDR billion
 bi_card_transactions.atm_debit.value,0000,Indonesia (national),2009-02-01,138391.53499999997,IDR billion
 bi_card_transactions.atm_debit.value,0000,Indonesia (national),2009-03-01,159533.788,IDR billion
@@ -420,7 +419,6 @@ bi_card_transactions.atm_debit.value,0000,Indonesia (national),2026-03-01,682523
 bi_card_transactions.atm_debit.value,0000,Indonesia (national),2026-04-01,589158.8820882931,IDR billion
 bi_card_transactions.atm_debit.value,0000,Indonesia (national),2026-05-01,632424.0206230563,IDR billion
 bi_card_transactions.atm_debit.value,0000,Indonesia (national),2026-06-01,620151.2901912632,IDR billion
-bi_card_transactions.atm_debit.value,0000,Indonesia (national),2026-07-01,620793.8027280088,IDR billion
 bi_card_transactions.atm_debit.volume,0000,Indonesia (national),2009-01-01,117718.59500000002,thousand transactions
 bi_card_transactions.atm_debit.volume,0000,Indonesia (national),2009-02-01,107473.033,thousand transactions
 bi_card_transactions.atm_debit.volume,0000,Indonesia (national),2009-03-01,125964.90500000001,thousand transactions
@@ -631,7 +629,6 @@ bi_card_transactions.atm_debit.volume,0000,Indonesia (national),2026-03-01,55102
 bi_card_transactions.atm_debit.volume,0000,Indonesia (national),2026-04-01,496977.108,thousand transactions
 bi_card_transactions.atm_debit.volume,0000,Indonesia (national),2026-05-01,538957.8970000005,thousand transactions
 bi_card_transactions.atm_debit.volume,0000,Indonesia (national),2026-06-01,520147.12600000005,thousand transactions
-bi_card_transactions.atm_debit.volume,0000,Indonesia (national),2026-07-01,525450.472,thousand transactions
 bi_card_transactions.credit.cards,0000,Indonesia (national),2009-01-01,11.562572,million units
 bi_card_transactions.credit.cards,0000,Indonesia (national),2009-02-01,11.552233,million units
 bi_card_transactions.credit.cards,0000,Indonesia (national),2009-03-01,11.715461,million units
@@ -842,7 +839,6 @@ bi_card_transactions.credit.cards,0000,Indonesia (national),2026-03-01,18.663078
 bi_card_transactions.credit.cards,0000,Indonesia (national),2026-04-01,18.752567,million units
 bi_card_transactions.credit.cards,0000,Indonesia (national),2026-05-01,18.789907,million units
 bi_card_transactions.credit.cards,0000,Indonesia (national),2026-06-01,18.085755,million units
-bi_card_transactions.credit.cards,0000,Indonesia (national),2026-07-01,18.151371,million units
 bi_card_transactions.credit.value,0000,Indonesia (national),2009-01-01,9701.247843043999,IDR billion
 bi_card_transactions.credit.value,0000,Indonesia (national),2009-02-01,9070.451926559002,IDR billion
 bi_card_transactions.credit.value,0000,Indonesia (national),2009-03-01,10816.020573548,IDR billion
@@ -1053,7 +1049,6 @@ bi_card_transactions.credit.value,0000,Indonesia (national),2026-03-01,43092.963
 bi_card_transactions.credit.value,0000,Indonesia (national),2026-04-01,41830.67349150509,IDR billion
 bi_card_transactions.credit.value,0000,Indonesia (national),2026-05-01,43756.72381597696,IDR billion
 bi_card_transactions.credit.value,0000,Indonesia (national),2026-06-01,43738.20705918406,IDR billion
-bi_card_transactions.credit.value,0000,Indonesia (national),2026-07-01,45279.86750750999,IDR billion
 bi_card_transactions.credit.volume,0000,Indonesia (national),2009-01-01,14380.334,thousand transactions
 bi_card_transactions.credit.volume,0000,Indonesia (national),2009-02-01,13117.527,thousand transactions
 bi_card_transactions.credit.volume,0000,Indonesia (national),2009-03-01,15108.508,thousand transactions
@@ -1264,4 +1259,3 @@ bi_card_transactions.credit.volume,0000,Indonesia (national),2026-03-01,46617.94
 bi_card_transactions.credit.volume,0000,Indonesia (national),2026-04-01,44940.629,thousand transactions
 bi_card_transactions.credit.volume,0000,Indonesia (national),2026-05-01,47529.55799999999,thousand transactions
 bi_card_transactions.credit.volume,0000,Indonesia (national),2026-06-01,49347.153999999995,thousand transactions
-bi_card_transactions.credit.volume,0000,Indonesia (national),2026-07-01,51871.138,thousand transactions
