@@ -11,7 +11,7 @@ import datetime as dt
 import pytest
 
 from collectors.sources import bi_consumer_survey as sk
-from collectors import model
+from collectors import excelio, model
 from collectors.sources import bi_seki, bi_spip, ibid, ojk_dpk, pihps
 
 SELECTORS_ASSET_PREFIX = ibid.SELECTORS["asset_prefix"]
@@ -125,6 +125,36 @@ def test_spip_since_filters_history(fixtures):
     spec = next(s for s in bi_spip.load_config() if s.table == "TABEL_2")
     observations = bi_spip.parse_table(content, spec, since=dt.date(2025, 1, 1))
     assert observations and min(o.ref_date for o in observations) >= dt.date(2025, 1, 1)
+
+
+def test_spip_fetches_the_xlsx_since_the_xls_links_died():
+    """Every .xls URL has redirected to BI's 404 page since September 2026."""
+    assert all(spec.url.endswith(".xlsx") for spec in bi_spip.load_config())
+
+
+def test_spip_xlsx_carries_the_numbers_the_xls_did(fixtures):
+    """The format changed and the table did not: a shifted row or column would
+    move every month, whereas BI's own revisions touch only the newest few."""
+    spec = next(s for s in bi_spip.load_config() if s.table == "TABEL_2")
+
+    def readings(name):
+        content = (fixtures / name).read_bytes()
+        return {(o.series_id, o.ref_date): o.value for o in bi_spip.parse_table(content, spec)}
+
+    old, new = readings("bi_spip_tabel_2.xls"), readings("bi_spip_tabel_2.xlsx")
+    assert set(old) <= set(new)
+    revisable = max(date for _, date in old) - dt.timedelta(days=92)
+    revised = {key for key in old if old[key] != new[key]}
+    assert all(date > revisable for _, date in revised), sorted(revised)
+    assert len(revised) < len(old) // 100
+
+
+def test_a_web_page_in_place_of_a_workbook_is_named_as_one():
+    """BI's retired .xls links answered with its 404 page, which the parser
+    could only report as "Expected BOF record"."""
+    page = b"\r\n<!DOCTYPE html>\r\n<html><head><title>Halaman tidak ditemukan</title></head></html>"
+    with pytest.raises(excelio.WorkbookError, match="web page"):
+        excelio.load(page, "xls")
 
 
 # ---------------------------------------------------------------------- SEKI

@@ -82,6 +82,38 @@ def test_the_commit_step_touches_only_the_datasets(path):
     assert "!inputs.dry_run" in commit["if"]
 
 
+#: The first majors of these actions that run on Node 24.  Runners dropped Node 20
+#: on 23 September 2026; anything older is force-run on 24 with a warning.
+NODE_24 = {"actions/checkout": 6, "actions/setup-python": 6}
+
+
+@pytest.mark.parametrize("path", WORKFLOWS, ids=lambda p: p.stem)
+def test_each_workflow_uses_actions_that_run_on_node_24(path):
+    steps = _load(path)["jobs"]["collect"]["steps"]
+    used = dict(step["uses"].split("@v") for step in steps if "uses" in step)
+    assert set(used) == set(NODE_24)
+    for action, first in NODE_24.items():
+        assert int(used[action].split(".")[0]) >= first, f"{action}@v{used[action]}"
+
+
+@pytest.mark.parametrize("path", WORKFLOWS, ids=lambda p: p.stem)
+def test_one_failed_collector_does_not_cost_the_others_their_data(path):
+    """run.py writes what every other collector found and then exits 1.
+
+    Left to the default, that exit skips the commit and the runner takes the
+    good data with it -- which is how one blocked source used to empty a
+    whole monthly run.
+    """
+    steps = _load(path)["jobs"]["collect"]["steps"]
+    collect = next(s for s in steps if s.get("name") == "Collect")
+    commit = next(s for s in steps if s.get("name") == "Commit refreshed datasets")
+    assert collect["id"] == "collect"
+    assert "!cancelled()" in commit["if"]
+    assert "steps.collect.outcome == 'failure'" in commit["if"]
+    # Never on a run whose collectors did not get as far as running.
+    assert "steps.collect.outcome == 'success'" in commit["if"]
+
+
 def test_only_the_weekly_run_installs_a_browser():
     """ibid needs one; nothing in the monthly or quarterly group does."""
     for path in WORKFLOWS:

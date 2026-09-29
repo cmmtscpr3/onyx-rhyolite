@@ -21,7 +21,7 @@ Three GitHub Actions workflows in `.github/workflows/`, one per cadence:
 | Cadence | Collectors | Cron (UTC) | Local |
 |---|---|---|---|
 | `weekly` | `pihps`, `ibid` | `0 2 * * 6` | Sat 09:00 WIB |
-| `monthly` | `bi_spip`, `bi_seki`, `bi_consumer_survey`, `ojk_dpk`, `magpieiq` | `0 3 15 * *` | 15th 10:00 WIB |
+| `monthly` | `bi_spip`, `bi_seki`, `bi_consumer_survey`, `ojk_dpk` | `0 3 15 * *` | 15th 10:00 WIB |
 | `quarterly` | *(reserved for BPS)* | `0 4 20 1,4,7,10 *` | 20th 11:00 WIB |
 
 The cadence lives in `cli.GROUPS`, not in the YAML, so `python Collectors/run.py weekly` is
@@ -48,6 +48,19 @@ Three things to know:
   log the block. It stays manual — see the caveat below. `cli.UNSCHEDULED` records that, and
   a test asserts every collector is either scheduled or listed there with a reason, so a new
   collector cannot be forgotten.
+- **`magpieiq` is on no schedule either.** Magpie IQ answered both monthly runs on GitHub's
+  runners (September 2026) with HTTP 403, while serving the same pages to other networks,
+  so a cron could only log the block and turn every monthly run red. Refresh it by hand
+  from a machine it serves:
+
+  ```bash
+  python Collectors/run.py consumption --only magpieiq
+  ```
+
+  Nothing is lost by it yet: Magpie IQ itself has published nothing after May 2026.
+- **One source failing does not cost the others their data.** `run.py` lets each collector
+  fail on its own and still writes what the rest found, and the workflows commit that even
+  when the Collect step has failed. The run still ends red, so the failure is not hidden.
 
 ## Incremental collection
 

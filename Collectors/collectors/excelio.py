@@ -96,7 +96,21 @@ def sniff(content: bytes, suffix: str = "") -> str:
         return "xls"
     if content.startswith(_ZIP_MAGIC):
         return "xlsx"
+    if _looks_like_html(content):
+        return "html"
     return suffix.lower().lstrip(".")
+
+
+def _looks_like_html(content: bytes) -> bool:
+    """A web page where a workbook was asked for.
+
+    A moved document usually redirects to the site's 404 page, which arrives
+    as HTTP 200 and would otherwise be handed to a workbook parser on the
+    strength of the URL's extension -- which is how BI's retired SPIP ``.xls``
+    links surfaced as "Expected BOF record; found b'\\r\\n<!DOCT'".
+    """
+    head = content[:512].lstrip(b"\xef\xbb\xbf \t\r\n").lower()
+    return head.startswith((b"<!doctype html", b"<html"))
 
 
 def load(content: bytes, suffix: str = "") -> dict[str, Grid]:
@@ -106,6 +120,11 @@ def load(content: bytes, suffix: str = "") -> dict[str, Grid]:
         return _load_xls(content)
     if detected in {"xlsx", "xlsm"}:
         return _load_xlsx(content)
+    if detected == "html":
+        raise WorkbookError(
+            "a web page came back where a workbook was expected; "
+            "the document has most likely moved"
+        )
     raise WorkbookError(f"unsupported workbook format {detected or suffix!r}")
 
 

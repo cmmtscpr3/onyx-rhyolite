@@ -138,7 +138,6 @@ def test_the_cadence_groups_select_what_the_cron_will_run():
         "bi_seki",
         "bi_consumer_survey",
         "ojk_dpk",
-        "magpieiq",
     ]
 
 
@@ -168,11 +167,18 @@ def test_every_scheduled_name_is_a_real_collector():
             assert name in cli.COLLECTORS, f"{cadence} -> {name}"
 
 
-def test_qris_is_the_only_unscheduled_collector_and_says_why():
-    """ASPI blocks datacentre addresses, so a cron could only log the block."""
-    assert set(cli.UNSCHEDULED) == {"qris"}
+def test_the_unscheduled_collectors_are_the_blocked_ones_and_say_why():
+    """ASPI and Magpie IQ both refuse a runner, so a cron could only log the block.
+
+    Each reason has to say both why and how to run it instead, or the collector
+    is just forgotten with extra steps.
+    """
+    assert set(cli.UNSCHEDULED) == {"qris", "magpieiq"}
     assert "datacentre" in cli.UNSCHEDULED["qris"]
-    assert "qris" not in {n for names in cli.GROUPS.values() for n in names}
+    assert "403" in cli.UNSCHEDULED["magpieiq"]
+    assert "--only magpieiq" in cli.UNSCHEDULED["magpieiq"]
+    scheduled = {n for names in cli.GROUPS.values() for n in names}
+    assert scheduled.isdisjoint(cli.UNSCHEDULED)
 
 
 def test_the_quarterly_group_is_reserved_and_explains_itself(capsys):

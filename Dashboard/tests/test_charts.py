@@ -100,6 +100,7 @@ def test_freshness_table_marks_the_known_states(bundle):
     assert table.loc["ojk", "Status"] == "stale"
     assert table.loc["qris", "Status"] == "manual"
     assert table.loc["ibid", "Status"] == "manual"
+    assert table.loc["ecommerce", "Status"] == "manual"
     assert table.loc["consumer_survey", "Status"] in {"fresh", "late"}
     assert table.loc["pihps", "Latest observation"] >= dt.date(2026, 9, 10)
 
