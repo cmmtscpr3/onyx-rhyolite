@@ -68,7 +68,7 @@ OPT_IN: frozenset[str] = frozenset({"vehicle_listings"})
 #: and a new collector is slotted in one place.
 GROUPS: dict[str, tuple[str, ...]] = {
     "weekly": ("pihps", "ibid"),
-    "monthly": ("bi_spip", "bi_seki", "bi_consumer_survey", "ojk_dpk", "magpieiq"),
+    "monthly": ("bi_spip", "bi_seki", "bi_consumer_survey", "ojk_dpk"),
     # Reserved.  There is no BPS source module yet, so this reports the same
     # BPS_API_KEY message as `unemployment` instead of failing; the cron exists
     # so that adding the collector is one module plus one entry here.  Note
@@ -84,6 +84,11 @@ UNSCHEDULED: dict[str, str] = {
     "qris": (
         "ASPI blocks datacentre addresses, so a scheduled run could only ever "
         "log the block; run it by hand with --html against a saved page"
+    ),
+    "magpieiq": (
+        "Magpie IQ answers GitHub's runners with HTTP 403 while serving the same "
+        "pages to other networks, so a scheduled run could only ever log the "
+        "block; run it by hand with `consumption --only magpieiq`"
     ),
 }
 

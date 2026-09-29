@@ -1,12 +1,17 @@
 """BI payment and transaction system statistics (SPIP).
 
-BI publishes this family as one ``.xls`` per table under
+BI publishes this family as one ``.xlsx`` per table under
 ``/id/statistik/ekonomi-keuangan/spip/Documents/``, each holding the **full
 monthly history** -- e-money back to 2009, the headline indicators to 2012 --
 so one fetch both backfills and extends, and there is no pagination to walk.
 
+The tables were ``.xls`` until September 2026.  Every ``.xls`` URL now
+redirects to BI's 404 page, while BI's own index still links the old names,
+so the index is no guide: the ``.xlsx`` beside each one is what is served.
+
 Naming, because it is a trap: BI renamed "SPI" to SPIP and moved the tables;
-the index now lives at ``/ssp/Default.aspx`` and ``/spi/Default.aspx`` is gone.
+the index now lives at ``/spip/Default.aspx`` (``/ssp/`` redirects there) and
+``/spi/Default.aspx`` is gone.
 OJK's "SPI" is an entirely different publication, collected in ``ojk_dpk.py``.
 
 Normalisation is deliberately *not* done here.  Raw e-money and card growth is
@@ -28,8 +33,8 @@ from ..http import fetch
 from ..model import Obs
 from ._specs import RowSpec, unit_from_row
 
-INDEX_URL = "https://www.bi.go.id/id/statistik/ekonomi-keuangan/ssp/Default.aspx"
-DOCUMENT_URL = "https://www.bi.go.id/id/statistik/ekonomi-keuangan/spip/Documents/{table}.xls"
+INDEX_URL = "https://www.bi.go.id/id/statistik/ekonomi-keuangan/spip/Default.aspx"
+DOCUMENT_URL = "https://www.bi.go.id/id/statistik/ekonomi-keuangan/spip/Documents/{table}.xlsx"
 CONFIG_PATH = paths.CONFIG / "bi_spip.yaml"
 
 
@@ -60,7 +65,7 @@ def load_config(path: Path | str = CONFIG_PATH) -> tuple[TableSpec, ...]:
 
 
 def parse_table(content: bytes, spec: TableSpec, *, since: dt.date | None = None) -> list[Obs]:
-    grids = excelio.load(content, "xls")
+    grids = excelio.load(content, "xlsx")
     grid = next(iter(grids.values()))
     year_row, period_row = excelio.detect_header(grid)
     columns = excelio.periods(grid, year_row, period_row)
@@ -103,7 +108,7 @@ def collect(
 ):
     """Fetch every SPIP table and upsert each prefix into its own dataset file.
 
-    The download cannot be narrowed: each URL is a static ``.xls`` carrying the
+    The download cannot be narrowed: each URL is a static ``.xlsx`` carrying the
     whole history, with no date parameter to ask for less.  What narrowing does
     is stop re-emitting months already on file, per target prefix -- the three
     files run to different months, so one watermark for all of them would

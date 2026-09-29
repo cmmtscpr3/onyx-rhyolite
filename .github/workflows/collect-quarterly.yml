@@ -42,12 +42,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ env.TARGET_BRANCH }}
           fetch-depth: 0        # a shallow clone cannot rebase before pushing
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
           cache: pip
@@ -56,13 +56,18 @@ jobs:
       - run: pip install -r Collectors/requirements.txt
 
       - name: Collect
+        id: collect
         run: python Collectors/run.py quarterly $DRY_RUN $FULL
         env:
           DRY_RUN: ${{ inputs.dry_run && '--dry-run' || '' }}
           FULL: ${{ inputs.full && '--full' || '' }}
 
       - name: Commit refreshed datasets
-        if: ${{ !inputs.dry_run }}
+        # Runs even when a collector failed.  run.py lets each source fail on
+        # its own and still writes what the others found, so skipping this
+        # step would throw their data away with the runner.  The failed
+        # Collect step still turns the run red.
+        if: ${{ !cancelled() && !inputs.dry_run && (steps.collect.outcome == 'success' || steps.collect.outcome == 'failure') }}
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"

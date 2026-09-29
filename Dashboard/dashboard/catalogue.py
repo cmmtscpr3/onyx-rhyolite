@@ -637,8 +637,10 @@ DATASETS: tuple[Dataset, ...] = (
         cadence="monthly",
         sources=("ecommerce_gmv",),
         collector="magpieiq",
-        late_after_days=95,
+        late_after_days=None,
+        forced_status="manual",
         notes=(
+            "Refreshed by hand: Magpie IQ answers GitHub's runners with HTTP 403, so it is on no schedule. Run `python Collectors/run.py consumption --only magpieiq` from a network it serves.",
             "One vendor's estimates from SKU-level tracking, read off the published chart to about USD 0.4 million; not reported platform figures.",
             "The total-market series rebases in April 2025: the share it attributes to platforms other than the three shown jumps from about 10% to about 30% in one month. Compare it across that date with care.",
             "Magpie IQ's terms mark the data as not free to republish; check them before sharing this page outside the project.",
