@@ -25,7 +25,7 @@ It should also:
 
 - **Team:** you and Claude as the core team, with an analyst joining at a few checkpoints.
 - **Pace:** part-time, about 1–2 working sessions per week.
-- **Scale:** 10–50 indicators to start. Hundreds of indicators add about 1–2 weeks to Phases 1 and 5.
+- **Scale:** 66 indicators in v1 (30 weekly, 36 monthly). See [Scope/SCOPE.md](Scope/SCOPE.md).
 - **Data size:** under 1,000 points per indicator, so we use classic statistical methods, not ML or deep learning.
 - **History:** monthly series need 3+ years and weekly series 2+ years for reliable seasonality. Shorter series get simpler checks and a "low confidence" tag.
 - **Tools:** Python with pandas, statsmodels and a changepoint library (for example, ruptures).
@@ -40,12 +40,12 @@ These give Phase 1 a head start. We still need to check each one.
 - **`Dataset/Food Prices/PIHPS/`** holds food prices by region for traditional markets, modern markets and wholesale, as yearly Excel files.
 - **`Dashboard/`** is an existing app. It could host the EWS output.
 
-Things to watch for:
+Scope decided in Phase 0 (details in [Scope/SCOPE.md](Scope/SCOPE.md)):
 
-- **Short histories:** some series start in 2023 (e-commerce GMV) or 2025 (`bi_seki`).
-- **Quarterly data:** QRIS is quarterly, which is outside our monthly/weekly scope. We need to decide whether to include it.
-- **Different format:** the ibid car and motor files are auction listings, not time series. They would need to be turned into an indicator first (for example, median price or sell-through rate per week).
+- **In scope:** PIHPS food prices (10 groups × 3 markets), consumer survey headlines, card transactions, e-money and payment system series.
+- **Out of scope for v1:** ibid, QRIS, OJK, SEKI (short history or quarterly), e-commerce GMV (short history) and quarterly ratios.
 - **Moving holidays:** Ramadan and Idul Fitri move about 11 days earlier each year. They drive food prices and consumption, so the holiday calendar is critical.
+- **PIHPS week dates** change weekday each year, so Phase 1 must map them to a common week convention.
 
 ## 4. Workplan map
 
@@ -102,7 +102,7 @@ Expect a slower pace over the year-end holidays during the pilot.
 - End users, and the tools they already use for reports.
 - Repo structure, environment and input data format.
 
-**Deliverable:** scope notes, the indicator inventory and the code skeleton.
+**Deliverable:** scope notes, the indicator inventory, the data spec and a draft known-events list, all in [Scope/](Scope/). You set up the code environment.
 
 ### Phase 1 — Data foundation (weeks 2–3)
 
