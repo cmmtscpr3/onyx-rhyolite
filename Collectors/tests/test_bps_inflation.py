@@ -11,6 +11,11 @@ page is the one BPS really served, reduced to its visible text.
 from __future__ import annotations
 
 import datetime as dt
+import functools
+import http.server
+import os
+import socketserver
+import threading
 
 import pytest
 
@@ -141,9 +146,124 @@ def test_numbers_the_labels_cannot_place_are_reported(fixtures):
     assert any(w.startswith("skipped 8 number(s) with no month") for w in warnings), warnings
 
 
-def test_the_collector_needs_a_saved_page():
-    with pytest.raises(SourceUnavailable, match="--html"):
+# ------------------------------------------------------------ the browser
+def test_without_a_saved_page_the_table_is_read_through_the_browser(fixtures, monkeypatch, tmp_path):
+    kept = tmp_path / "bps_inflasi.html"
+    markup = (fixtures / "bps_inflation_rows.html").read_text(encoding="utf-8")
+    monkeypatch.setattr(bps_inflation, "fetch_live", lambda: (markup, kept))
+    (report,) = bps_inflation.collect(dry_run=True)
+    assert report.added == 32 * len(SERIES) and not report.written
+    assert any(str(kept) in warning for warning in report.warnings)
+
+
+def test_a_check_left_in_the_window_is_named_with_where_the_page_was_kept(fixtures, monkeypatch, tmp_path):
+    kept = tmp_path / "bps_inflasi.html"
+    challenge = (fixtures / "bps_challenge.html").read_text(encoding="utf-8")
+    monkeypatch.setattr(bps_inflation, "fetch_live", lambda: (challenge, kept))
+    with pytest.raises(SourceUnavailable, match="Cloudflare") as caught:
         bps_inflation.collect(dry_run=True)
+    assert str(kept) in str(caught.value)
+
+
+def test_the_browser_is_visible_synchronous_chromium_and_left_as_it_is(monkeypatch, tmp_path):
+    """Pinned because it is the whole point: a person at a visible window passes
+    any check, and nothing disguises the browser or passes the check for them.
+    Headless, a borrowed user agent or a stealth flag would make it a bot."""
+    sync_api = pytest.importorskip("playwright.sync_api")
+    seen = {}
+
+    class Page:
+        def goto(self, url, **options):
+            seen["goto"] = url
+
+        def wait_for_selector(self, selector, **options):
+            seen["waited_for"] = selector
+
+        def wait_for_load_state(self, *args, **options):
+            pass
+
+        def content(self):
+            return "<table><tr><td>Bergejolak</td></tr></table>"
+
+    class Browser:
+        def new_page(self, **options):
+            seen["page_options"] = options
+            return Page()
+
+        def close(self):
+            seen["closed"] = True
+
+    class Chromium:
+        def launch(self, **options):
+            seen["launch"] = options
+            return Browser()
+
+    class Playwright:
+        chromium = Chromium()
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *exc):
+            return False
+
+    monkeypatch.setattr(sync_api, "sync_playwright", lambda: Playwright())
+    monkeypatch.setenv("CHROMIUM_PATH", "auto")  # let Playwright choose, so launch sees only our options
+    monkeypatch.setattr(bps_inflation.tempfile, "gettempdir", lambda: str(tmp_path))
+
+    markup, kept = bps_inflation.fetch_live(url="https://example.invalid/table", wait_s=5)
+    assert seen["launch"] == {"headless": False}
+    assert set(seen["page_options"]) == {"locale"}
+    assert seen["goto"] == "https://example.invalid/table"
+    assert "Bergejolak" in seen["waited_for"]
+    assert seen["closed"]
+    assert kept.parent == tmp_path and kept.read_text(encoding="utf-8") == markup
+
+
+# A real, visible Chromium against pages served from this machine -- never
+# against BPS, where an unattended browser is exactly what the check is for.
+needs_a_display = pytest.mark.skipif(
+    not os.environ.get("DISPLAY"),
+    reason="a visible browser needs a display; run the suite under xvfb-run to include these",
+)
+
+
+@pytest.fixture
+def local_pages(fixtures, tmp_path):
+    (tmp_path / "table.html").write_text(
+        (fixtures / "bps_inflation_rows.html").read_text(encoding="utf-8"), encoding="utf-8"
+    )
+    # A check that clears reloads the page into the table, as Cloudflare's does.
+    (tmp_path / "check.html").write_text(
+        "<title>Just a moment...</title><script>setTimeout(() => location.replace('/table.html'), 1500)</script>"
+    )
+    (tmp_path / "never.html").write_text("<title>Just a moment...</title><p>Verifying you are human.</p>")
+    handler = functools.partial(_QuietHandler, directory=str(tmp_path))
+    server = socketserver.TCPServer(("127.0.0.1", 0), handler)
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    yield f"http://127.0.0.1:{server.server_address[1]}"
+    server.shutdown()
+    server.server_close()
+
+
+class _QuietHandler(http.server.SimpleHTTPRequestHandler):
+    def log_message(self, *args):
+        pass
+
+
+@needs_a_display
+def test_a_visible_browser_waits_through_a_check_that_reloads_the_page(local_pages):
+    pytest.importorskip("playwright.sync_api")
+    markup, _ = bps_inflation.fetch_live(url=f"{local_pages}/check.html", wait_s=30)
+    observations, warnings = bps_inflation.parse(markup)
+    assert len(observations) == 32 * len(SERIES) and warnings == []
+
+
+@needs_a_display
+def test_a_visible_browser_gives_up_when_the_table_never_comes(local_pages):
+    pytest.importorskip("playwright.sync_api")
+    with pytest.raises(SourceUnavailable, match="did not appear within 3 seconds"):
+        bps_inflation.fetch_live(url=f"{local_pages}/never.html", wait_s=3)
 
 
 def test_the_inflation_target_reads_a_saved_page_end_to_end(fixtures, capsys):

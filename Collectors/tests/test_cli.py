@@ -67,7 +67,8 @@ def test_every_collector_is_reachable_from_some_indicator():
 
 
 def test_opt_in_names_real_indicators():
-    assert cli.OPT_IN <= set(cli.INDICATORS)
+    assert set(cli.OPT_IN) <= set(cli.INDICATORS)
+
 
 
 def test_a_deferred_indicator_explains_itself_and_does_not_fail(capsys):
@@ -108,6 +109,10 @@ def test_all_announces_what_it_skipped(capsys, monkeypatch):
     assert "skipping vehicle_listings (slow)" in out
     assert "run.py vehicle_listings" in out
     assert "ibid" not in ran
+    # `all` stays unattended: without --html, inflation opens a browser window
+    # and waits for a person at it.
+    assert "skipping inflation (opens a browser window)" in out
+    assert "bps_inflation" not in ran
 
 
 def test_an_explicit_target_does_not_announce_a_skip(capsys, monkeypatch):

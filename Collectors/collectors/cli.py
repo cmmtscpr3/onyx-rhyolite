@@ -57,13 +57,17 @@ INDICATORS: dict[str, tuple[str, ...]] = {
     "inflation": ("bps_inflation",),
 }
 
-#: Indicators `all` skips, because they cost far more than everything else put
-#: together: the ibid scrape drives a browser over a few hundred pages and took
-#: 45 minutes against about 4 for the rest.  A cheap `all` is one people
-#: actually run, so these are opt-in.  They stay in INDICATORS so that
-#: `run.py vehicle_listings` still works and the positional choices are
-#: unchanged.
-OPT_IN: frozenset[str] = frozenset({"vehicle_listings"})
+#: Indicators `all` skips, and the reason it says for each.  A quick,
+#: unattended `all` is one people actually run: the ibid scrape drives a
+#: browser over a few hundred pages and took 45 minutes against about 4 for the
+#: rest, and inflation opens a browser window for a person to watch.  They stay
+#: in INDICATORS so that `run.py vehicle_listings` still works and the
+#: positional choices are unchanged.
+OPT_IN: dict[str, str] = {
+    "vehicle_listings": "slow",
+    # Without --html it opens a browser window and waits for a person at it.
+    "inflation": "opens a browser window",
+}
 
 #: Cadence -> the collectors that run on it.  The schedule lives here rather
 #: than in the workflow files, so `run.py weekly` is exactly what the cron runs
@@ -95,7 +99,8 @@ UNSCHEDULED: dict[str, str] = {
     "bps_inflation": (
         "BPS answers anything but a browser with a Cloudflare challenge, and its "
         "WebAPI refuses foreign networks outright, so there is nothing a cron can "
-        "fetch; save the table page in a browser and run `inflation --html PATH`"
+        "fetch; run `inflation` at a desktop to read it in a visible browser "
+        "window, or save the page and run `inflation --html PATH`"
     ),
 }
 
@@ -239,7 +244,7 @@ def main(argv: list[str] | None = None) -> int:
         # Said out loud, because a silent omission reads as a bug the first time
         # someone expects fresh listings from `all`.
         for indicator in sorted(OPT_IN):
-            print(f"-- skipping {indicator} (slow); run it with: run.py {indicator}")
+            print(f"-- skipping {indicator} ({OPT_IN[indicator]}); run it with: run.py {indicator}")
 
     backups = Backups(stamp=paths.run_stamp(), enabled=not args.no_backup)
     sess = session()

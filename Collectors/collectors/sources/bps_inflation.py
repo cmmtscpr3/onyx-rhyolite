@@ -7,13 +7,20 @@ Y-to-D)*, which runs from 2009.
 **BPS serves this table to browsers only.**  ``www.bps.go.id`` answers any
 other client with a Cloudflare challenge (HTTP 403, "Just a moment..."), and
 its WebAPI answers networks outside Indonesia -- GitHub's runners included --
-with a "Perimeter WAF Block" before a key is even looked at.  So there is no
-live fetch here, only a page saved from a browser::
+with a "Perimeter WAF Block" before a key is even looked at.  So it is read
+through a browser, by hand, one of two ways::
 
-    python Collectors/run.py inflation --html bps_inflasi.html
+    python Collectors/run.py inflation                           # a browser window
+    python Collectors/run.py inflation --html bps_inflasi.html   # a saved page
 
-Open the table, wait for it to render, and save the page; any copy whose
-markup holds the table will do.
+The first opens the table in a **visible** Chromium window, driven through
+Playwright's synchronous API, and waits for the table to render.  Visible on
+purpose: if Cloudflare shows a check, the person at the window passes it.
+Nothing here tries to pass it for them -- no headless mode, no stealth flags,
+no borrowed user agent, no clicking -- which is also why it needs a desktop and
+never runs on a schedule.  The page it rendered is kept, so it can be re-read
+with ``--html`` without a browser.  The second reads any copy saved from a
+browser whose markup holds the table.
 
 **The parser assumes no layout.**  It was written before a saved copy of the
 page was available, and BPS reshapes tables without notice, so rather than read
@@ -48,6 +55,7 @@ from __future__ import annotations
 
 import datetime as dt
 import re
+import tempfile
 from collections import Counter
 from dataclasses import dataclass
 from html.parser import HTMLParser
@@ -85,6 +93,15 @@ MEASURES: dict[str, tuple[str, ...]] = {
 #: Rates are published to two decimals, so an identity can be off by the
 #: rounding of the three numbers in it and no more.
 TOLERANCE = 0.02
+
+#: How long the browser window waits for the table.  A person may have a check
+#: to pass first, so this is generous; nothing is lost by waiting.
+WAIT_FOR_TABLE_S = 300
+
+#: The table, as opposed to a challenge page or a table still loading: one
+#: naming a component no other BPS table names.  Playwright re-queries it after
+#: every navigation, so it outlasts the reload that follows a passed check.
+TABLE_READY = "table:has-text('Bergejolak'), table:has-text('Diatur Pemerintah')"
 
 _YEAR = re.compile(r"(?<!\d)(?:19|20)\d{2}(?!\d)")
 _NUMBER = re.compile(r"[+-]?(?:\d+(?:[.,]\d+)?|[.,]\d+)")
@@ -372,6 +389,67 @@ def check(observations: list[Obs]) -> list[str]:
     return warnings
 
 
+# ------------------------------------------------------------ the browser
+def _duration(seconds: int) -> str:
+    if seconds < 120:
+        return f"{seconds} seconds"
+    return f"{seconds // 60} minutes"
+
+
+def fetch_live(*, url: str = URL, wait_s: int = WAIT_FOR_TABLE_S) -> tuple[str, Path]:
+    """Open ``url`` in a visible Chromium window and return the page once the
+    table has rendered, with the path of the copy kept of it."""
+    try:
+        from playwright.sync_api import Error as PlaywrightError
+        from playwright.sync_api import TimeoutError as PlaywrightTimeout
+        from playwright.sync_api import sync_playwright
+    except ImportError as exc:
+        raise SourceUnavailable(
+            "playwright is not installed; pip install -r Collectors/requirements.txt"
+        ) from exc
+    from .ibid import chromium_path
+
+    print(
+        f"   opening the BPS table in a browser window; pass any check it shows "
+        f"there -- the table is waited for up to {_duration(wait_s)}"
+    )
+    options: dict = {"headless": False}
+    executable = chromium_path()
+    if executable:
+        options["executable_path"] = executable
+    with sync_playwright() as p:
+        try:
+            browser = p.chromium.launch(**options)
+        except PlaywrightError as exc:
+            reason = str(exc).strip().splitlines()[0] if str(exc).strip() else type(exc).__name__
+            raise SourceUnavailable(
+                f"could not open a browser window ({reason}); a visible browser needs a "
+                f"desktop session -- run this at your own machine, or save the page by hand "
+                f"and use --html"
+            ) from exc
+        try:
+            page = browser.new_page(locale="id-ID")
+            page.goto(url, wait_until="domcontentloaded", timeout=60_000)
+            page.wait_for_selector(TABLE_READY, state="attached", timeout=wait_s * 1000)
+            # Let late requests settle, so a table still filling in is not cut short.
+            try:
+                page.wait_for_load_state("networkidle", timeout=15_000)
+            except PlaywrightTimeout:
+                pass
+            markup = page.content()
+        except PlaywrightTimeout as exc:
+            raise SourceUnavailable(
+                f"the table did not appear within {_duration(wait_s)}; if the window "
+                f"showed a check, run again and pass it, or save the page by hand and use --html"
+            ) from exc
+        finally:
+            browser.close()
+
+    saved = Path(tempfile.gettempdir()) / f"bps_inflasi_{paths.run_stamp()}.html"
+    saved.write_text(markup, encoding="utf-8")
+    return markup, saved
+
+
 # ------------------------------------------------------------ the entry
 def parse(markup: str) -> tuple[list[Obs], list[str]]:
     """Every observation the saved page yields, and anything worth a warning."""
@@ -434,15 +512,19 @@ def collect(
     backups=None,
     html: str | None = None,
 ):
-    """Parse a saved copy of the table into ``bps_inflation.csv``."""
+    """Read the table -- from ``html`` when given, else through a browser
+    window -- into ``bps_inflation.csv``."""
     from ..sinks import long_csv
 
-    if not html:
-        raise SourceUnavailable(
-            "BPS serves this table only to a browser; save the page and run "
-            "`run.py inflation --html PATH`"
-        )
-    observations, warnings = read_saved(html)
+    if html:
+        observations, warnings = read_saved(html)
+    else:
+        markup, saved = fetch_live()
+        try:
+            observations, warnings = parse(markup)
+        except (SourceUnavailable, TableError) as exc:
+            raise type(exc)(f"{exc} (the page as rendered is kept at {saved})") from exc
+        warnings.append(f"the page as rendered is kept at {saved}; --html re-reads it without a browser")
     if since:
         observations = [obs for obs in observations if obs.ref_date >= since]
     report = long_csv.upsert(

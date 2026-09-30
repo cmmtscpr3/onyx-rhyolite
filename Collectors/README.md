@@ -11,7 +11,7 @@ pip install -r Collectors/requirements.txt
 python Collectors/run.py food_prices          # PIHPS weekly, current year, 3 markets
 python Collectors/run.py consumption          # SPIP + SEKI + consumer survey + OJK + QRIS
 python Collectors/run.py vehicle_listings     # ibid auctions (browser; opt-in, see below)
-python Collectors/run.py inflation --html bps_inflasi.html   # BPS inflation, from a saved page
+python Collectors/run.py inflation           # BPS inflation, in a browser window you watch
 python Collectors/run.py all --dry-run        # show the diff, write nothing
 ```
 
@@ -59,9 +59,10 @@ Three things to know:
   ```
 
   Nothing is lost by it yet: Magpie IQ itself has published nothing after May 2026.
-- **`bps_inflation` is on no schedule, and has no live fetch at all.** `www.bps.go.id`
-  answers anything but a browser with a Cloudflare challenge, and the BPS WebAPI refuses
-  foreign networks outright, so it reads a page saved in a browser — see the caveat below.
+- **`bps_inflation` is on no schedule, and `all` leaves it out.** `www.bps.go.id` answers
+  anything but a browser with a Cloudflare challenge, and the BPS WebAPI refuses foreign
+  networks outright, so it is read through a browser window a person watches — see the
+  caveat below.
 - **One source failing does not cost the others their data.** `run.py` lets each collector
   fail on its own and still writes what the rest found, and the workflows commit that even
   when the Collect step has failed. The run still ends red, so the failure is not hidden.
@@ -106,8 +107,9 @@ touched.
 `all` covers food prices and consumption and takes about four minutes. It
 deliberately **excludes** `vehicle_listings`: that scrape drives a browser over a
 few hundred pages and took 45 minutes, which would make the one command you
-should be able to run habitually the one you avoid. `all` prints a line naming
-what it skipped, so stale listings are never a silent surprise.
+should be able to run habitually the one you avoid. It excludes `inflation` too,
+which opens a browser window and waits for someone at it. `all` prints a line
+naming what it skipped and why, so a stale dataset is never a silent surprise.
 
 ## What each collector does
 
@@ -122,7 +124,7 @@ what it skipped, so stale listings are never a silent surprise.
 | *(none)* | QRIS charts, transcribed by hand | `qris_transactions.csv` | quarterly, 2023 Q1 – 2026 Q1 |
 | `magpieiq` | [Magpie IQ e-commerce data pages](https://magpieiq.com/data/shopee-gmv-trend-indonesia-2026/) | `ecommerce_gmv.csv` | monthly (see caveat) |
 | `ibid` | [ibid auctions](https://www.ibid.astra.co.id/cari-lelang/motor-bekas) | `ibid_motor_data.csv`, `ibid_car_data.csv` | on demand |
-| `bps_inflation` | [BPS table 908: inflasi umum, inti, harga diatur pemerintah, bergejolak](https://www.bps.go.id/id/statistics-table/1/OTA4IzE=/inflasi-umum--inti--harga-diatur-pemerintah--dan-bergejolak-nasional--m-to-m-dan-y-to-d---2009-2026.html), saved from a browser | `bps_inflation.csv` | monthly (see caveat) |
+| `bps_inflation` | [BPS table 908: inflasi umum, inti, harga diatur pemerintah, bergejolak](https://www.bps.go.id/id/statistics-table/1/OTA4IzE=/inflasi-umum--inti--harga-diatur-pemerintah--dan-bergejolak-nasional--m-to-m-dan-y-to-d---2009-2026.html), in a browser window | `bps_inflation.csv` | monthly (see caveat) |
 
 All targets are under `Dataset/Consumption/`. Most are **long series tables** — one row
 per date per series. The two ibid files are **listings tables** — one row per vehicle —
@@ -272,15 +274,23 @@ identical backup every run, for no new information.
   throughout. An empty page is therefore retried before it is believed, because
   reading a hiccup as "no more pages" would silently truncate the scrape; if it
   persists, the run stops and *says* the remaining pages were not read.
-- **BPS inflation comes from a page saved in a browser.** BPS serves table 908 only to
-  browsers: the site answers anything else with a Cloudflare challenge (HTTP 403, "Just a
-  moment..."), and the WebAPI with a "Perimeter WAF Block" from outside Indonesia. So open
-  the table, wait for it to render, save the page, and:
+- **BPS inflation is read through a browser window, by hand.** BPS serves table 908 only
+  to browsers: the site answers anything else with a Cloudflare challenge (HTTP 403, "Just
+  a moment..."), and the WebAPI with a "Perimeter WAF Block" from outside Indonesia. So:
 
   ```bash
-  python Collectors/run.py inflation --html bps_inflasi.html --dry-run   # look first
-  python Collectors/run.py inflation --html bps_inflasi.html
+  python -m playwright install chromium                 # once, on your own machine
+  python Collectors/run.py inflation --dry-run          # look first
+  python Collectors/run.py inflation
   ```
+
+  That opens the table in a **visible** Chromium window (Playwright's synchronous API) and
+  waits up to five minutes for it to render. If Cloudflare shows a check, pass it in the
+  window. Nothing passes it for you — no headless mode, stealth flags, borrowed user agent
+  or clicking — which is why this needs a desktop, cannot run in Colab or on a runner, and
+  stays off every schedule. The rendered page is kept in the temp directory, and the run
+  says where; `--html PATH` re-reads that, or any page you saved yourself, without a
+  browser.
 
   It writes eight series, `bps_inflation.{headline,core,administered,volatile}.{mtm,ytd}`,
   in percent. The parser was written before a saved copy was to hand, so it assumes no
