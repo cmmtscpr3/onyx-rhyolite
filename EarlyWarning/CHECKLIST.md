@@ -53,6 +53,10 @@ Documents: [PHASE1_SPEC.md](DataFoundation/PHASE1_SPEC.md) · [DATA_QUALITY.md](
 - [x] Holiday and event table drafted, 2009–2027 (117 rows)
 - [x] First data quality report, with 5 likely errors and 4 patterns to review
 - [x] Acceptance checks listed (spec section 10)
+- [x] Validation checks in detail: missing dates, duplicates, zeros and negatives, unit changes, structure ([VALIDATION_CALENDAR.md](DataFoundation/VALIDATION_CALENDAR.md), part A)
+- [x] Calendar rules: ISO weeks with Monday `ref_date`, Sunday `week_ending`, 53-week years, weekly-to-monthly rule, holiday features (part B)
+- [x] Transformation approach proposed and tested on the data: calendar adjustment, log or level, change measures, seasonal split, robust z with floors, breaks ([TRANSFORMS.md](DataFoundation/TRANSFORMS.md))
+- [x] Inventory columns added: `series_kind`, `calendar_adj`, `holiday_adj`, `vol_tier`, `z_floor`
 
 **Your part**
 
@@ -63,7 +67,9 @@ Documents: [PHASE1_SPEC.md](DataFoundation/PHASE1_SPEC.md) · [DATA_QUALITY.md](
 - [ ] Validation checks and quality flags
 - [ ] Automated `quality_report` output
 - [ ] Holiday features from `holiday_calendar.csv`
-- [ ] Tests for the acceptance checks
+- [ ] Transformation code (steps 1–3 and 6), producing the `features` table
+- [ ] Confirm the structural breaks list (TRANSFORMS.md, step 6)
+- [ ] Tests for the acceptance checks, the validation checks and T1–T6
 - [ ] **◆ Checkpoint:** all acceptance checks pass; usable indicator list confirmed
 
 ## Phase 2 — Profiling (weeks 4–5)
@@ -160,7 +166,11 @@ Record key choices so we remember why things are the way they are.
 | 2026-09-30 | PIHPS dates mapped to ISO weeks (Monday date); keep the later non-missing reading on a clash | Tested on real data: regular 7-day spacing, no empty weeks |
 | 2026-09-30 | Mask confirmed errors instead of deleting them; decisions kept in `data_issues.csv` | Keeps periods visible and every decision documented |
 | 2026-09-30 | Latest 2 periods marked provisional | PIHPS and BI both revise recent values |
-| 2026-09-30 | `log` transform for amounts, counts and prices; `level` for indices and shares | Makes changes comparable over time |
+| 2026-09-30 | `log` transform for amounts, counts and prices; `level` for indices and shares | Tested: log removes the size effect for money and counts; indices move more when low, which is a real signal |
+| 2026-09-30 | Flow series divided by days in month | Monthly changes of card flows correlate 0.6–0.7 with month length |
+| 2026-09-30 | Weekly year-on-year = 52 weeks back; week 53 shares week 52's seasonal slot | Simple, always defined |
+| 2026-09-30 | Weekly → monthly: a week belongs to the month containing its Thursday; monthly value is the mean | ISO rule; each week counted once |
+| 2026-09-30 | Robust z-scores use a spread floor, set by volatility tier | Sticky rice prices gave 165 false extremes; 21 remain with the floor |
 
 ## Known events (test set)
 

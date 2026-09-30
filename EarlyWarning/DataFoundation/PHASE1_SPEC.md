@@ -159,6 +159,8 @@ Today every in-scope series should come out `high`, except possibly the 3 spendi
 
 ## 8. Transforms (applied after loading, not stored in `observations`)
 
+> The full approach (7 steps, with evidence) is in [TRANSFORMS.md](TRANSFORMS.md). The detailed validation checks and calendar rules are in [VALIDATION_CALENDAR.md](VALIDATION_CALENDAR.md). This section is the short version.
+
 Every series has a `transform` in the inventory:
 
 | Transform | Used for | Why |
