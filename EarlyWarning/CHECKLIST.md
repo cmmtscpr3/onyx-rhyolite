@@ -9,8 +9,8 @@ Tick a box (`[x]`) when an item is done. Update the status table when a phase st
 
 | Phase | Target dates | Status | Checkpoint passed? | Notes |
 |---|---|---|---|---|
-| 0. Scoping & setup | 5 – 11 Oct 2026 | 🟡 | ⬜ | Started early (29 Sep). Scope docs in [Scope/](Scope/) |
-| 1. Data foundation | 12 – 25 Oct 2026 | ⬜ | ⬜ | |
+| 0. Scoping & setup | 5 – 11 Oct 2026 | ⏸️ | ⬜ | Docs done in [Scope/](Scope/). Your checkpoint items deferred. |
+| 1. Data foundation | 12 – 25 Oct 2026 | 🟡 | ⬜ | Started early (30 Sep). Specs in [DataFoundation/](DataFoundation/). You write the code. |
 | 2. Profiling | 26 Oct – 8 Nov 2026 | ⬜ | ⬜ | |
 | 3. Expected-value checks | 9 – 29 Nov 2026 | ⬜ | ⬜ | |
 | 4. Anomaly & change detection | 16 Nov – 6 Dec 2026 | ⬜ | ⬜ | |
@@ -39,17 +39,32 @@ Documents: [SCOPE.md](Scope/SCOPE.md) · [indicator_inventory.csv](Scope/indicat
 
 ## Phase 1 — Data foundation (weeks 2–3)
 
-- [ ] Loader for `Dataset/Consumption/` CSVs (4 files, see [DATA_SPEC.md](Scope/DATA_SPEC.md))
-- [ ] Loader for PIHPS food price Excel files (10 groups numbered 1–10 × traditional, modern, wholesale)
-- [ ] Map PIHPS weeks to a common week convention (ISO weeks, Monday dates)
-- [ ] Validation checks: missing dates, duplicates, zeros and negatives, unit changes
-- [ ] Calendar rules: week-ending day, ISO weeks, 53-week years
-- [ ] Holiday and event table: Ramadan, Idul Fitri, Christmas, New Year, Lunar New Year, COVID
-- [ ] Choose a transform per indicator (level, log or % change)
-- [ ] Decide how to handle revisions (check whether `Dataset/Backup/` snapshots help)
-- [ ] Data quality report per indicator
-- [ ] Tag low-confidence indicators (short history)
-- [ ] **◆ Checkpoint:** usable indicator list confirmed
+Documents: [PHASE1_SPEC.md](DataFoundation/PHASE1_SPEC.md) · [DATA_QUALITY.md](DataFoundation/DATA_QUALITY.md) · [holiday_calendar.csv](DataFoundation/holiday_calendar.csv)
+
+**Specs and decisions (Claude)**
+
+- [x] Output tables defined: `observations` and `quality_report` (spec section 1)
+- [x] Loader rules for the consumption CSVs and PIHPS (spec sections 2–3)
+- [x] Week rule: ISO weeks with Monday dates, tested on real data (404 weeks, no empty weeks, 4 year-end clashes)
+- [x] Quality flags and the masking approach (`data_issues.csv`) (spec section 5)
+- [x] Confidence tag rule (spec section 6)
+- [x] Revisions checked: latest 2 periods marked provisional; save a copy of each run from now on (spec section 7)
+- [x] Transform per indicator (`log` or `level`) and seasonal period added to the inventory
+- [x] Holiday and event table drafted, 2009–2027 (117 rows)
+- [x] First data quality report, with 5 likely errors and 4 patterns to review
+- [x] Acceptance checks listed (spec section 10)
+
+**Your part**
+
+- [ ] Confirm or reject the suspected errors, then create `data_issues.csv`
+- [ ] Check the holiday dates against the official SKB lists (set `verified` to `yes`)
+- [ ] Loader for the consumption CSVs
+- [ ] Loader for the PIHPS Excel files, including the ISO week mapping
+- [ ] Validation checks and quality flags
+- [ ] Automated `quality_report` output
+- [ ] Holiday features from `holiday_calendar.csv`
+- [ ] Tests for the acceptance checks
+- [ ] **◆ Checkpoint:** all acceptance checks pass; usable indicator list confirmed
 
 ## Phase 2 — Profiling (weeks 4–5)
 
@@ -140,6 +155,12 @@ Record key choices so we remember why things are the way they are.
 | 2026-09-29 | Leave out SEKI deposits and e-commerce GMV for now | Too little history (19–35 months) |
 | 2026-09-29 | Leave out quarterly series (SEKI GDP, currency ratios) | Outside monthly/weekly scope |
 | 2026-09-29 | Standard input format: `series_id, ref_date, value, frequency, unit` | Matches the existing consumption CSVs |
+| 2026-09-30 | Phase 0 checkpoint deferred; Phase 1 started | Your decision |
+| 2026-09-30 | Phase 1 split: Claude writes the specs, you write the code | Your decision |
+| 2026-09-30 | PIHPS dates mapped to ISO weeks (Monday date); keep the later non-missing reading on a clash | Tested on real data: regular 7-day spacing, no empty weeks |
+| 2026-09-30 | Mask confirmed errors instead of deleting them; decisions kept in `data_issues.csv` | Keeps periods visible and every decision documented |
+| 2026-09-30 | Latest 2 periods marked provisional | PIHPS and BI both revise recent values |
+| 2026-09-30 | `log` transform for amounts, counts and prices; `level` for indices and shares | Makes changes comparable over time |
 
 ## Known events (test set)
 
