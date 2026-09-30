@@ -11,6 +11,7 @@ pip install -r Collectors/requirements.txt
 python Collectors/run.py food_prices          # PIHPS weekly, current year, 3 markets
 python Collectors/run.py consumption          # SPIP + SEKI + consumer survey + OJK + QRIS
 python Collectors/run.py vehicle_listings     # ibid auctions (browser; opt-in, see below)
+python Collectors/run.py inflation --html bps_inflasi.html   # BPS inflation, from a saved page
 python Collectors/run.py all --dry-run        # show the diff, write nothing
 ```
 
@@ -58,6 +59,9 @@ Three things to know:
   ```
 
   Nothing is lost by it yet: Magpie IQ itself has published nothing after May 2026.
+- **`bps_inflation` is on no schedule, and has no live fetch at all.** `www.bps.go.id`
+  answers anything but a browser with a Cloudflare challenge, and the BPS WebAPI refuses
+  foreign networks outright, so it reads a page saved in a browser — see the caveat below.
 - **One source failing does not cost the others their data.** `run.py` lets each collector
   fail on its own and still writes what the rest found, and the workflows commit that even
   when the Collect step has failed. The run still ends red, so the failure is not hidden.
@@ -110,7 +114,7 @@ what it skipped, so stale listings are never a silent surprise.
 | Collector | Source | Writes | Cadence |
 |---|---|---|---|
 | `pihps` | [PIHPS weekly food prices](https://www.bi.go.id/hargapangan) | `Dataset/Food Prices/PIHPS/<Market>/Tabel Harga Berdasarkan Daerah <year>.xlsx` × 3 | weekly |
-| `bi_spip` | BI payment & transaction system, `TABEL_{5e,5a,5c,1,2}.xls` | `bi_emoney.csv`, `bi_card_transactions.csv`, `bi_payment_system.csv` | monthly |
+| `bi_spip` | BI payment & transaction system, `TABEL_{5e,5a,5c,1,2}.xlsx` | `bi_emoney.csv`, `bi_card_transactions.csv`, `bi_payment_system.csv` | monthly |
 | `bi_seki` | BI SEKI `TABEL{7_3,7_4,1_18}.xls` | `bi_seki.csv` | monthly + quarterly |
 | `bi_consumer_survey` | BI Survei Konsumen data-series zip | `bi_consumer_survey.csv` | monthly |
 | `ojk_dpk` | OJK Statistik Perbankan Indonesia | `ojk_dpk.csv` | monthly (see caveat) |
@@ -118,6 +122,7 @@ what it skipped, so stale listings are never a silent surprise.
 | *(none)* | QRIS charts, transcribed by hand | `qris_transactions.csv` | quarterly, 2023 Q1 – 2026 Q1 |
 | `magpieiq` | [Magpie IQ e-commerce data pages](https://magpieiq.com/data/shopee-gmv-trend-indonesia-2026/) | `ecommerce_gmv.csv` | monthly (see caveat) |
 | `ibid` | [ibid auctions](https://www.ibid.astra.co.id/cari-lelang/motor-bekas) | `ibid_motor_data.csv`, `ibid_car_data.csv` | on demand |
+| `bps_inflation` | [BPS table 908: inflasi umum, inti, harga diatur pemerintah, bergejolak](https://www.bps.go.id/id/statistics-table/1/OTA4IzE=/inflasi-umum--inti--harga-diatur-pemerintah--dan-bergejolak-nasional--m-to-m-dan-y-to-d---2009-2026.html), saved from a browser | `bps_inflation.csv` | monthly (see caveat) |
 
 All targets are under `Dataset/Consumption/`. Most are **long series tables** — one row
 per date per series. The two ibid files are **listings tables** — one row per vehicle —
@@ -267,6 +272,25 @@ identical backup every run, for no new information.
   throughout. An empty page is therefore retried before it is believed, because
   reading a hiccup as "no more pages" would silently truncate the scrape; if it
   persists, the run stops and *says* the remaining pages were not read.
+- **BPS inflation comes from a page saved in a browser.** BPS serves table 908 only to
+  browsers: the site answers anything else with a Cloudflare challenge (HTTP 403, "Just a
+  moment..."), and the WebAPI with a "Perimeter WAF Block" from outside Indonesia. So open
+  the table, wait for it to render, save the page, and:
+
+  ```bash
+  python Collectors/run.py inflation --html bps_inflasi.html --dry-run   # look first
+  python Collectors/run.py inflation --html bps_inflasi.html
+  ```
+
+  It writes eight series, `bps_inflation.{headline,core,administered,volatile}.{mtm,ytd}`,
+  in percent. The parser was written before a saved copy was to hand, so it assumes no
+  layout: each number is placed by the labels in its row and above it in its column, and
+  kept only when they name one year, month, component and measure. Two identities then
+  check the reading — January's y-to-d equals its m-to-m, and y-to-d compounds from
+  m-to-m month by month — and a table that breaks either for most months writes nothing.
+  What no identity can see is a whole component read under another's name, so on the
+  **first real run, check one number per component against the page.** A save made
+  before the table rendered holds only the challenge, and is reported as such.
 - **Browsers are not downloaded.** Playwright pins a browser build per release, so
   set `CHROMIUM_PATH` (or keep `/opt/pw-browsers/chromium`) rather than running
   `playwright install`. If Chromium cannot verify TLS behind a corporate proxy, import
