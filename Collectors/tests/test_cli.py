@@ -168,15 +168,17 @@ def test_every_scheduled_name_is_a_real_collector():
 
 
 def test_the_unscheduled_collectors_are_the_blocked_ones_and_say_why():
-    """ASPI and Magpie IQ both refuse a runner, so a cron could only log the block.
+    """ASPI, Magpie IQ and BPS all refuse a runner, so a cron could only log the block.
 
     Each reason has to say both why and how to run it instead, or the collector
     is just forgotten with extra steps.
     """
-    assert set(cli.UNSCHEDULED) == {"qris", "magpieiq"}
+    assert set(cli.UNSCHEDULED) == {"qris", "magpieiq", "bps_inflation"}
     assert "datacentre" in cli.UNSCHEDULED["qris"]
     assert "403" in cli.UNSCHEDULED["magpieiq"]
     assert "--only magpieiq" in cli.UNSCHEDULED["magpieiq"]
+    assert "Cloudflare" in cli.UNSCHEDULED["bps_inflation"]
+    assert "inflation --html" in cli.UNSCHEDULED["bps_inflation"]
     scheduled = {n for names in cli.GROUPS.values() for n in names}
     assert scheduled.isdisjoint(cli.UNSCHEDULED)
 

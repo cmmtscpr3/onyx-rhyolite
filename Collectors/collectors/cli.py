@@ -26,7 +26,7 @@ from . import paths
 from .errors import SourceUnavailable
 from .http import session
 from .sinks.backup import Backups
-from .sources import bi_consumer_survey, bi_seki, bi_spip, ibid, magpieiq, ojk_dpk
+from .sources import bi_consumer_survey, bi_seki, bi_spip, bps_inflation, ibid, magpieiq, ojk_dpk
 from .sources import pihps, qris
 
 #: Collector name -> the function that runs it.
@@ -39,6 +39,7 @@ COLLECTORS: dict[str, Callable] = {
     "qris": qris.collect,
     "magpieiq": magpieiq.collect,
     "ibid": ibid.collect,
+    "bps_inflation": bps_inflation.collect,
 }
 
 #: Indicator -> the collectors that feed it.
@@ -53,6 +54,7 @@ INDICATORS: dict[str, tuple[str, ...]] = {
         "magpieiq",
     ),
     "vehicle_listings": ("ibid",),
+    "inflation": ("bps_inflation",),
 }
 
 #: Indicators `all` skips, because they cost far more than everything else put
@@ -89,6 +91,11 @@ UNSCHEDULED: dict[str, str] = {
         "Magpie IQ answers GitHub's runners with HTTP 403 while serving the same "
         "pages to other networks, so a scheduled run could only ever log the "
         "block; run it by hand with `consumption --only magpieiq`"
+    ),
+    "bps_inflation": (
+        "BPS answers anything but a browser with a Cloudflare challenge, and its "
+        "WebAPI refuses foreign networks outright, so there is nothing a cron can "
+        "fetch; save the table page in a browser and run `inflation --html PATH`"
     ),
 }
 
@@ -139,7 +146,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--html",
         metavar="PATH",
-        help="qris: parse a page saved from a browser instead of fetching it",
+        help="qris, bps_inflation: parse a page saved from a browser instead of fetching it",
     )
     parser.add_argument(
         "--full",
