@@ -19,7 +19,13 @@ def render() -> None:
 
     rows = data.pihps_commodities(pihps)
     commodities = rows["commodity"].tolist()
-    indent = {row.commodity: (row.commodity if row.level == 1 else f"   ↳ {row.commodity}") for row in rows.itertuples()}
+    # English names on screen; BI's Indonesian ones stay the keys underneath.
+    indent = {
+        row.commodity: charts.pihps_label(row.commodity)
+        if row.level == 1
+        else f"   ↳ {charts.pihps_label(row.commodity)}"
+        for row in rows.itertuples()
+    }
 
     # One bordered bar, as on every other page: what to show along the top,
     # and the long commodity list on its own row underneath rather than

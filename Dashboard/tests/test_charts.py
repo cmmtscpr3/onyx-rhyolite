@@ -81,15 +81,29 @@ def test_ecommerce_break_is_marked(bundle):
 def test_pihps_chart_defaults_and_styles(bundle):
     chart = charts.pihps_chart(bundle.pihps)
     names = [trace.name for trace in chart.figure.data]
-    assert names == list(charts.PIHPS_DEFAULT)
+    assert names == [charts.pihps_label(c) for c in charts.PIHPS_DEFAULT]
+    assert names[0] == "Rice"
     colours, dashes = charts.pihps_styles(data.pihps_commodities(bundle.pihps))
     assert len(colours) == 31
     assert colours["Beras Kualitas Medium I"] == colours["Beras"]
     assert dashes["Beras"] == "solid" and dashes["Beras Kualitas Medium I"] != "solid"
     # Ten groups, eight hues: the last two reuse hues but with a long dash.
     assert colours["Minyak Goreng"] == colours["Beras"] and dashes["Minyak Goreng"] == "longdash"
-    beras = chart.table[chart.table["Series"] == "Beras"].iloc[0]
+    beras = chart.table[chart.table["Series"] == "Rice"].iloc[0]
     assert beras["Value"] == 16350 or beras["Latest"].year >= 2026
+
+
+def test_every_pihps_commodity_has_an_english_name(bundle):
+    """Names are shown in English and kept in BI's Indonesian underneath, so a
+    commodity BI adds must fail here rather than appear untranslated."""
+    commodities = data.pihps_commodities(bundle.pihps)["commodity"]
+    assert set(commodities) == set(charts.PIHPS_ENGLISH)
+    english = [charts.pihps_label(c) for c in commodities]
+    assert len(set(english)) == len(english)
+    # A variety reads as its group plus a qualifier, so it sorts and reads with it.
+    for row in data.pihps_commodities(bundle.pihps).itertuples():
+        if row.level == 2:
+            assert charts.pihps_label(row.commodity).startswith(charts.pihps_label(row.group) + ", ")
 
 
 def test_freshness_table_marks_the_known_states(bundle):
