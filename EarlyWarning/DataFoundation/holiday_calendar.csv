@@ -1,0 +1,118 @@
+event,event_type,date,end_date,window_before_days,window_after_days,affects,verified,notes
+new_year,national,2009-01-01,,3,7,food_prices;card_payments;e_money;money_payments,no,PIHPS often has no traditional-market reading on 1 Jan
+lunar_new_year,religious,2009-01-26,,7,3,food_prices,no,
+ramadan_start,religious,2009-08-22,,7,29,food_prices;card_payments;e_money;money_payments,no,window_after covers the fasting month
+idul_fitri,religious,2009-09-20,,14,7,food_prices;card_payments;e_money;money_payments;consumer_sentiment,no,biggest seasonal effect; cash demand peaks just before
+idul_adha,religious,2009-11-27,,14,3,food_prices,no,mainly beef (group 3)
+christmas,religious,2009-12-25,,14,7,food_prices;card_payments;e_money;money_payments,no,
+new_year,national,2010-01-01,,3,7,food_prices;card_payments;e_money;money_payments,no,PIHPS often has no traditional-market reading on 1 Jan
+lunar_new_year,religious,2010-02-14,,7,3,food_prices,no,
+ramadan_start,religious,2010-08-11,,7,29,food_prices;card_payments;e_money;money_payments,no,window_after covers the fasting month
+idul_fitri,religious,2010-09-10,,14,7,food_prices;card_payments;e_money;money_payments;consumer_sentiment,no,biggest seasonal effect; cash demand peaks just before
+idul_adha,religious,2010-11-17,,14,3,food_prices,no,mainly beef (group 3)
+christmas,religious,2010-12-25,,14,7,food_prices;card_payments;e_money;money_payments,no,
+new_year,national,2011-01-01,,3,7,food_prices;card_payments;e_money;money_payments,no,PIHPS often has no traditional-market reading on 1 Jan
+lunar_new_year,religious,2011-02-03,,7,3,food_prices,no,
+ramadan_start,religious,2011-08-01,,7,29,food_prices;card_payments;e_money;money_payments,no,window_after covers the fasting month
+idul_fitri,religious,2011-08-31,,14,7,food_prices;card_payments;e_money;money_payments;consumer_sentiment,no,biggest seasonal effect; cash demand peaks just before
+idul_adha,religious,2011-11-06,,14,3,food_prices,no,mainly beef (group 3)
+christmas,religious,2011-12-25,,14,7,food_prices;card_payments;e_money;money_payments,no,
+new_year,national,2012-01-01,,3,7,food_prices;card_payments;e_money;money_payments,no,PIHPS often has no traditional-market reading on 1 Jan
+lunar_new_year,religious,2012-01-23,,7,3,food_prices,no,
+ramadan_start,religious,2012-07-21,,7,29,food_prices;card_payments;e_money;money_payments,no,window_after covers the fasting month
+idul_fitri,religious,2012-08-19,,14,7,food_prices;card_payments;e_money;money_payments;consumer_sentiment,no,biggest seasonal effect; cash demand peaks just before
+idul_adha,religious,2012-10-26,,14,3,food_prices,no,mainly beef (group 3)
+christmas,religious,2012-12-25,,14,7,food_prices;card_payments;e_money;money_payments,no,
+new_year,national,2013-01-01,,3,7,food_prices;card_payments;e_money;money_payments,no,PIHPS often has no traditional-market reading on 1 Jan
+lunar_new_year,religious,2013-02-10,,7,3,food_prices,no,
+ramadan_start,religious,2013-07-10,,7,29,food_prices;card_payments;e_money;money_payments,no,window_after covers the fasting month
+idul_fitri,religious,2013-08-08,,14,7,food_prices;card_payments;e_money;money_payments;consumer_sentiment,no,biggest seasonal effect; cash demand peaks just before
+idul_adha,religious,2013-10-15,,14,3,food_prices,no,mainly beef (group 3)
+christmas,religious,2013-12-25,,14,7,food_prices;card_payments;e_money;money_payments,no,
+new_year,national,2014-01-01,,3,7,food_prices;card_payments;e_money;money_payments,no,PIHPS often has no traditional-market reading on 1 Jan
+lunar_new_year,religious,2014-01-31,,7,3,food_prices,no,
+ramadan_start,religious,2014-06-29,,7,29,food_prices;card_payments;e_money;money_payments,no,window_after covers the fasting month
+idul_fitri,religious,2014-07-28,,14,7,food_prices;card_payments;e_money;money_payments;consumer_sentiment,no,biggest seasonal effect; cash demand peaks just before
+idul_adha,religious,2014-10-05,,14,3,food_prices,no,mainly beef (group 3)
+christmas,religious,2014-12-25,,14,7,food_prices;card_payments;e_money;money_payments,no,
+new_year,national,2015-01-01,,3,7,food_prices;card_payments;e_money;money_payments,no,PIHPS often has no traditional-market reading on 1 Jan
+lunar_new_year,religious,2015-02-19,,7,3,food_prices,no,
+ramadan_start,religious,2015-06-18,,7,29,food_prices;card_payments;e_money;money_payments,no,window_after covers the fasting month
+idul_fitri,religious,2015-07-17,,14,7,food_prices;card_payments;e_money;money_payments;consumer_sentiment,no,biggest seasonal effect; cash demand peaks just before
+idul_adha,religious,2015-09-24,,14,3,food_prices,no,mainly beef (group 3)
+christmas,religious,2015-12-25,,14,7,food_prices;card_payments;e_money;money_payments,no,
+new_year,national,2016-01-01,,3,7,food_prices;card_payments;e_money;money_payments,no,PIHPS often has no traditional-market reading on 1 Jan
+lunar_new_year,religious,2016-02-08,,7,3,food_prices,no,
+ramadan_start,religious,2016-06-06,,7,29,food_prices;card_payments;e_money;money_payments,no,window_after covers the fasting month
+idul_fitri,religious,2016-07-06,,14,7,food_prices;card_payments;e_money;money_payments;consumer_sentiment,no,biggest seasonal effect; cash demand peaks just before
+idul_adha,religious,2016-09-12,,14,3,food_prices,no,mainly beef (group 3)
+christmas,religious,2016-12-25,,14,7,food_prices;card_payments;e_money;money_payments,no,
+new_year,national,2017-01-01,,3,7,food_prices;card_payments;e_money;money_payments,no,PIHPS often has no traditional-market reading on 1 Jan
+lunar_new_year,religious,2017-01-28,,7,3,food_prices,no,
+ramadan_start,religious,2017-05-27,,7,29,food_prices;card_payments;e_money;money_payments,no,window_after covers the fasting month
+idul_fitri,religious,2017-06-25,,14,7,food_prices;card_payments;e_money;money_payments;consumer_sentiment,no,biggest seasonal effect; cash demand peaks just before
+idul_adha,religious,2017-09-01,,14,3,food_prices,no,mainly beef (group 3)
+christmas,religious,2017-12-25,,14,7,food_prices;card_payments;e_money;money_payments,no,
+new_year,national,2018-01-01,,3,7,food_prices;card_payments;e_money;money_payments,no,PIHPS often has no traditional-market reading on 1 Jan
+lunar_new_year,religious,2018-02-16,,7,3,food_prices,no,
+ramadan_start,religious,2018-05-17,,7,29,food_prices;card_payments;e_money;money_payments,no,window_after covers the fasting month
+idul_fitri,religious,2018-06-15,,14,7,food_prices;card_payments;e_money;money_payments;consumer_sentiment,no,biggest seasonal effect; cash demand peaks just before
+idul_adha,religious,2018-08-22,,14,3,food_prices,no,mainly beef (group 3)
+christmas,religious,2018-12-25,,14,7,food_prices;card_payments;e_money;money_payments,no,
+new_year,national,2019-01-01,,3,7,food_prices;card_payments;e_money;money_payments,no,PIHPS often has no traditional-market reading on 1 Jan
+lunar_new_year,religious,2019-02-05,,7,3,food_prices,no,PIHPS traditional week of 5 Feb 2019 dips across groups
+ramadan_start,religious,2019-05-06,,7,29,food_prices;card_payments;e_money;money_payments,no,window_after covers the fasting month
+idul_fitri,religious,2019-06-05,,14,7,food_prices;card_payments;e_money;money_payments;consumer_sentiment,no,biggest seasonal effect; cash demand peaks just before
+idul_adha,religious,2019-08-11,,14,3,food_prices,no,mainly beef (group 3)
+christmas,religious,2019-12-25,,14,7,food_prices;card_payments;e_money;money_payments,no,
+new_year,national,2020-01-01,,3,7,food_prices;card_payments;e_money;money_payments,no,PIHPS often has no traditional-market reading on 1 Jan
+lunar_new_year,religious,2020-01-25,,7,3,food_prices,no,
+covid_first_case,shock,2020-03-02,,0,0,all,no,start of COVID period
+covid_psbb,shock,2020-04-10,2020-06-04,0,0,all,no,"large-scale social restrictions, Jakarta first"
+ramadan_start,religious,2020-04-24,,7,29,food_prices;card_payments;e_money;money_payments,no,window_after covers the fasting month
+idul_fitri,religious,2020-05-24,,14,7,food_prices;card_payments;e_money;money_payments;consumer_sentiment,no,biggest seasonal effect; cash demand peaks just before
+idul_adha,religious,2020-07-31,,14,3,food_prices,no,mainly beef (group 3)
+christmas,religious,2020-12-25,,14,7,food_prices;card_payments;e_money;money_payments,no,
+new_year,national,2021-01-01,,3,7,food_prices;card_payments;e_money;money_payments,no,PIHPS often has no traditional-market reading on 1 Jan
+lunar_new_year,religious,2021-02-12,,7,3,food_prices,no,
+ramadan_start,religious,2021-04-13,,7,29,food_prices;card_payments;e_money;money_payments,no,window_after covers the fasting month
+idul_fitri,religious,2021-05-13,,14,7,food_prices;card_payments;e_money;money_payments;consumer_sentiment,no,biggest seasonal effect; cash demand peaks just before
+covid_ppkm_darurat,shock,2021-07-03,2021-07-25,0,0,all,no,emergency restrictions during the Delta wave
+idul_adha,religious,2021-07-20,,14,3,food_prices,no,mainly beef (group 3)
+christmas,religious,2021-12-25,,14,7,food_prices;card_payments;e_money;money_payments,no,
+new_year,national,2022-01-01,,3,7,food_prices;card_payments;e_money;money_payments,no,PIHPS often has no traditional-market reading on 1 Jan
+lunar_new_year,religious,2022-02-01,,7,3,food_prices,no,
+ramadan_start,religious,2022-04-03,,7,29,food_prices;card_payments;e_money;money_payments,no,window_after covers the fasting month
+idul_fitri,religious,2022-05-02,,14,7,food_prices;card_payments;e_money;money_payments;consumer_sentiment,no,biggest seasonal effect; cash demand peaks just before
+idul_adha,religious,2022-07-10,,14,3,food_prices,no,mainly beef (group 3)
+christmas,religious,2022-12-25,,14,7,food_prices;card_payments;e_money;money_payments,no,
+new_year,national,2023-01-01,,3,7,food_prices;card_payments;e_money;money_payments,no,PIHPS often has no traditional-market reading on 1 Jan
+lunar_new_year,religious,2023-01-22,,7,3,food_prices,no,
+ramadan_start,religious,2023-03-23,,7,29,food_prices;card_payments;e_money;money_payments,no,window_after covers the fasting month
+idul_fitri,religious,2023-04-22,,14,7,food_prices;card_payments;e_money;money_payments;consumer_sentiment,no,biggest seasonal effect; cash demand peaks just before
+idul_adha,religious,2023-06-29,,14,3,food_prices,no,mainly beef (group 3)
+christmas,religious,2023-12-25,,14,7,food_prices;card_payments;e_money;money_payments,no,
+new_year,national,2024-01-01,,3,7,food_prices;card_payments;e_money;money_payments,no,PIHPS often has no traditional-market reading on 1 Jan
+lunar_new_year,religious,2024-02-10,,7,3,food_prices,no,
+ramadan_start,religious,2024-03-12,,7,29,food_prices;card_payments;e_money;money_payments,no,window_after covers the fasting month
+idul_fitri,religious,2024-04-10,,14,7,food_prices;card_payments;e_money;money_payments;consumer_sentiment,no,biggest seasonal effect; cash demand peaks just before
+idul_adha,religious,2024-06-17,,14,3,food_prices,no,mainly beef (group 3)
+christmas,religious,2024-12-25,,14,7,food_prices;card_payments;e_money;money_payments,no,
+new_year,national,2025-01-01,,3,7,food_prices;card_payments;e_money;money_payments,no,PIHPS often has no traditional-market reading on 1 Jan
+lunar_new_year,religious,2025-01-29,,7,3,food_prices,no,
+ramadan_start,religious,2025-03-01,,7,29,food_prices;card_payments;e_money;money_payments,no,window_after covers the fasting month
+idul_fitri,religious,2025-03-31,,14,7,food_prices;card_payments;e_money;money_payments;consumer_sentiment,no,biggest seasonal effect; cash demand peaks just before
+idul_adha,religious,2025-06-06,,14,3,food_prices,no,mainly beef (group 3)
+christmas,religious,2025-12-25,,14,7,food_prices;card_payments;e_money;money_payments,no,
+new_year,national,2026-01-01,,3,7,food_prices;card_payments;e_money;money_payments,no,PIHPS often has no traditional-market reading on 1 Jan
+lunar_new_year,religious,2026-02-17,,7,3,food_prices,no,
+ramadan_start,religious,2026-02-19,,7,29,food_prices;card_payments;e_money;money_payments,no,window_after covers the fasting month
+idul_fitri,religious,2026-03-20,,14,7,food_prices;card_payments;e_money;money_payments;consumer_sentiment,no,biggest seasonal effect; cash demand peaks just before
+idul_adha,religious,2026-05-27,,14,3,food_prices,no,mainly beef (group 3)
+christmas,religious,2026-12-25,,14,7,food_prices;card_payments;e_money;money_payments,no,
+new_year,national,2027-01-01,,3,7,food_prices;card_payments;e_money;money_payments,no,estimate; PIHPS often has no traditional-market reading on 1 Jan
+lunar_new_year,religious,2027-02-06,,7,3,food_prices,no,estimate
+ramadan_start,religious,2027-02-08,,7,29,food_prices;card_payments;e_money;money_payments,no,estimate; window_after covers the fasting month
+idul_fitri,religious,2027-03-10,,14,7,food_prices;card_payments;e_money;money_payments;consumer_sentiment,no,estimate; biggest seasonal effect; cash demand peaks just before
+idul_adha,religious,2027-05-17,,14,3,food_prices,no,estimate; mainly beef (group 3)
+christmas,religious,2027-12-25,,14,7,food_prices;card_payments;e_money;money_payments,no,estimate

@@ -1,0 +1,7 @@
+# Early warning system, Phase 1 data foundation.
+# The PIHPS workbooks are read through the collectors' own reader (Collectors/collectors),
+# which needs openpyxl; nothing else from Collectors/requirements.txt is required.
+pandas>=2.2
+numpy
+openpyxl>=3.1
+pytest

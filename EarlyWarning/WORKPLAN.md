@@ -116,7 +116,7 @@ Expect a slower pace over the year-end holidays during the pilot.
 - Decide how to handle revisions. The `Dataset/Backup/` snapshots may let us rebuild the first-reported values.
 - Write a data quality report per indicator.
 
-**Deliverable:** a clean dataset, the data quality report and the holiday table.
+**Deliverable:** a clean dataset, the data quality report and the holiday table. Specs are in [DataFoundation/](DataFoundation/). You write the code.
 
 ### Phase 2 — Profiling (weeks 4–5)
 
