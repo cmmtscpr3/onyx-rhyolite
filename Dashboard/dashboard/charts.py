@@ -94,6 +94,54 @@ def group_chart(
 # ---------------------------------------------------------------------------
 # PIHPS
 
+#: English names for the PIHPS commodities, for display only: the data, the
+#: collector and every key stay in Bank Indonesia's Indonesian.  The ten foods
+#: are named as BI's own English inflation releases name them -- "shallots",
+#: "bird's eye chili", "purebred chicken eggs", "broiler chicken meat",
+#: "cooking oil", "granulated sugar" -- spelt "chilli" here.  Each variety adds
+#: the qualifier its Indonesian name carries, read against the PIHPS FAQ's
+#: description of it; that is also why the top rice tier, "Super" on BI's
+#: tables, is "premium", which is what the FAQ calls it.
+PIHPS_ENGLISH: dict[str, str] = {
+    "Beras": "Rice",
+    "Beras Kualitas Bawah I": "Rice, low quality I",
+    "Beras Kualitas Bawah II": "Rice, low quality II",
+    "Beras Kualitas Medium I": "Rice, medium quality I",
+    "Beras Kualitas Medium II": "Rice, medium quality II",
+    "Beras Kualitas Super I": "Rice, premium quality I",
+    "Beras Kualitas Super II": "Rice, premium quality II",
+    "Daging Ayam": "Chicken meat",
+    "Daging Ayam Ras Segar": "Chicken meat, broiler, fresh",
+    "Daging Sapi": "Beef",
+    "Daging Sapi Kualitas 1": "Beef, quality 1",
+    "Daging Sapi Kualitas 2": "Beef, quality 2",
+    "Telur Ayam": "Chicken eggs",
+    "Telur Ayam Ras Segar": "Chicken eggs, purebred, fresh",
+    "Bawang Merah": "Shallots",
+    "Bawang Merah Ukuran Sedang": "Shallots, medium size",
+    "Bawang Putih": "Garlic",
+    "Bawang Putih Ukuran Sedang": "Garlic, medium size",
+    "Cabai Merah": "Red chilli",
+    "Cabai Merah Besar": "Red chilli, large",
+    "Cabai Merah Keriting": "Red chilli, curly",
+    "Cabai Rawit": "Bird's eye chilli",
+    "Cabai Rawit Hijau": "Bird's eye chilli, green",
+    "Cabai Rawit Merah": "Bird's eye chilli, red",
+    "Minyak Goreng": "Cooking oil",
+    "Minyak Goreng Curah": "Cooking oil, bulk",
+    "Minyak Goreng Kemasan Bermerk 1": "Cooking oil, branded pack 1",
+    "Minyak Goreng Kemasan Bermerk 2": "Cooking oil, branded pack 2",
+    "Gula Pasir": "Granulated sugar",
+    "Gula Pasir Kualitas Premium": "Granulated sugar, premium quality",
+    "Gula Pasir Lokal": "Granulated sugar, local",
+}
+
+
+def pihps_label(commodity: str) -> str:
+    """A commodity's English name, or BI's own for one new to the list."""
+    return PIHPS_ENGLISH.get(commodity, commodity)
+
+
 PIHPS_DEFAULT: tuple[str, ...] = (
     "Beras",
     "Daging Ayam",
@@ -154,7 +202,7 @@ def pihps_chart(
     rows = data.pihps_commodities(pihps)
     frame = pihps_frame(pihps, market, commodities)
     colours, dashes = pihps_styles(rows, palette)
-    labels = {c: c for c in frame.columns}
+    labels = {c: pihps_label(c) for c in frame.columns}
     shown = transform.show_as(transform.since(frame, since_year), mode, "weekly")
     figure = figures.line_chart(
         shown,
@@ -174,7 +222,7 @@ def pihps_chart(
         figure=figure,
         table=table,
         frequency="weekly",
-        note="Group rows (e.g. Beras) are the average of their varieties.",
+        note="Group rows (e.g. Rice) are the average of their varieties.",
         mode=mode,
     )
 
