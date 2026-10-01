@@ -1,5 +1,7 @@
 # Transformation Approach
 
+> **Status (1 Oct 2026): v1 uses only steps 1 and 2.** The code in `../ews/` applies the per-day adjustment (flows only) and the **log to every series**. The change measures (step 3), seasonal split (step 4), robust z-scores (step 5), breaks (step 6), frequency alignment (step 7) and all holiday features are dropped for now (your decision). The rest of this document stays as background for later phases.
+
 How to turn the clean data (`observations` from Phase 1) into the inputs the early warning checks use.
 Each step says **what** to do, **why**, and the **evidence** from our data.
 Per-series settings are in [../Scope/indicator_inventory.csv](../Scope/indicator_inventory.csv) (new columns listed in section 3).

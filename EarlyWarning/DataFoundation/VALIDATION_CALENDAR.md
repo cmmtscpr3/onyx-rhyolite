@@ -119,6 +119,8 @@ The quality report counts WARN findings per series.
 
 ### B5. Holidays and events on the calendar
 
+> **Dropped for now (1 Oct 2026, your decision):** the v1 code builds no holiday features. This section is kept for reference only.
+
 From [holiday_calendar.csv](holiday_calendar.csv), build **features per period**. You don't need to adjust the data itself:
 
 | Feature | Weekly (per ISO week) | Monthly |

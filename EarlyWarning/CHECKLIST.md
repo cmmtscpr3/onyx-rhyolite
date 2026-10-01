@@ -58,19 +58,25 @@ Documents: [PHASE1_SPEC.md](DataFoundation/PHASE1_SPEC.md) · [DATA_QUALITY.md](
 - [x] Transformation approach proposed and tested on the data: calendar adjustment, log or level, change measures, seasonal split, robust z with floors, breaks ([TRANSFORMS.md](DataFoundation/TRANSFORMS.md))
 - [x] Inventory columns added: `series_kind`, `calendar_adj`, `holiday_adj`, `vol_tier`, `z_floor`
 
+**Code: PIHPS + BI SPIP, 54 series ([README.md](README.md), `ews/`, outputs in `data/`)**
+
+- [x] Loader for the PIHPS Excel files (10 groups numbered 1–10 × 3 markets), reusing the collectors' reader
+- [x] Loader for the BI SPIP CSVs (card, e-money, payment system)
+- [x] Validation checks: missing dates, duplicates, zeros and negatives, unit changes, structure (M1–M6, D1–D4, Z1, Z5, U1–U4, S1–S3, I1)
+- [x] Readable validation log for review (`data/validation_log.txt`, plus `.csv`)
+- [x] Calendar rules: ISO weeks with Monday `ref_date`, Sunday `week_ending`, 53-week years, days in month, week-to-month helper
+- [x] Transformations: per-day adjustment for the 12 flow series, then log for all 54
+- [x] `quality_report.csv`, and each step's output in `data/steps/`
+- [x] `data_issues.csv` with the 5 suspects as `review`
+- [x] 37 tests, passing on pandas 2.2 and 3.0; `Dataset/` checked untouched
+- [x] Dropped (your decision): holiday features, change measures, robust z-scores, breaks
+
 **Your part**
 
-- [ ] Confirm or reject the suspected errors, then create `data_issues.csv`
-- [ ] Check the holiday dates against the official SKB lists (set `verified` to `yes`)
-- [ ] Loader for the consumption CSVs
-- [ ] Loader for the PIHPS Excel files, including the ISO week mapping
-- [ ] Validation checks and quality flags
-- [ ] Automated `quality_report` output
-- [ ] Holiday features from `holiday_calendar.csv`
-- [ ] Transformation code (steps 1–3 and 6), producing the `features` table
-- [ ] Confirm the structural breaks list (TRANSFORMS.md, step 6)
-- [ ] Tests for the acceptance checks, the validation checks and T1–T6
-- [ ] **◆ Checkpoint:** all acceptance checks pass; usable indicator list confirmed
+- [ ] Review `data/validation_log.txt`: 26 one-off spikes (U4) to confirm or dismiss
+- [ ] Confirm or reject the suspects in `data_issues.csv`; switch confirmed errors to `mask`
+- [ ] Loader for the consumer survey CSV (not in this code's scope)
+- [ ] **◆ Checkpoint:** usable indicator list confirmed
 
 ## Phase 2 — Profiling (weeks 4–5)
 
@@ -171,6 +177,11 @@ Record key choices so we remember why things are the way they are.
 | 2026-09-30 | Weekly year-on-year = 52 weeks back; week 53 shares week 52's seasonal slot | Simple, always defined |
 | 2026-09-30 | Weekly → monthly: a week belongs to the month containing its Thursday; monthly value is the mean | ISO rule; each week counted once |
 | 2026-09-30 | Robust z-scores use a spread floor, set by volatility tier | Sticky rice prices gave 165 false extremes; 21 remain with the floor |
+| 2026-10-01 | Phase 1 code covers PIHPS + BI SPIP (54 series); the consumer survey comes later | Your decision |
+| 2026-10-01 | Only two transformations in v1: per-day (flows) and log (all series); no holiday features, change measures, z-scores or breaks | Your decision: keep v1 to what's needed |
+| 2026-10-01 | Outputs in `EarlyWarning/data/`; `Dataset/` is read-only | Your decision; tested by hashing `Dataset/` before and after a run |
+| 2026-10-01 | Suspected errors are flagged `review`, not masked | Your decision; switch to `mask` once confirmed |
+| 2026-10-01 | SPIP freshness: month M is expected after the 15th of M+2 | Matches when BI publishes and when the collector runs (the 15th) |
 
 ## Known events (test set)
 

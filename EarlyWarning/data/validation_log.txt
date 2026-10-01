@@ -1,0 +1,86 @@
+EWS validation run - 2026-10-01 09:13 (data checked as of 2026-10-01)
+Series checked: 54 (30 weekly, 24 monthly)
+Result: PASSED (0 STOP, 26 WARN, 46 INFO)
+
+Findings per check: D1 10, D3 4, M1 30, M6 2, U4 26
+
+== STOP ==  (none)
+
+== WARN ==
+[U4] bi_card_transactions.atm_debit.cards                 2011-11-01  one-off spike: /6.5 then x6.8 next period (robust z -188); likely data error
+[U4] bi_emoney.float_funds_bank                           2022-02-01  one-off spike: +44.7% then -28.6% next period (robust z +16); likely data error
+[U4] bi_emoney.instruments                                2017-11-01  one-off spike: +49.9% then -20.9% next period (robust z +15); likely data error
+[U4] bi_emoney.instruments_chip                           2018-12-01  one-off spike: +15.0% then -8.7% next period (robust z +13); likely data error
+[U4] bi_emoney.instruments_chip                           2019-01-01  one-off spike: -8.7% then +15.7% next period (robust z -10); likely data error
+[U4] bi_emoney.instruments_server                         2017-11-01  one-off spike: +93.5% then -33.4% next period (robust z +31); likely data error
+[U4] bi_emoney.instruments_server                         2020-04-01  one-off spike: +30.1% then -18.8% next period (robust z +12); likely data error
+[U4] bi_emoney.value_topup                                2019-05-01  one-off spike: x3.2 then /4 next period (robust z +9); likely data error
+[U4] bi_emoney.volume                                     2013-09-01  one-off spike: x32 then /28 next period (robust z +32); likely data error
+[U4] bi_emoney.volume_topup                               2013-09-01  one-off spike: x2.7e+02 then /2.1e+02 next period (robust z +43); likely data error
+[U4] bi_payment_system.emoney_instruments_outstanding     2017-11-01  one-off spike: +120.8% then -37.7% next period (robust z +40); likely data error
+[U4] bi_payment_system.emoney_instruments_outstanding     2020-04-01  one-off spike: +30.8% then -19.2% next period (robust z +13); likely data error
+[U4] pihps.modern.10_gula_pasir                           2024-06-03  one-off spike: +95.3% then -48.8% next period (robust z +67); likely data error
+[U4] pihps.traditional.01_beras                           2021-03-29  one-off spike: +11.9% then -10.6% next period (robust z +11); likely data error
+[U4] pihps.traditional.01_beras                           2022-05-16  one-off spike: +17.0% then -14.5% next period (robust z +16); likely data error
+[U4] pihps.traditional.02_daging_ayam                     2021-03-29  one-off spike: +18.5% then -10.4% next period (robust z +8); likely data error
+[U4] pihps.traditional.04_telur_ayam                      2019-02-04  one-off spike: -11.5% then +10.5% next period (robust z -12); likely data error
+[U4] pihps.traditional.04_telur_ayam                      2021-03-29  one-off spike: +17.0% then -13.4% next period (robust z +15); likely data error
+[U4] pihps.traditional.04_telur_ayam                      2022-05-16  one-off spike: +16.2% then -12.2% next period (robust z +15); likely data error
+[U4] pihps.traditional.04_telur_ayam                      2023-12-25  one-off spike: -9.9% then +9.3% next period (robust z -10); likely data error
+[U4] pihps.traditional.05_bawang_merah                    2019-02-04  one-off spike: -31.4% then +35.3% next period (robust z -10); likely data error
+[U4] pihps.traditional.06_bawang_putih                    2019-05-06  one-off spike: +28.2% then -16.1% next period (robust z +23); likely data error
+[U4] pihps.traditional.06_bawang_putih                    2020-02-10  one-off spike: +10.9% then -9.4% next period (robust z +10); likely data error
+[U4] pihps.traditional.06_bawang_putih                    2020-12-07  one-off spike: +19.7% then -16.7% next period (robust z +17); likely data error
+[U4] pihps.traditional.08_cabai_rawit                     2019-02-04  one-off spike: -48.3% then +84.8% next period (robust z -10); likely data error
+[U4] pihps.traditional.09_minyak_goreng                   2019-02-04  one-off spike: -8.4% then +9.1% next period (robust z -9); likely data error
+
+== INFO ==
+[D1] pihps.traditional.01_beras                                       53 dates repeated with the same value (Tabel Harga Berdasarkan Daerah 2023.xlsx vs Tabel Harga Berdasarkan Daerah 2024.xlsx); kept one copy
+[D1] pihps.traditional.02_daging_ayam                                 53 dates repeated with the same value (Tabel Harga Berdasarkan Daerah 2023.xlsx vs Tabel Harga Berdasarkan Daerah 2024.xlsx); kept one copy
+[D1] pihps.traditional.03_daging_sapi                                 53 dates repeated with the same value (Tabel Harga Berdasarkan Daerah 2023.xlsx vs Tabel Harga Berdasarkan Daerah 2024.xlsx); kept one copy
+[D1] pihps.traditional.04_telur_ayam                                  53 dates repeated with the same value (Tabel Harga Berdasarkan Daerah 2023.xlsx vs Tabel Harga Berdasarkan Daerah 2024.xlsx); kept one copy
+[D1] pihps.traditional.05_bawang_merah                                53 dates repeated with the same value (Tabel Harga Berdasarkan Daerah 2023.xlsx vs Tabel Harga Berdasarkan Daerah 2024.xlsx); kept one copy
+[D1] pihps.traditional.06_bawang_putih                                53 dates repeated with the same value (Tabel Harga Berdasarkan Daerah 2023.xlsx vs Tabel Harga Berdasarkan Daerah 2024.xlsx); kept one copy
+[D1] pihps.traditional.07_cabai_merah                                 53 dates repeated with the same value (Tabel Harga Berdasarkan Daerah 2023.xlsx vs Tabel Harga Berdasarkan Daerah 2024.xlsx); kept one copy
+[D1] pihps.traditional.08_cabai_rawit                                 53 dates repeated with the same value (Tabel Harga Berdasarkan Daerah 2023.xlsx vs Tabel Harga Berdasarkan Daerah 2024.xlsx); kept one copy
+[D1] pihps.traditional.09_minyak_goreng                               53 dates repeated with the same value (Tabel Harga Berdasarkan Daerah 2023.xlsx vs Tabel Harga Berdasarkan Daerah 2024.xlsx); kept one copy
+[D1] pihps.traditional.10_gula_pasir                                  53 dates repeated with the same value (Tabel Harga Berdasarkan Daerah 2023.xlsx vs Tabel Harga Berdasarkan Daerah 2024.xlsx); kept one copy
+[D3] (all)                                                2019-12-30  two source dates in one ISO week (2019-12-31, 2020-01-01): kept 2019-12-31 for 10 series, 2020-01-01 for 20 series (the later date with a price)
+[D3] (all)                                                2020-12-28  two source dates in one ISO week (2020-12-30, 2021-01-01): kept 2020-12-30 for 10 series, 2021-01-01 for 20 series (the later date with a price)
+[D3] (all)                                                2024-12-30  two source dates in one ISO week (2024-12-30, 2025-01-01): kept 2025-01-01 for 30 series (the later date with a price)
+[D3] (all)                                                2025-12-29  two source dates in one ISO week (2025-12-31, 2026-01-01): kept 2026-01-01 for 30 series (the later date with a price)
+[M1] pihps.modern.01_beras                                            1 missing period(s): 2022-02-28
+[M1] pihps.modern.02_daging_ayam                                      1 missing period(s): 2022-02-28
+[M1] pihps.modern.03_daging_sapi                                      1 missing period(s): 2022-02-28
+[M1] pihps.modern.04_telur_ayam                                       1 missing period(s): 2022-02-28
+[M1] pihps.modern.05_bawang_merah                                     1 missing period(s): 2022-02-28
+[M1] pihps.modern.06_bawang_putih                                     1 missing period(s): 2022-02-28
+[M1] pihps.modern.07_cabai_merah                                      1 missing period(s): 2022-02-28
+[M1] pihps.modern.08_cabai_rawit                                      1 missing period(s): 2022-02-28
+[M1] pihps.modern.09_minyak_goreng                                    1 missing period(s): 2022-02-28
+[M1] pihps.modern.10_gula_pasir                                       1 missing period(s): 2022-02-28
+[M1] pihps.traditional.01_beras                                       3 missing period(s): 2021-05-10, 2022-02-28, 2022-05-02
+[M1] pihps.traditional.02_daging_ayam                                 3 missing period(s): 2021-05-10, 2022-02-28, 2022-05-02
+[M1] pihps.traditional.03_daging_sapi                                 3 missing period(s): 2021-05-10, 2022-02-28, 2022-05-02
+[M1] pihps.traditional.04_telur_ayam                                  3 missing period(s): 2021-05-10, 2022-02-28, 2022-05-02
+[M1] pihps.traditional.05_bawang_merah                                3 missing period(s): 2021-05-10, 2022-02-28, 2022-05-02
+[M1] pihps.traditional.06_bawang_putih                                3 missing period(s): 2021-05-10, 2022-02-28, 2022-05-02
+[M1] pihps.traditional.07_cabai_merah                                 3 missing period(s): 2021-05-10, 2022-02-28, 2022-05-02
+[M1] pihps.traditional.08_cabai_rawit                                 3 missing period(s): 2021-05-10, 2022-02-28, 2022-05-02
+[M1] pihps.traditional.09_minyak_goreng                               3 missing period(s): 2021-05-10, 2022-02-28, 2022-05-02
+[M1] pihps.traditional.10_gula_pasir                                  3 missing period(s): 2021-05-10, 2022-02-28, 2022-05-02
+[M1] pihps.wholesale.01_beras                                         1 missing period(s): 2022-02-28
+[M1] pihps.wholesale.02_daging_ayam                                   1 missing period(s): 2022-02-28
+[M1] pihps.wholesale.03_daging_sapi                                   1 missing period(s): 2022-02-28
+[M1] pihps.wholesale.04_telur_ayam                                    1 missing period(s): 2022-02-28
+[M1] pihps.wholesale.05_bawang_merah                                  1 missing period(s): 2022-02-28
+[M1] pihps.wholesale.06_bawang_putih                                  1 missing period(s): 2022-02-28
+[M1] pihps.wholesale.07_cabai_merah                                   1 missing period(s): 2022-02-28
+[M1] pihps.wholesale.08_cabai_rawit                                   1 missing period(s): 2022-02-28
+[M1] pihps.wholesale.09_minyak_goreng                                 1 missing period(s): 2022-02-28
+[M1] pihps.wholesale.10_gula_pasir                                    1 missing period(s): 2022-02-28
+[M6] bi_payment_system.currency_to_gdp                                left out on purpose: quarterly ratio, outside monthly/weekly scope
+[M6] bi_payment_system.currency_to_household_consumption              left out on purpose: quarterly ratio, outside monthly/weekly scope
+
+== Flags applied ==
+missing 50 | masked_error 0 | review 16 | provisional 108 | ok 16461

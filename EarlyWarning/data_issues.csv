@@ -1,0 +1,8 @@
+series_id,ref_date,action,reason
+bi_card_transactions.atm_debit.cards,2011-11-01,review,"falls about 85% for one month, then fully recovers"
+bi_emoney.volume,2013-09-01,review,"jumps about 30x for one month, then back"
+bi_emoney.volume_topup,2013-09-01,review,"jumps about 30x for one month, then back"
+pihps.modern.10_gula_pasir,2024-06-03,review,"almost doubles for one week, then back"
+pihps.modern.01_beras,2025-02-03,review,"rises about 18%, then falls back (check the PIHPS website)"
+pihps.modern.01_beras,2025-02-10,review,"second week of the same rise (check the PIHPS website)"
+pihps.traditional.*,2019-02-04,review,"most groups dip for one week, then recover"
