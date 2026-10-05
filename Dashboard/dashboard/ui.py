@@ -47,8 +47,20 @@ def palette() -> str:
 # Page furniture
 
 
-def page_header(dataset: Dataset, latest: pd.Timestamp | None) -> None:
-    st.title(dataset.title)
+def page_header(dataset: Dataset, latest: pd.Timestamp | None, *, title: str | None = None) -> None:
+    """The page's title, then the dataset's own line and expanders.
+
+    A page that draws on more than one dataset names itself with ``title``;
+    the other datasets add their line with ``dataset_caption`` where they
+    appear.
+    """
+    st.title(dataset.title if title is None else title)
+    dataset_caption(dataset, latest)
+
+
+def dataset_caption(dataset: Dataset, latest: pd.Timestamp | None) -> None:
+    """Who publishes a dataset, how often, how fresh it is and where it comes
+    from, with its notes and the publisher's description under expanders."""
     when = f"latest observation {latest:%d %b %Y}" if latest is not None else "no observations on file"
     st.caption(
         f"{dataset.publisher} · {dataset.cadence} · {when} · "
