@@ -123,7 +123,7 @@ naming what it skipped and why, so a stale dataset is never a silent surprise.
 | `qris` | [ASPI QRIS statistics](https://aspi-indonesia.or.id/statistik-qris/) | `qris_transactions.csv` | monthly (see caveat) |
 | *(none)* | QRIS charts, transcribed by hand | `qris_transactions.csv` | quarterly, 2023 Q1 – 2026 Q1 |
 | `magpieiq` | [Magpie IQ e-commerce data pages](https://magpieiq.com/data/shopee-gmv-trend-indonesia-2026/) | `ecommerce_gmv.csv` | monthly (see caveat) |
-| `ibid` | [ibid auctions](https://www.ibid.astra.co.id/cari-lelang/motor-bekas) | `ibid_motor_data.csv`, `ibid_car_data.csv` | on demand |
+| `ibid` | [ibid auctions](https://www.ibid.astra.co.id/cari-lelang/motor-bekas) | `ibid_motor_data.csv`, `ibid_car_data.csv` | weekly |
 | `bps_inflation` | [BPS table 908: inflasi umum, inti, harga diatur pemerintah, bergejolak](https://www.bps.go.id/id/statistics-table/1/OTA4IzE=/inflasi-umum--inti--harga-diatur-pemerintah--dan-bergejolak-nasional--m-to-m-dan-y-to-d---2009-2026.html), in a browser window | `bps_inflation.csv` | monthly (see caveat) |
 
 All targets are under `Dataset/Consumption/`. Most are **long series tables** — one row
@@ -268,7 +268,8 @@ identical backup every run, for no new information.
   a React single-page app behind F5 BIG-IP — the HTML is a 3 KB shell — so there
   is no requests-and-regex route. Both categories together are a few hundred
   pages at a 2-second politeness delay; the first full run took 45 minutes, which
-  is why `all` leaves it out. Run it with `run.py vehicle_listings`. Its backend is also
+  is why `all` leaves it out. The `weekly` run includes it, so the Saturday cron
+  scrapes it; by hand, run it with `run.py vehicle_listings`. Its backend is also
   intermittently flaky: `mobil-bekas` served "upstream request failed" twice in a
   row and then 24 cards on the third attempt, while `motor-bekas` was fine
   throughout. An empty page is therefore retried before it is believed, because

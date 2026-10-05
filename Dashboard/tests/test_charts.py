@@ -113,10 +113,29 @@ def test_freshness_table_marks_the_known_states(bundle):
     assert table.loc["pihps", "Status"] == "fresh"
     assert table.loc["ojk", "Status"] == "stale"
     assert table.loc["qris", "Status"] == "manual"
-    assert table.loc["ibid", "Status"] == "manual"
     assert table.loc["ecommerce", "Status"] == "manual"
     assert table.loc["consumer_survey", "Status"] in {"fresh", "late"}
     assert table.loc["pihps", "Latest observation"] >= dt.date(2026, 9, 10)
+
+
+def test_ibid_is_as_current_as_its_last_scrape(bundle):
+    """Scraped every Saturday, so a missed Saturday reads late from the Tuesday
+    after it.  The auctions a scrape sees ahead of it do not count."""
+    import dataclasses
+
+    import pandas as pd
+
+    ibid = catalogue.BY_KEY["ibid"]
+    scraped = bundle.lots["first_seen"].max().normalize()
+    assert charts.latest_observation(bundle, ibid) == scraped
+    ahead = dataclasses.replace(bundle, lots=bundle.lots.assign(auction_date=scraped + pd.Timedelta(days=30)))
+    assert charts.latest_observation(ahead, ibid) == scraped
+
+    def status(days_after_the_scrape):
+        now = (scraped + pd.Timedelta(days=days_after_the_scrape)).date()
+        return charts.freshness_table(bundle, now=now).set_index("key").loc["ibid", "Status"]
+
+    assert [status(days) for days in (0, 9, 10, 18, 19)] == ["fresh", "fresh", "late", "late", "stale"]
 
 
 def test_colour_map_never_generates_a_ninth_hue():
