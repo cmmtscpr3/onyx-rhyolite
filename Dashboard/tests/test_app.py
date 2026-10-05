@@ -31,6 +31,29 @@ def test_entrypoint_runs_without_exceptions():
     assert at.title[0].value == "Indonesia Indicators"
 
 
+def test_code_changed_under_a_running_app_is_imported_again():
+    """Streamlit Community Cloud pulls each commit into the running app
+    without a restart.  The app has to import the changed code rather than
+    keep serving what it first loaded, or new data appears under old code."""
+    import os
+    import sys
+
+    AppTest.from_file(str(ROOT / "app.py"), default_timeout=300).run()
+    before = sys.modules["dashboard.charts"]
+    source = ROOT / "dashboard" / "charts.py"
+    stat = source.stat()
+    try:
+        AppTest.from_file(str(ROOT / "app.py"), default_timeout=300).run()
+        assert sys.modules["dashboard.charts"] is before, "unchanged code is not imported again"
+        os.utime(source, (stat.st_atime, stat.st_mtime + 60))
+        at = AppTest.from_file(str(ROOT / "app.py"), default_timeout=300)
+        at.run()
+        assert not at.exception, [e.message for e in at.exception]
+        assert sys.modules["dashboard.charts"] is not before, "changed code is imported again"
+    finally:
+        os.utime(source, (stat.st_atime, stat.st_mtime))
+
+
 @pytest.mark.parametrize("page", PAGES)
 def test_each_page_renders(page):
     at = AppTest.from_function(_page_script, kwargs={"page_name": page, "root": str(ROOT)}, default_timeout=300)
