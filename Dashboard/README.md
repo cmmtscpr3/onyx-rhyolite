@@ -17,11 +17,10 @@ python Dashboard/export_html.py                 # Dashboard/dist/indonesia-indic
 |---|---|---|
 | Overview | Freshness of every dataset | all |
 | Food prices | PIHPS weekly food prices, 31 commodities at three market levels | `Dataset/Food Prices/PIHPS/**` |
-| Bank Indonesia | SPIP payment system statistics: one tab each for e-money, cards, and currency and BI-RTGS, one chart at a time | `bi_emoney`, `bi_card_transactions`, `bi_payment_system` |
+| Bank Indonesia | Payment system transactions: one tab each for SPIP's e-money, cards, and currency and BI-RTGS, then ASPI's QRIS (transcribed, quarterly), one chart at a time | `bi_emoney`, `bi_card_transactions`, `bi_payment_system`, `qris_transactions` |
 | Bank Indonesia | SEKI: GDP by expenditure, deposits by owner group | `bi_seki` |
 | Bank Indonesia | Survei Konsumen: confidence indices, budget shares | `bi_consumer_survey` |
 | OJK | SPI third-party funds (stale at source since June 2025) | `ojk_dpk` |
-| Other sources | ASPI QRIS (transcribed, quarterly) | `qris_transactions` |
 | Other sources | Magpie IQ e-commerce GMV | `ecommerce_gmv` |
 | Other sources | ibid vehicle auctions: lots in auction and lots sold each week, then lots and listed price by brand and model, and by grade and model year within one of them | `ibid_car_data`, `ibid_motor_data` |
 
@@ -33,7 +32,7 @@ frequency calls for.
 |---|---|---|
 | weekly | a week earlier | PIHPS food prices |
 | monthly | a month earlier | SPIP, SEKI deposits, Survei Konsumen, OJK, e-commerce GMV |
-| quarterly or rarer | a year earlier | SEKI GDP, SPIP cash intensity, QRIS |
+| quarterly or rarer | a year earlier | SEKI GDP, SPIP cash intensity, QRIS (its tab of the payment page) |
 
 A quarterly series has too few observations either side for a shorter
 comparison to say much, which is why it is the one case that still looks back a
@@ -49,8 +48,8 @@ buttons (1y / 3y / 5y / All) and the slider under the x-axis zoom the time span.
 Every page keeps what a reader can change in **one bordered filter bar**,
 directly above the charts it scopes: the pickers along the top and the series
 list, which is the control that needs the width, under them. A page that shows
-one chart out of several (SPIP's measures, SEKI's price basis, the consumer
-survey's budget shares) puts that switch at the head of the same bar rather
+one chart out of several (the payment page's measures, SEKI's price basis, the
+consumer survey's budget shares) puts that switch at the head of the same bar rather
 than in a row of its own, and the switch then names the chart, so the heading
 above the bar does not repeat it.
 

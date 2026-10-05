@@ -8,7 +8,7 @@ import pytest
 from streamlit.testing.v1 import AppTest
 
 ROOT = Path(__file__).resolve().parents[1]
-PAGES = ["overview", "pihps", "spip", "seki.render_gdp", "seki.render_deposits", "consumer_survey", "ojk", "qris", "ecommerce", "ibid"]
+PAGES = ["overview", "pihps", "spip", "seki.render_gdp", "seki.render_deposits", "consumer_survey", "ojk", "ecommerce", "ibid"]
 
 
 def _page_script(page_name, root):
@@ -42,10 +42,14 @@ def test_code_changed_under_a_running_app_is_imported_again():
     before = sys.modules["dashboard.charts"]
     source = ROOT / "dashboard" / "charts.py"
     stat = source.stat()
+    # The app looks for the newest file of either package, so the edit has to
+    # be dated past every file -- in a checkout where other files were edited
+    # since, a minute on top of this file's own time is not enough.
+    newest = max(path.stat().st_mtime for folder in (ROOT / "dashboard", ROOT.parent / "Collectors" / "collectors") for path in folder.rglob("*.py"))
     try:
         AppTest.from_file(str(ROOT / "app.py"), default_timeout=300).run()
         assert sys.modules["dashboard.charts"] is before, "unchanged code is not imported again"
-        os.utime(source, (stat.st_atime, stat.st_mtime + 60))
+        os.utime(source, (stat.st_atime, newest + 60))
         at = AppTest.from_file(str(ROOT / "app.py"), default_timeout=300)
         at.run()
         assert not at.exception, [e.message for e in at.exception]
@@ -65,20 +69,22 @@ def test_each_page_renders(page):
 
 
 @pytest.mark.parametrize(
-    "page, expected",
+    "page, bar, expected",
     [
-        ("pihps", "Week-on-week % change"),
-        ("spip", "Month-on-month % change"),
-        ("ecommerce", "Month-on-month % change"),
-        ("qris", "Year-on-year % change"),
+        ("pihps", "", "Week-on-week % change"),
+        ("spip", "spip:E-money:", "Month-on-month % change"),
+        ("ecommerce", "", "Month-on-month % change"),
+        # ASPI's quarterly QRIS shares the payment page, on a tab of its own,
+        # and keeps the comparison its own cadence calls for.
+        ("spip", "spip:QRIS:", "Year-on-year % change"),
     ],
 )
-def test_show_as_offers_levels_and_the_frequencys_own_comparison(page, expected):
+def test_show_as_offers_levels_and_the_frequencys_own_comparison(page, bar, expected):
     at = AppTest.from_function(_page_script, kwargs={"page_name": page, "root": str(ROOT)}, default_timeout=300)
     at.run()
     assert not at.exception, [e.message for e in at.exception]
-    shown = [control for control in at.segmented_control if control.label == "Show as"]
-    assert shown, f"{page} has no Show-as control"
+    shown = [control for control in at.segmented_control if control.label == "Show as" and control.key.startswith(bar)]
+    assert shown, f"{page} has no Show-as control under {bar!r}"
     for control in shown:
         assert list(control.options) == ["Level", expected]
 
@@ -87,16 +93,21 @@ def test_spip_page_groups_charts_by_category_tabs():
     at = AppTest.from_function(_page_script, kwargs={"page_name": "spip", "root": str(ROOT)}, default_timeout=300)
     at.run()
     assert not at.exception, [e.message for e in at.exception]
-    assert [tab.label for tab in at.tabs] == ["E-money", "Cards", "Currency and BI-RTGS"]
+    assert [tab.label for tab in at.tabs] == ["E-money", "Cards", "Currency and BI-RTGS", "QRIS"]
     # One chart per tab, chosen with a measure switch, instead of a stack of twelve.
     # The switch shares the filter bar with the chart's own controls, and is a
     # dropdown here because several of these measures are a line long.
     measures = [box for box in at.selectbox if box.label == "Measure"]
-    assert [len(box.options) for box in measures] == [5, 3, 4]
-    assert len(at.dataframe) == 3
+    assert [len(box.options) for box in measures] == [5, 3, 4, 2]
+    assert len(at.dataframe) == 4
+    # The last tab is ASPI's QRIS, a dataset of its own: it introduces itself
+    # with its own notes and official description, as its page used to.
+    assert "ASPI" in at.title[0].value
+    labels = [expander.label for expander in at.expander]
+    assert labels.count("About this data") == 2 and labels.count("Official description") == 2
 
 
-def test_seki_gdp_and_deposits_are_separate_pages_in_the_side_panel(monkeypatch):
+def test_qris_is_a_tab_of_the_payment_page_not_a_page_of_its_own(monkeypatch):
     import runpy
 
     import streamlit as st
@@ -115,9 +126,10 @@ def test_seki_gdp_and_deposits_are_separate_pages_in_the_side_panel(monkeypatch)
     monkeypatch.setattr(st, "Page", lambda page, **kwargs: kwargs)
     monkeypatch.setattr(st, "navigation", navigation)
     runpy.run_path(str(ROOT / "app.py"))
-    pages = {page["title"]: page["url_path"] for page in captured["Bank Indonesia"]}
-    assert pages["SEKI - GDP by Expenditure"] == "seki-gdp"
-    assert pages["SEKI - Bank Deposits"] == "seki-deposits"
+    paths = {page["url_path"]: page["title"] for section in captured.values() for page in section if "url_path" in page}
+    assert "qris" not in paths
+    assert "ASPI" in paths["spip"]
+    assert "seki-gdp" in paths
 
 
 def test_seki_deposits_page_has_no_gdp_switch():
