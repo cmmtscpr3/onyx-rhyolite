@@ -655,17 +655,19 @@ DATASETS: tuple[Dataset, ...] = (
         publisher="ibid (Astra) auction listings",
         section="Other sources",
         source_url="https://www.ibid.astra.co.id/cari-lelang/mobil-bekas",
-        cadence="on demand",
+        cadence="weekly",
         sources=("ibid_car_data", "ibid_motor_data"),
         collector="ibid",
-        late_after_days=None,
-        forced_status="manual",
+        # Counted from the last scrape, which runs every Saturday: a missed
+        # Saturday reads late from the Tuesday after it.
+        late_after_days=9,
         notes=(
             "Every lot the scraper has seen, cars and motorcycles, with the price shown on its card. That is the listed price, not a confirmed hammer price.",
             "Rows are lots, not vehicles: about a third of plates appear in more than one lot (relisted after an auction), usually at the same price.",
             "ibid marks a lot Terjual once its auction has been held and leaves the label empty until then, so what sold and what was merely auctioned are the same count here.",
             "A lot keeps the label its last sighting gave it, so one that dropped off the site before a scrape could see it sold stays unsold on file: that, and auctions still to come, are the whole gap between the lots in auction each week and the lots sold.",
-            "Two scrapes so far (17 August and 15 September 2026) covering auctions from mid July 2026. The scrape is opt-in and slow, so it runs by hand.",
+            "Scraped every Saturday by the weekly collection since 19 September 2026; the two scrapes before that (17 August and 15 September) were run by hand and reach back to auctions in mid July 2026.",
+            "On the overview it is dated by its last scrape, not its latest auction, which can lie a few days past the scrape that saw it.",
         ),
     ),
 )

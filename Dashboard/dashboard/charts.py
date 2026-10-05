@@ -247,7 +247,10 @@ def latest_observation(bundle: Bundle, dataset: Dataset) -> pd.Timestamp | None:
     if dataset.key == "pihps":
         return bundle.pihps["week"].max() if not bundle.pihps.empty else None
     if dataset.key == "ibid":
-        return bundle.lots["auction_date"].max() if not bundle.lots.empty else None
+        # The day of the last scrape (each one finds lots new to the file):
+        # the latest auction can lie days past it.
+        scraped = bundle.lots["first_seen"].max() if not bundle.lots.empty else None
+        return None if pd.isna(scraped) else scraped.normalize()
     latest = data.latest_by_dataset(bundle.series)
     dates = [latest[source] for source in dataset.sources if source in latest]
     return max(dates) if dates else None
