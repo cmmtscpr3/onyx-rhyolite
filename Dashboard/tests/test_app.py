@@ -107,6 +107,23 @@ def test_spip_page_groups_charts_by_category_tabs():
     assert labels.count("About this data") == 2 and labels.count("Official description") == 2
 
 
+def test_bps_inflation_page_puts_each_visualisation_on_its_own_tab():
+    at = AppTest.from_function(_page_script, kwargs={"page_name": "bps_inflation", "root": str(ROOT)}, default_timeout=300)
+    at.run()
+    assert not at.exception, [e.message for e in at.exception]
+    assert [tab.label for tab in at.tabs] == ["Headline", "Provinces", "Components"]
+    # The headline tab offers both measures and starts with both on; the
+    # components tab offers BI's four series.
+    # The harness reports the options as labelled on screen.
+    measures = at.multiselect(key="bps_inflation:headline:measures")
+    assert list(measures.options) == ["Year-on-year", "Month-on-month"] and list(measures.value) == ["yoy", "mtm"]
+    assert len(at.multiselect(key="bps_inflation:components:series").options) == 4
+    # Two latest-value tables and the province table.
+    assert len(at.dataframe) == 3
+    # No Show-as: a percentage change of a rate says nothing.
+    assert not [control for control in at.segmented_control if control.label == "Show as"]
+
+
 def test_qris_is_a_tab_of_the_payment_page_not_a_page_of_its_own(monkeypatch):
     import runpy
 

@@ -57,15 +57,17 @@ above the bar does not repeat it.
 The BPS Inflation page reads the four CSVs uploaded by hand under
 `Dataset/BPS-Inflation/` (BPS's table exports and a long file of Bank
 Indonesia's disaggregation), parsed directly rather than through the
-collectors' sink. Its first chart puts the **year-on-year and month-on-month
-headline rates on one axis**, with a multiselect to show either or both; it
-has no Show-as switch, since a percentage change of a rate says nothing. Under
-it the **province table** lists Indonesia and then the 38 provinces by their
-latest year-on-year rate, one column per month with the newest first, and
-**colours a cell red when the province's rate is above Indonesia's for that
-month**. The third chart is BI's components, headline, core, administered
-prices and volatile food, month-on-month; the months BI left blank break the
-line rather than being filled. Values keep BPS's two decimals.
+collectors' sink, and shows them on three tabs. **Headline** puts the
+year-on-year and month-on-month rates on one axis, with a multiselect to show
+either or both; it has no Show-as switch, since a percentage change of a rate
+says nothing. **Provinces** is a table that lists Indonesia and then the 38
+provinces by their latest year-on-year rate, one column per month with the
+newest first, and **colours a cell red when the province's rate is above
+Indonesia's for that month and green when it is below**. **Components** is
+BI's headline, core, administered prices and volatile food, month-on-month;
+the months BI left blank break the line rather than being filled. Values keep
+BPS's two decimals. The offline export, which has no styled table, carries
+the latest month's province ranking as a bar chart in the same colours.
 
 The ibid page is the exception to the one-line-chart-per-group rule. Its rows
 are lots, not a series, so its one chart over time is drawn from the auction

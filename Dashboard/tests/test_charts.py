@@ -390,7 +390,7 @@ def test_components_chart_has_the_four_bi_series(inflation):
     assert july and july[0] != july[0]  # NaN
 
 
-def test_province_table_pins_indonesia_and_marks_the_hotter_cells(inflation):
+def test_province_table_pins_indonesia_and_sides_each_cell_against_it(inflation):
     table = charts.province_table(inflation)
     assert table.columns[0] == "Region" and table.columns[1] == "Sep 2026" and table.columns[2] == "Aug 2026"
     assert table.shape == (39, 34)
@@ -398,26 +398,32 @@ def test_province_table_pins_indonesia_and_marks_the_hotter_cells(inflation):
     rates = table.set_index("Region")["Sep 2026"]
     assert rates.iloc[1:].is_monotonic_decreasing  # hottest province first
     assert rates["Sulawesi Utara"] == pytest.approx(7.59) and rates["DKI Jakarta"] == pytest.approx(2.71)
-    hot = charts.province_hotter_than_national(table)
-    assert hot.shape == table.shape and not hot["Region"].any()
-    assert not hot.iloc[0].any()  # Indonesia is never redder than itself
-    by_region = hot.set_index(table["Region"])
-    assert by_region.loc["Sulawesi Utara", "Sep 2026"] and not by_region.loc["DKI Jakarta", "Sep 2026"]
-    # Every red cell is strictly above Indonesia's rate for that month.
+    verdict = charts.province_vs_national(table)
+    assert verdict.shape == table.shape and (verdict["Region"] == charts.LEVEL_WITH).all()
+    assert (verdict.iloc[0] == charts.LEVEL_WITH).all()  # Indonesia is never above or below itself
+    by_region = verdict.set_index(table["Region"])
+    assert by_region.loc["Sulawesi Utara", "Sep 2026"] == charts.ABOVE
+    assert by_region.loc["DKI Jakarta", "Sep 2026"] == charts.BELOW
+    # Red is strictly above Indonesia's rate for that month, green strictly below.
     months = [c for c in table.columns if c != "Region"]
-    national = table.iloc[0][months].astype(float)
-    assert (table[months].astype(float).gt(national, axis=1) == hot[months]).all().all() or not hot.iloc[0].any()
+    rates = table[months].astype(float)
+    provinces, national = rates.iloc[1:], rates.iloc[0]
+    assert ((verdict[months].iloc[1:] == charts.ABOVE) == provinces.gt(national, axis=1)).all().all()
+    assert ((verdict[months].iloc[1:] == charts.BELOW) == provinces.lt(national, axis=1)).all().all()
+    # A province exactly on Indonesia's rate is neither red nor green (12 such cells in 2024).
+    assert ((verdict[months].iloc[1:] == charts.LEVEL_WITH) == provinces.eq(national, axis=1)).all().all()
+    assert (verdict[months].iloc[1:] == charts.LEVEL_WITH).sum().sum() == 12
     since = charts.province_table(inflation, since_year=2026)
     assert all(column.endswith("2026") for column in since.columns if column != "Region")
 
 
-def test_province_panel_colours_the_hot_bars_red(inflation):
+def test_province_panel_colours_the_bars_by_side(inflation):
     panel = charts.province_panel(inflation)
     assert panel.title.endswith("Sep 2026")
     bar = panel.figure.data[0]
     colours = dict(zip(bar.y, bar.marker.color))
     assert colours["Sulawesi Utara"] == theme.STATUS["stale"]
-    assert colours["DKI Jakarta"] == theme.CATEGORICAL["light"][0]
-    assert colours["Indonesia"] == theme.CHROME["light"]["muted"]
+    assert colours["DKI Jakarta"] == theme.STATUS["fresh"]
+    assert colours["Indonesia"] == theme.STATUS["no data"]
     assert list(panel.table.columns) == ["Region", "Year-on-year (Sep 2026)", "vs Indonesia"]
     assert panel.table.iloc[0]["vs Indonesia"] == "" and panel.table.iloc[1]["vs Indonesia"] == "+4.31 pts"

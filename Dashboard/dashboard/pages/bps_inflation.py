@@ -1,24 +1,25 @@
 """BPS inflation: headline rates, the province table and BI's components.
 
-Three blocks, each with its own bordered filter bar: headline inflation with
+Three tabs, each with its own bordered filter bar: headline inflation with
 the year-on-year and month-on-month rates together or one at a time; the
 provinces' year-on-year rates month by month, red where a province runs
-above Indonesia; and Bank Indonesia's disaggregation month-on-month.  The
-Show-as switch the other pages carry is left out, since a percentage change
-of a rate says nothing.
+above Indonesia and green where it runs below; and Bank Indonesia's
+disaggregation month-on-month.  The Show-as switch the other pages carry is
+left out, since a percentage change of a rate says nothing.
 """
 
 from __future__ import annotations
 
 import streamlit as st
 
-from .. import catalogue, charts, data, theme, ui
+from .. import catalogue, charts, data, ui
 
 KEY = charts.INFLATION_KEY
 #: Rows of the province table are 35px tall in Streamlit's grid; the table
 #: shows every region rather than hiding most behind an inner scrollbar.
 ROW_PX = 35
 HEADER_PX = 38
+TABS = ("Headline", "Provinces", "Components")
 
 
 def render() -> None:
@@ -27,9 +28,13 @@ def render() -> None:
     inflation = bundle.inflation
     ui.page_header(dataset, charts.latest_observation(bundle, dataset))
 
-    _headline(inflation)
-    _provinces(inflation)
-    _components(inflation)
+    headline, provinces, components = st.tabs(list(TABS))
+    with headline:
+        _headline(inflation)
+    with provinces:
+        _provinces(inflation)
+    with components:
+        _components(inflation)
 
 
 def _headline(inflation: data.Inflation) -> None:
@@ -61,10 +66,10 @@ def _provinces(inflation: data.Inflation) -> None:
     if table.empty or table.shape[1] < 2:
         st.info("No province figures in this range.")
         return
-    hot = charts.province_hotter_than_national(table)
+    verdict = charts.province_vs_national(table)
     months = [column for column in table.columns if column != charts.REGION]
-    red = f"background-color: {theme.STATUS['stale']}; color: white"
-    styles = hot.map(lambda is_hot: red if is_hot else "")
+    css = {v: f"background-color: {colour}; color: white" for v, colour in charts.VERDICT_COLOUR.items()}
+    styles = verdict.map(lambda v: css.get(v, ""))
     styled = (
         table.style.apply(lambda _: styles, axis=None)
         .format(f"{{:.{charts.INFLATION_DECIMALS}f}}", subset=months, na_rep="–")
@@ -79,7 +84,7 @@ def _provinces(inflation: data.Inflation) -> None:
     )
     st.caption(
         "Percent, year-on-year, newest month first; Indonesia on top, then the provinces by their latest rate. "
-        "Red: the province's rate is above Indonesia's for that month."
+        "Red: the province's rate is above Indonesia's for that month. Green: below it."
     )
 
 
