@@ -17,6 +17,7 @@ REPO_ROOT = DASHBOARD_ROOT.parent                        # the repository
 DATASET = REPO_ROOT / "Dataset"
 CONSUMPTION = DATASET / "Consumption"
 FOOD_PRICES = DATASET / "Food Prices" / "PIHPS"
+BPS_INFLATION = DATASET / "BPS-Inflation"
 COLLECTORS = REPO_ROOT / "Collectors"
 DIST = DASHBOARD_ROOT / "dist"
 

@@ -28,3 +28,8 @@ def pihps():
 @pytest.fixture(scope="session")
 def lots():
     return data.load_lots()
+
+
+@pytest.fixture(scope="session")
+def inflation():
+    return data.load_bps_inflation()

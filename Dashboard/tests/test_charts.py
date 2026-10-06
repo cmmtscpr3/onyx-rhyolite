@@ -3,6 +3,7 @@ colours fixed per series."""
 
 from __future__ import annotations
 
+import pandas as pd
 import pytest
 
 from dashboard import catalogue, charts, data, figures, theme, transform
@@ -10,8 +11,8 @@ from dashboard.transform import LEVEL, comparison
 
 
 @pytest.fixture(scope="session")
-def bundle(series, pihps, lots):
-    return charts.Bundle(series=series, pihps=pihps, lots=lots, fingerprint=data.fingerprint())
+def bundle(series, pihps, lots, inflation):
+    return charts.Bundle(series=series, pihps=pihps, lots=lots, fingerprint=data.fingerprint(), inflation=inflation)
 
 
 def test_every_default_chart_builds(bundle):
@@ -357,3 +358,66 @@ def test_the_weekly_panel_survives_a_category_with_no_lots(bundle):
     panel = charts.weekly_panel(empty, "cars")
     assert [note.text for note in panel.figure.layout.annotations] == ["No auction weeks on file"]
     assert panel.table.empty and not panel.figure.layout.showlegend
+
+
+# ---------------------------------------------------------------------------
+# BPS inflation
+
+
+def test_inflation_chart_toggles_its_measures(inflation):
+    both = charts.inflation_chart(inflation)
+    assert [trace.name for trace in both.figure.data] == ["Year-on-year", "Month-on-month"]
+    assert both.figure.layout.showlegend
+    assert both.unit == "percent" and both.decimals == 2
+    one = charts.inflation_chart(inflation, measures=["mtm"], since_year=2024)
+    assert [trace.name for trace in one.figure.data] == ["Month-on-month"]
+    assert not one.figure.layout.showlegend
+    assert min(one.figure.data[0].x) >= pd.Timestamp("2024-01-01")
+    # The table keeps every month, whatever the range shown.
+    assert list(one.table["Series"]) == ["Month-on-month"]
+    # Deselecting a measure never repaints the other.
+    colours = {trace.name: trace.line.color for trace in both.figure.data}
+    assert one.figure.data[0].line.color == colours["Month-on-month"]
+
+
+def test_components_chart_has_the_four_bi_series(inflation):
+    chart = charts.inflation_components_chart(inflation)
+    assert [trace.name for trace in chart.figure.data] == ["Headline", "Core", "Administered prices", "Volatile food"]
+    assert len(chart.table) == 4
+    # A month blank at source is a gap in the line, not a point.
+    headline = chart.figure.data[0]
+    july = [y for x, y in zip(headline.x, headline.y) if pd.Timestamp(x) == pd.Timestamp("2026-07-01")]
+    assert july and july[0] != july[0]  # NaN
+
+
+def test_province_table_pins_indonesia_and_marks_the_hotter_cells(inflation):
+    table = charts.province_table(inflation)
+    assert table.columns[0] == "Region" and table.columns[1] == "Sep 2026" and table.columns[2] == "Aug 2026"
+    assert table.shape == (39, 34)
+    assert table.iloc[0]["Region"] == "Indonesia"
+    rates = table.set_index("Region")["Sep 2026"]
+    assert rates.iloc[1:].is_monotonic_decreasing  # hottest province first
+    assert rates["Sulawesi Utara"] == pytest.approx(7.59) and rates["DKI Jakarta"] == pytest.approx(2.71)
+    hot = charts.province_hotter_than_national(table)
+    assert hot.shape == table.shape and not hot["Region"].any()
+    assert not hot.iloc[0].any()  # Indonesia is never redder than itself
+    by_region = hot.set_index(table["Region"])
+    assert by_region.loc["Sulawesi Utara", "Sep 2026"] and not by_region.loc["DKI Jakarta", "Sep 2026"]
+    # Every red cell is strictly above Indonesia's rate for that month.
+    months = [c for c in table.columns if c != "Region"]
+    national = table.iloc[0][months].astype(float)
+    assert (table[months].astype(float).gt(national, axis=1) == hot[months]).all().all() or not hot.iloc[0].any()
+    since = charts.province_table(inflation, since_year=2026)
+    assert all(column.endswith("2026") for column in since.columns if column != "Region")
+
+
+def test_province_panel_colours_the_hot_bars_red(inflation):
+    panel = charts.province_panel(inflation)
+    assert panel.title.endswith("Sep 2026")
+    bar = panel.figure.data[0]
+    colours = dict(zip(bar.y, bar.marker.color))
+    assert colours["Sulawesi Utara"] == theme.STATUS["stale"]
+    assert colours["DKI Jakarta"] == theme.CATEGORICAL["light"][0]
+    assert colours["Indonesia"] == theme.CHROME["light"]["muted"]
+    assert list(panel.table.columns) == ["Region", "Year-on-year (Sep 2026)", "vs Indonesia"]
+    assert panel.table.iloc[0]["vs Indonesia"] == "" and panel.table.iloc[1]["vs Indonesia"] == "+4.31 pts"

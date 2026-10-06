@@ -7,6 +7,8 @@ Three shapes come out:
 * :func:`load_pihps` -- the 24 weekly PIHPS workbooks as one tidy frame
   (``market, commodity, level, group, week, price``).
 * :func:`load_lots` -- the two ibid listings files as one frame of lots.
+* :func:`load_bps_inflation` -- the four hand-uploaded inflation CSVs under
+  ``Dataset/BPS-Inflation`` as three wide frames (:class:`Inflation`).
 
 Nothing here caches; the app wraps these in ``st.cache_data`` keyed on
 :func:`fingerprint`, so a collector commit landing under ``Dataset/`` is
@@ -39,7 +41,7 @@ from collectors.sinks.wide_xlsx import is_value, read_grid  # noqa: E402
 # ---------------------------------------------------------------------------
 # Fingerprint
 
-DATA_DIRS = (paths.CONSUMPTION, paths.FOOD_PRICES)
+DATA_DIRS = (paths.CONSUMPTION, paths.FOOD_PRICES, paths.BPS_INFLATION)
 
 
 @dataclass(frozen=True)
@@ -397,3 +399,122 @@ def load_lots() -> pd.DataFrame:
     frame.attrs["dropped_stray"] = dropped_stray
     frame.attrs["dropped_nonvehicle"] = dropped_nonvehicle
     return frame
+
+
+# ---------------------------------------------------------------------------
+# BPS inflation: hand-uploaded CSVs
+
+#: Headline inflation, one file per measure, as BPS's table export names them.
+NATIONAL_FILES: dict[str, tuple[str, str]] = {
+    "yoy": ("Inflasi (Y-on-Y).csv", "yoy"),
+    "mtm": ("Inflasi Bulanan (M-to-M).csv", "inflation"),
+}
+COMPONENTS_FILE = "bi_inflation_long.csv"
+PROVINCES_FILE = "provinsi_yoy_wide.csv"
+#: Year-on-year first: it is the rate people quote.
+INFLATION_MEASURES: tuple[str, ...] = ("yoy", "mtm")
+#: Bank Indonesia's disaggregation, headline first.
+INFLATION_COMPONENTS: tuple[str, ...] = ("headline", "core", "administered", "volatile")
+#: The column of the province file that the provinces are compared with.
+NATIONAL_COLUMN = "INDONESIA"
+
+
+@dataclass(frozen=True)
+class Inflation:
+    """The inflation files as three wide frames, each on a monthly DatetimeIndex.
+
+    ``national`` has one column per measure (``yoy``, ``mtm``), ``components``
+    one per BI component (month-on-month), ``provinces`` the national rate
+    first and then one column per province (year-on-year), named as the
+    file names them.
+    """
+
+    national: pd.DataFrame
+    components: pd.DataFrame
+    provinces: pd.DataFrame
+
+    @property
+    def latest(self) -> pd.Timestamp | None:
+        dates = [frame.index.max() for frame in (self.national, self.components, self.provinces) if not frame.empty]
+        return max(dates) if dates else None
+
+
+def _parse_dates(text: pd.Series) -> pd.Series:
+    """BPS's exports write ``1/1/2009`` (month first); the others are ISO."""
+    text = text.astype(str).str.strip()
+    american = pd.to_datetime(text, format="%m/%d/%Y", errors="coerce")
+    iso = pd.to_datetime(text, format="%Y-%m-%d", errors="coerce")
+    return american.fillna(iso)
+
+
+def _monthly(frame: pd.DataFrame, columns: Sequence[str]) -> pd.DataFrame:
+    """``date`` to a sorted monthly DatetimeIndex; ``columns`` to floats, blanks to NaN."""
+    out = pd.DataFrame({column: pd.to_numeric(frame.get(column), errors="coerce") for column in columns})
+    out.index = pd.DatetimeIndex(_parse_dates(frame["date"]), name="date")
+    out = out[out.index.notna()]
+    # A month the source left blank stays as a NaN row, so the line breaks
+    # there instead of being drawn straight across the gap.
+    return out[~out.index.duplicated(keep="last")].sort_index()
+
+
+def _read(path: Path) -> pd.DataFrame | None:
+    if not path.is_file():
+        return None
+    frame = pd.read_csv(path, dtype=str, keep_default_na=False)
+    frame.columns = [str(column).strip() for column in frame.columns]
+    return frame if "date" in frame.columns else None
+
+
+def load_bps_inflation(root: Path = paths.BPS_INFLATION) -> Inflation:
+    """The four CSVs under ``Dataset/BPS-Inflation``.
+
+    They are uploaded by hand, not written by a collector, so each is read
+    as it comes: a missing file leaves its frame empty rather than failing
+    the whole bundle.
+    """
+    root = Path(root)
+    measures = []
+    for measure, (name, column) in NATIONAL_FILES.items():
+        raw = _read(root / name)
+        if raw is not None and column in raw.columns:
+            measures.append(_monthly(raw, [column]).rename(columns={column: measure}))
+    if measures:
+        national = pd.concat(measures, axis=1).sort_index()
+        national = national.reindex(columns=[m for m in INFLATION_MEASURES if m in national.columns])
+    else:
+        national = pd.DataFrame(columns=list(INFLATION_MEASURES), index=pd.DatetimeIndex([], name="date"))
+
+    raw = _read(root / COMPONENTS_FILE)
+    if raw is not None and {"series", "inflation"} <= set(raw.columns):
+        raw = raw.assign(series=raw["series"].str.strip().str.lower())
+        pieces = [
+            _monthly(raw[raw["series"] == component], ["inflation"]).rename(columns={"inflation": component})
+            for component in INFLATION_COMPONENTS
+        ]
+        components = pd.concat(pieces, axis=1).sort_index()
+    else:
+        components = pd.DataFrame(columns=list(INFLATION_COMPONENTS))
+        components.index = pd.DatetimeIndex([], name="date")
+
+    raw = _read(root / PROVINCES_FILE)
+    if raw is not None and NATIONAL_COLUMN in raw.columns:
+        regions = [NATIONAL_COLUMN, *sorted(c for c in raw.columns if c not in {"date", NATIONAL_COLUMN})]
+        provinces = _monthly(raw, regions)
+    else:
+        provinces = pd.DataFrame(columns=[NATIONAL_COLUMN])
+        provinces.index = pd.DatetimeIndex([], name="date")
+
+    return Inflation(national=national, components=components, provinces=provinces)
+
+
+def province_label(column: str) -> str:
+    """``PROV JAWA BARAT`` -> ``Jawa Barat``; ``INDONESIA`` -> ``Indonesia``.
+
+    The file writes regions in capitals with BPS's ``PROV`` prefix; the
+    acronyms BPS keeps in capitals (DKI, DI) stay so.
+    """
+    name = re.sub(r"^PROV(INSI)?\.?\s+", "", column.strip(), flags=re.IGNORECASE)
+    words = []
+    for word in name.split():
+        words.append(word if word.upper() in {"DKI", "DI"} else word.capitalize())
+    return " ".join(words)

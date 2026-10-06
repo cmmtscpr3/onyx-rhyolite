@@ -181,21 +181,24 @@ def change_label(unit: str) -> str:
     return "points" if unit in POINT_UNITS else "%"
 
 
-def format_number(value: float, unit: str = "") -> str:
-    """Thousands-separated, with the precision the magnitude calls for."""
+def format_number(value: float, unit: str = "", decimals: int | None = None) -> str:
+    """Thousands-separated, with the precision the magnitude calls for, or
+    the ``decimals`` a dataset publishes to (BPS gives inflation to two)."""
     if value is None or (isinstance(value, float) and np.isnan(value)):
         return "–"
+    if decimals is not None:
+        return f"{value:,.{decimals}f}"
     magnitude = abs(value)
     if unit in POINT_UNITS or magnitude < 100:
         return f"{value:,.1f}"
     return f"{value:,.0f}"
 
 
-def format_change(value: float, unit: str) -> str:
+def format_change(value: float, unit: str, decimals: int | None = None) -> str:
     if value is None or (isinstance(value, float) and np.isnan(value)):
         return "–"
     suffix = " pts" if unit in POINT_UNITS else "%"
-    return f"{value:+,.1f}{suffix}"
+    return f"{value:+,.{1 if decimals is None else decimals}f}{suffix}"
 
 
 def freshness_status(latest, late_after_days: int | None, now: dt.date, forced: str = "") -> tuple[str, int | None]:

@@ -110,7 +110,7 @@ footer {{ color: var(--muted); font-size: 12px; margin-top: 40px; border-top: 1p
 """
 
 
-def _latest_table_html(table: pd.DataFrame, unit: str) -> str:
+def _latest_table_html(table: pd.DataFrame, unit: str, decimals: int | None = None) -> str:
     if table.empty:
         return ""
     head = (
@@ -123,9 +123,9 @@ def _latest_table_html(table: pd.DataFrame, unit: str) -> str:
             "<tr>"
             f"<td>{html.escape(str(row.Series))}</td>"
             f"<td>{row.Latest:%d %b %Y}</td>"
-            f"<td class=num>{html.escape(transform.format_number(row.Value, unit))}</td>"
-            f"<td class=num>{html.escape(transform.format_change(row._3, unit))}</td>"
-            f"<td class=num>{html.escape(transform.format_change(row._4, unit))}</td>"
+            f"<td class=num>{html.escape(transform.format_number(row.Value, unit, decimals))}</td>"
+            f"<td class=num>{html.escape(transform.format_change(row._3, unit, decimals))}</td>"
+            f"<td class=num>{html.escape(transform.format_change(row._4, unit, decimals))}</td>"
             "</tr>"
         )
     return f'<div class=tablewrap><table class=latest><thead>{head}</thead><tbody>{"".join(rows)}</tbody></table></div>'
@@ -260,7 +260,7 @@ def build_offline_html(bundle: charts.Bundle, *, now: dt.datetime | None = None,
             if isinstance(chart, charts.Panel):
                 parts.append(_plain_table_html(chart.table))
             else:
-                parts.append(_latest_table_html(chart.table, chart.unit))
+                parts.append(_latest_table_html(chart.table, chart.unit, chart.decimals))
             if chart.note:
                 parts.append(f'<p class="note">{html.escape(chart.note)}</p>')
             group = next((candidate for candidate in dataset.groups if candidate.key == chart.key), None)

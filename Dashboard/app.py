@@ -60,11 +60,14 @@ def _current_own_code():
 
 with _current_own_code():
     from dashboard import ui  # noqa: E402
-    from dashboard.pages import consumer_survey, ecommerce, ibid, ojk, overview, pihps, seki, spip  # noqa: E402
+    from dashboard.pages import bps_inflation, consumer_survey, ecommerce, ibid, ojk, overview, pihps, seki, spip  # noqa: E402
 
 PAGES = {
     "Overview": [st.Page(overview.render, title="Overview", icon=":material/home:", default=True)],
-    "Inflation": [st.Page(pihps.render, title="PIHPS · Weekly food prices", icon=":material/rice_bowl:", url_path="pihps")],
+    "Inflation": [
+        st.Page(pihps.render, title="PIHPS · Weekly food prices", icon=":material/rice_bowl:", url_path="pihps"),
+        st.Page(bps_inflation.render, title="BPS Inflation", icon=":material/trending_up:", url_path="bps-inflation"),
+    ],
     "Consumption": [
         st.Page(consumer_survey.render, title="[OFFICIAL] BI-Consumer Confidence Index", icon=":material/groups:", url_path="consumer-survey"),
         st.Page(spip.render, title="[EXPLORATORY] BI & ASPI-Payment System Transactions", icon=":material/credit_card:", url_path="spip"),

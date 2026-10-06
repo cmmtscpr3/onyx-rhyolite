@@ -87,10 +87,11 @@ def line_chart(
     palette: str = "light",
     height: int = 440,
     range_slider: bool = True,
+    decimals: int | None = None,
 ) -> go.Figure:
     chrome = theme.CHROME[palette]
     fig = go.Figure()
-    decimals = precision(frame, unit, mode)
+    decimals = precision(frame, unit, mode) if decimals is None else decimals
     hover = f"%{{fullData.name}}: %{{y:,.{decimals}f}}<extra></extra>"
     for column in frame.columns:
         colour = colours.get(column, chrome["muted"])
@@ -210,7 +211,7 @@ def count_bar(
     *,
     text: Sequence[str],
     hovertemplate: str,
-    colour: str,
+    colour: str | Sequence[str],
     unit: str = "lots",
     vertical: bool = False,
     empty: str = "Nothing to show",
@@ -220,14 +221,16 @@ def count_bar(
     """One bar per category, in the order given.
 
     One colour for every bar: the bar's length already carries the count, so a
-    colour ramp would encode the same number twice.  Names run down the side
+    colour ramp would encode the same number twice.  A list of colours, one
+    per bar, is for marking bars that are past a benchmark, not for a ramp.
+    Names run down the side
     with the count written at the end of each bar, which lets the value axis
     go away; an ordered scale runs along the bottom and keeps its axis, because
     a label on each of thirty columns is unreadable.
     """
     chrome = theme.CHROME[palette]
     bar = dict(
-        marker=dict(color=colour, cornerradius=4),
+        marker=dict(color=list(colour) if not isinstance(colour, str) else colour, cornerradius=4),
         hovertemplate=hovertemplate,
         cliponaxis=False,
     )

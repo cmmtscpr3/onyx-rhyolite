@@ -175,7 +175,7 @@ def controls(
 def show_chart(chart: charts.Chart, key: str) -> None:
     st.plotly_chart(chart.figure, width="stretch", theme="streamlit", config=PLOTLY_CONFIG, key=f"{key}:chart")
     if not chart.table.empty:
-        st.dataframe(display_table(chart.table, chart.unit), hide_index=True, width="stretch")
+        st.dataframe(display_table(chart.table, chart.unit, chart.decimals), hide_index=True, width="stretch")
     if chart.note:
         st.caption(chart.note)
 
@@ -190,14 +190,14 @@ def show_panel(panel: charts.Panel, key: str) -> None:
         st.caption(panel.note)
 
 
-def display_table(table: pd.DataFrame, unit: str) -> pd.DataFrame:
+def display_table(table: pd.DataFrame, unit: str, decimals: int | None = None) -> pd.DataFrame:
     shown = pd.DataFrame(
         {
             "Series": table["Series"],
             "Latest": table["Latest"].map(lambda d: d.strftime("%d %b %Y") if d is not None else ""),
-            f"Value ({unit})": table["Value"].map(lambda v: transform.format_number(v, unit)),
-            "vs previous": table["vs previous"].map(lambda v: transform.format_change(v, unit)),
-            "vs year earlier": table["vs year earlier"].map(lambda v: transform.format_change(v, unit)),
+            f"Value ({unit})": table["Value"].map(lambda v: transform.format_number(v, unit, decimals)),
+            "vs previous": table["vs previous"].map(lambda v: transform.format_change(v, unit, decimals)),
+            "vs year earlier": table["vs year earlier"].map(lambda v: transform.format_change(v, unit, decimals)),
         }
     )
     return shown

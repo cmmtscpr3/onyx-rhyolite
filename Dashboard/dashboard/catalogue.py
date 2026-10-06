@@ -83,7 +83,7 @@ class Dataset:
         return seen
 
 
-SECTIONS: tuple[str, ...] = ("Overview", "Food prices", "Bank Indonesia", "OJK", "Other sources")
+SECTIONS: tuple[str, ...] = ("Overview", "Food prices", "Inflation", "Bank Indonesia", "OJK", "Other sources")
 
 NATIONAL_NOTE = "National figures only; the collectors store no regional breakdown."
 
@@ -537,6 +537,31 @@ DATASETS: tuple[Dataset, ...] = (
             "Weekly national average prices for 31 commodities (10 groups, 21 varieties) at three market levels: traditional markets, modern markets and wholesalers.",
             "Prices are rupiah per kilogram, or per litre for cooking oil, as PIHPS publishes them. Group rows are the average of their varieties.",
             NATIONAL_NOTE,
+        ),
+    ),
+    Dataset(
+        key="bps_inflation",
+        title="BPS Inflation",
+        short="BPS Inflation",
+        publisher="Badan Pusat Statistik (BPS); Bank Indonesia for the disaggregation",
+        section="Inflation",
+        source_url="https://www.bps.go.id/id/statistics-table?subject=520",
+        cadence="monthly",
+        sources=("BPS-Inflation",),
+        collector="none (uploaded by hand)",
+        late_after_days=45,
+        notes=(
+            "Consumer price inflation as BPS publishes it on the first working day of the following month: the "
+            "year-on-year and month-on-month headline rates since January 2009, and the year-on-year rate for "
+            "Indonesia and each of the 38 provinces since January 2024, when the provincial series restarted "
+            "on the 2022 base with the new Papua provinces.",
+            "Bank Indonesia's disaggregation of the same index into core, administered prices and volatile food "
+            "is month-on-month. Two months are blank at source (March 2022 for the components, July 2026 for all "
+            "four series) and are left as gaps.",
+            "In the province table a cell is red when that province's year-on-year rate is above Indonesia's for "
+            "the same month.",
+            "The four CSV files under Dataset/BPS-Inflation are uploaded by hand rather than written by a collector, "
+            "so the overview dates this page by the latest month in them.",
         ),
     ),
     Dataset(

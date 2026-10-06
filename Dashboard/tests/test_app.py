@@ -8,7 +8,7 @@ import pytest
 from streamlit.testing.v1 import AppTest
 
 ROOT = Path(__file__).resolve().parents[1]
-PAGES = ["overview", "pihps", "spip", "seki.render_gdp", "seki.render_deposits", "consumer_survey", "ojk", "ecommerce", "ibid"]
+PAGES = ["overview", "pihps", "bps_inflation", "spip", "seki.render_gdp", "seki.render_deposits", "consumer_survey", "ojk", "ecommerce", "ibid"]
 
 
 def _page_script(page_name, root):

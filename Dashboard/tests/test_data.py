@@ -212,3 +212,57 @@ def test_spip_is_bucketed_into_three_categories():
     emoney = [group.key for group in spip.groups if group.heading == "E-money"]
     assert emoney == ["emoney_value", "emoney_volume", "emoney_instruments", "emoney_float", "emoney_outstanding"]
     assert [group.key for group in spip.groups if group.heading == "Cards"] == ["cards_value", "cards_volume", "cards_outstanding"]
+
+
+# ---------------------------------------------------------------------------
+# BPS inflation: the hand-uploaded CSVs
+
+
+def test_bps_inflation_loads_three_monthly_frames(inflation):
+    for frame in (inflation.national, inflation.components, inflation.provinces):
+        assert isinstance(frame.index, pd.DatetimeIndex) and frame.index.is_monotonic_increasing and frame.index.is_unique
+        assert (frame.index.day == 1).all()
+        assert data.infer_frequency(frame.index) == "monthly"
+    assert list(inflation.national.columns) == ["yoy", "mtm"]
+    assert list(inflation.components.columns) == ["headline", "core", "administered", "volatile"]
+    assert inflation.provinces.columns[0] == "INDONESIA" and len(inflation.provinces.columns) == 39
+    assert inflation.national.index.min() == pd.Timestamp("2009-01-01")
+    assert inflation.provinces.index.min() == pd.Timestamp("2024-01-01")
+    assert inflation.latest == inflation.national.index.max()
+
+
+def test_bps_inflation_reads_the_published_values(inflation):
+    # BPS's export writes month-first dates: 12/1/2009 is December, not January.
+    assert inflation.national.loc["2009-12-01", "yoy"] == pytest.approx(2.75)
+    assert inflation.national.loc["2013-07-01", "mtm"] == pytest.approx(3.29)
+    assert inflation.national["yoy"].first_valid_index() == pd.Timestamp("2009-12-01")
+    # BI's headline is the month-on-month rate BPS publishes, bar one month
+    # where the two files disagree at source (February 2010: -0.08 vs 0.30).
+    both = inflation.national["mtm"].to_frame("bps").join(inflation.components["headline"], how="inner").dropna()
+    differs = both[(both["bps"] - both["headline"]).abs() > 1e-9]
+    assert list(differs.index) == [pd.Timestamp("2010-02-01")]
+    # Months blank at source stay blank rather than being dropped or filled.
+    assert inflation.components.loc["2026-07-01"].isna().all()
+    assert inflation.components.loc["2022-03-01", "headline"] == pytest.approx(0.66)
+    assert inflation.components.loc["2022-03-01", ["core", "administered", "volatile"]].isna().all()
+
+
+def test_bps_inflation_tolerates_a_missing_folder(tmp_path):
+    empty = data.load_bps_inflation(tmp_path)
+    assert empty.national.empty and empty.components.empty and empty.provinces.empty
+    assert empty.latest is None
+    assert list(empty.national.columns) == ["yoy", "mtm"]
+
+
+@pytest.mark.parametrize(
+    "column, label",
+    [
+        ("INDONESIA", "Indonesia"),
+        ("PROV JAWA BARAT", "Jawa Barat"),
+        ("PROV DKI JAKARTA", "DKI Jakarta"),
+        ("PROV DI YOGYAKARTA", "DI Yogyakarta"),
+        ("PROV KEPULAUAN BANGKA BELITUNG", "Kepulauan Bangka Belitung"),
+    ],
+)
+def test_province_label(column, label):
+    assert data.province_label(column) == label

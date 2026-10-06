@@ -47,8 +47,16 @@ def test_consumer_survey_is_defined_from_bank_indonesia_documents():
     assert definitions.undefined(catalogue.group("consumer_survey", "share_saving")) == []
 
 
+#: Datasets whose measure needs no publisher's definition: inflation is a
+#: rate everyone knows, so its page carries notes but no quoted definitions.
+UNDEFINED_BY_CHOICE = {"bps_inflation"}
+
+
 def test_every_dataset_has_official_definitions():
     for dataset in catalogue.DATASETS:
+        if dataset.key in UNDEFINED_BY_CHOICE:
+            assert not definitions.populated(dataset), f"{dataset.key} now has definitions; drop it from the exemption"
+            continue
         assert definitions.populated(dataset), dataset.key
         assert definitions.for_dataset(dataset.key), f"{dataset.key} has no description of its publication"
     # Series the publishers do not define are listed as such, not invented.
