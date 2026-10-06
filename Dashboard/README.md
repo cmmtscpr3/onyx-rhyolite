@@ -17,6 +17,7 @@ python Dashboard/export_html.py                 # Dashboard/dist/indonesia-indic
 |---|---|---|
 | Overview | Freshness of every dataset | all |
 | Food prices | PIHPS weekly food prices, 31 commodities at three market levels | `Dataset/Food Prices/PIHPS/**` |
+| Inflation | BPS Inflation: headline year-on-year and month-on-month, the province table, BI's components | `Dataset/BPS-Inflation/*.csv` |
 | Bank Indonesia | Payment system transactions: one tab each for SPIP's e-money, cards, and currency and BI-RTGS, then ASPI's QRIS (transcribed, quarterly), one chart at a time | `bi_emoney`, `bi_card_transactions`, `bi_payment_system`, `qris_transactions` |
 | Bank Indonesia | SEKI: GDP by expenditure, deposits by owner group | `bi_seki` |
 | Bank Indonesia | Survei Konsumen: confidence indices, budget shares | `bi_consumer_survey` |
@@ -52,6 +53,19 @@ one chart out of several (the payment page's measures, SEKI's price basis, the
 consumer survey's budget shares) puts that switch at the head of the same bar rather
 than in a row of its own, and the switch then names the chart, so the heading
 above the bar does not repeat it.
+
+The BPS Inflation page reads the four CSVs uploaded by hand under
+`Dataset/BPS-Inflation/` (BPS's table exports and a long file of Bank
+Indonesia's disaggregation), parsed directly rather than through the
+collectors' sink. Its first chart puts the **year-on-year and month-on-month
+headline rates on one axis**, with a multiselect to show either or both; it
+has no Show-as switch, since a percentage change of a rate says nothing. Under
+it the **province table** lists Indonesia and then the 38 provinces by their
+latest year-on-year rate, one column per month with the newest first, and
+**colours a cell red when the province's rate is above Indonesia's for that
+month**. The third chart is BI's components, headline, core, administered
+prices and volatile food, month-on-month; the months BI left blank break the
+line rather than being filled. Values keep BPS's two decimals.
 
 The ibid page is the exception to the one-line-chart-per-group rule. Its rows
 are lots, not a series, so its one chart over time is drawn from the auction
@@ -163,6 +177,11 @@ exactly as the collectors write them.
 1. If it is a long series CSV the collectors already write, add a `Dataset`
    to `catalogue.DATASETS` with one `Group` per unit of measurement (series
    ids in the order their colours should be assigned, labels, defaults).
+   A file that is not a long series CSV (the PIHPS workbooks, the ibid lots,
+   the BPS inflation exports) gets a loader of its own in `data.py`, a field
+   on `charts.Bundle`, chart builders in `charts.py`, and a branch in
+   `charts.latest_observation` and `charts.default_charts`; its `Dataset` has
+   no groups.
 2. Add a page module under `dashboard/pages/` (for a plain page,
    `ui.render_dataset("<key>")` is all it takes) and register it in `app.py`.
 3. Add the publisher's definitions of its series to `dashboard/definitions.py`,

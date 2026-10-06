@@ -27,6 +27,7 @@ class Bundle:
     pihps: pd.DataFrame
     lots: pd.DataFrame
     fingerprint: data.Fingerprint
+    inflation: data.Inflation
 
 
 def load_bundle() -> Bundle:
@@ -35,6 +36,7 @@ def load_bundle() -> Bundle:
         pihps=data.load_pihps(),
         lots=data.load_lots(),
         fingerprint=data.fingerprint(),
+        inflation=data.load_bps_inflation(),
     )
 
 
@@ -51,6 +53,9 @@ class Chart:
     mode: str = LEVEL
     #: The sub-heading the chart's group sits under on its page.
     heading: str = ""
+    #: Decimals in the table and hover, when the publisher's own precision
+    #: should be kept rather than read off the magnitude.
+    decimals: int | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -228,6 +233,196 @@ def pihps_chart(
 
 
 # ---------------------------------------------------------------------------
+# BPS inflation
+
+INFLATION_KEY = "bps_inflation"
+#: Rates in percent, so the tables report changes in points.
+INFLATION_UNIT = "percent"
+#: BPS publishes the rates to two decimals.
+INFLATION_DECIMALS = 2
+INFLATION_LABELS = {"yoy": "Year-on-year", "mtm": "Month-on-month"}
+COMPONENT_LABELS = {
+    "headline": "Headline",
+    "core": "Core",
+    "administered": "Administered prices",
+    "volatile": "Volatile food",
+}
+REGION = "Region"
+MONTH_FORMAT = "%b %Y"
+
+
+def _inflation_chart(
+    frame: pd.DataFrame,
+    order: Sequence[str],
+    selected: Sequence[str],
+    labels: dict[str, str],
+    *,
+    key: str,
+    title: str,
+    note: str,
+    since_year: int | None,
+    palette: str,
+    chart_title: str | None,
+) -> Chart:
+    chosen = [column for column in order if column in selected and column in frame.columns]
+    shown = transform.since(frame[chosen], since_year)
+    figure = figures.line_chart(
+        shown,
+        labels=labels,
+        unit=INFLATION_UNIT,
+        colours=theme.colour_map(list(order), palette),
+        mode=LEVEL,
+        palette=palette,
+        title=chart_title,
+        decimals=INFLATION_DECIMALS,
+    )
+    table = transform.latest_table(frame[chosen], "monthly", labels, INFLATION_UNIT)
+    return Chart(
+        key=key,
+        title=title,
+        unit=INFLATION_UNIT,
+        figure=figure,
+        table=table,
+        frequency="monthly",
+        note=note,
+        decimals=INFLATION_DECIMALS,
+    )
+
+
+def inflation_chart(
+    inflation: data.Inflation,
+    *,
+    measures: Sequence[str] = data.INFLATION_MEASURES,
+    since_year: int | None = None,
+    palette: str = "light",
+    title: str | None = None,
+) -> Chart:
+    """Headline inflation, year-on-year and month-on-month on one axis."""
+    return _inflation_chart(
+        inflation.national,
+        data.INFLATION_MEASURES,
+        measures,
+        INFLATION_LABELS,
+        key="headline",
+        title="Headline inflation",
+        note="Consumer price inflation as BPS publishes it; the year-on-year rate starts in December 2009.",
+        since_year=since_year,
+        palette=palette,
+        chart_title=title,
+    )
+
+
+def inflation_components_chart(
+    inflation: data.Inflation,
+    *,
+    selected: Sequence[str] = data.INFLATION_COMPONENTS,
+    since_year: int | None = None,
+    palette: str = "light",
+    title: str | None = None,
+) -> Chart:
+    """Bank Indonesia's disaggregation, month-on-month."""
+    return _inflation_chart(
+        inflation.components,
+        data.INFLATION_COMPONENTS,
+        selected,
+        COMPONENT_LABELS,
+        key="components",
+        title="Inflation by component, month-on-month",
+        note="Bank Indonesia's disaggregation of the consumer price index; a month blank at source breaks the line.",
+        since_year=since_year,
+        palette=palette,
+        chart_title=title,
+    )
+
+
+def province_table(inflation: data.Inflation, *, since_year: int | None = None) -> pd.DataFrame:
+    """Year-on-year inflation by region: one row per region, one column per month.
+
+    Indonesia is pinned to the top and the provinces follow in order of their
+    latest rate, hottest first; the months run newest first, so the latest
+    sits beside the name without scrolling.
+    """
+    frame = transform.since(inflation.provinces, since_year)
+    if frame.empty:
+        return pd.DataFrame(columns=[REGION])
+    frame = frame.sort_index(ascending=False)
+    latest = frame.iloc[0]
+    provinces = [c for c in frame.columns if c != data.NATIONAL_COLUMN]
+    provinces.sort(key=lambda c: (-latest[c] if pd.notna(latest[c]) else float("inf"), c))
+    order = [data.NATIONAL_COLUMN, *provinces] if data.NATIONAL_COLUMN in frame.columns else provinces
+    table = frame[order].T
+    table.columns = [month.strftime(MONTH_FORMAT) for month in table.columns]
+    table.insert(0, REGION, [data.province_label(c) for c in table.index])
+    return table.reset_index(drop=True)
+
+
+def province_hotter_than_national(table: pd.DataFrame) -> pd.DataFrame:
+    """True where a province's rate exceeds Indonesia's in the same month.
+
+    Same shape as :func:`province_table`; the region column and Indonesia's own
+    row are False.
+    """
+    months = [c for c in table.columns if c != REGION]
+    mask = pd.DataFrame(False, index=table.index, columns=table.columns)
+    national = table[table[REGION] == data.province_label(data.NATIONAL_COLUMN)]
+    if national.empty or not months:
+        return mask
+    benchmark = national.iloc[0][months].astype(float)
+    hotter = table[months].astype(float).gt(benchmark, axis=1)
+    hotter.loc[national.index] = False
+    mask[months] = hotter
+    return mask
+
+
+def province_panel(inflation: data.Inflation, *, palette: str = "light") -> Panel:
+    """The latest month's year-on-year rate by region, ranked, for the export.
+
+    The app shows the month-by-month table with the hot cells coloured; the
+    offline file has no styled table, so it carries the ranking instead,
+    with the provinces above Indonesia in the same red.
+    """
+    table = province_table(inflation)
+    months = [c for c in table.columns if c != REGION]
+    month = months[0] if months else ""
+    hot = province_hotter_than_national(table)[month] if month else pd.Series(dtype=bool)
+    values = table[month].astype(float) if month else pd.Series(dtype=float)
+    national = table[REGION] == data.province_label(data.NATIONAL_COLUMN)
+    colours = [
+        theme.STATUS["stale"] if is_hot else (theme.CHROME[palette]["muted"] if is_national else theme.CATEGORICAL[palette][0])
+        for is_hot, is_national in zip(hot, national)
+    ]
+    figure = figures.count_bar(
+        list(table[REGION]),
+        list(values),
+        text=[transform.format_number(v, INFLATION_UNIT, INFLATION_DECIMALS) for v in values],
+        hovertemplate="%{y}<br>%{x:.2f}% year-on-year<extra></extra>",
+        colour=colours,
+        empty="No province figures on file",
+        palette=palette,
+    )
+    benchmark = float(values[national].iloc[0]) if national.any() and month else float("nan")
+    shown = pd.DataFrame(
+        {
+            REGION: table[REGION],
+            f"Year-on-year ({month})" if month else "Year-on-year": values.map(
+                lambda v: transform.format_number(v, INFLATION_UNIT, INFLATION_DECIMALS)
+            ),
+            "vs Indonesia": values.map(lambda v: transform.format_change(v - benchmark, INFLATION_UNIT, INFLATION_DECIMALS)),
+        }
+    )
+    if national.any():
+        shown.loc[national, "vs Indonesia"] = ""
+    return Panel(
+        key="provinces",
+        title=f"Year-on-year inflation by province, {month}" if month else "Year-on-year inflation by province",
+        figure=figure,
+        table=shown,
+        note="Red: above Indonesia's rate in the same month.",
+        unit=INFLATION_UNIT,
+    )
+
+
+# ---------------------------------------------------------------------------
 # ibid lots
 
 CATEGORY_LABEL = {"cars": "Cars", "motorcycles": "Motorcycles"}
@@ -251,6 +446,8 @@ def latest_observation(bundle: Bundle, dataset: Dataset) -> pd.Timestamp | None:
         # the latest auction can lie days past it.
         scraped = bundle.lots["first_seen"].max() if not bundle.lots.empty else None
         return None if pd.isna(scraped) else scraped.normalize()
+    if dataset.key == INFLATION_KEY:
+        return bundle.inflation.latest
     latest = data.latest_by_dataset(bundle.series)
     dates = [latest[source] for source in dataset.sources if source in latest]
     return max(dates) if dates else None
@@ -285,6 +482,12 @@ def default_charts(bundle: Bundle, palette: str = "light") -> list[tuple[Dataset
             charts = [pihps_chart(bundle.pihps, market=market, palette=palette) for market in data.MARKETS]
         elif dataset.key == "ibid":
             charts = ibid_panels(bundle.lots, TOP_BREAKDOWNS[0], palette=palette)
+        elif dataset.key == INFLATION_KEY:
+            charts = [
+                inflation_chart(bundle.inflation, palette=palette),
+                province_panel(bundle.inflation, palette=palette),
+                inflation_components_chart(bundle.inflation, palette=palette),
+            ]
         else:
             charts = [
                 group_chart(bundle.series, group, annotations=dataset.annotations, palette=palette)

@@ -10,8 +10,8 @@ from dashboard import catalogue, charts, data, export
 
 
 @pytest.fixture(scope="session")
-def html(series, pihps, lots):
-    bundle = charts.Bundle(series=series, pihps=pihps, lots=lots, fingerprint=data.fingerprint())
+def html(series, pihps, lots, inflation):
+    bundle = charts.Bundle(series=series, pihps=pihps, lots=lots, fingerprint=data.fingerprint(), inflation=inflation)
     return export.build_offline_html(bundle, now=dt.datetime(2026, 9, 16, 3, 0, tzinfo=dt.timezone.utc)).decode("utf-8")
 
 
@@ -31,8 +31,8 @@ def test_export_size_is_reasonable(html):
     assert 3_000_000 < size < 12_000_000, size
 
 
-def test_export_fragment_has_no_skeleton(series, pihps, lots):
-    bundle = charts.Bundle(series=series, pihps=pihps, lots=lots, fingerprint=data.fingerprint())
+def test_export_fragment_has_no_skeleton(series, pihps, lots, inflation):
+    bundle = charts.Bundle(series=series, pihps=pihps, lots=lots, fingerprint=data.fingerprint(), inflation=inflation)
     fragment = export.build_offline_html(bundle, standalone=False).decode("utf-8")
     assert fragment.startswith("<title>")
     assert "<html" not in fragment and "<body" not in fragment

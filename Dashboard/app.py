@@ -60,18 +60,21 @@ def _current_own_code():
 
 with _current_own_code():
     from dashboard import ui  # noqa: E402
-    from dashboard.pages import consumer_survey, ecommerce, ibid, ojk, overview, pihps, seki, spip  # noqa: E402
+    from dashboard.pages import bps_inflation, consumer_survey, ecommerce, ibid, ojk, overview, pihps, seki, spip  # noqa: E402
 
 PAGES = {
     "Overview": [st.Page(overview.render, title="Overview", icon=":material/home:", default=True)],
-    "Inflation": [st.Page(pihps.render, title="PIHPS · Weekly food prices", icon=":material/rice_bowl:", url_path="pihps")],
+    "Inflation": [
+        st.Page(bps_inflation.render, title="[OFFICIAL] BPS - Inflation", icon=":material/trending_up:", url_path="bps-inflation"),
+        st.Page(pihps.render, title="[EXPLORATORY] PIHPS - Weekly food prices", icon=":material/rice_bowl:", url_path="pihps"),
+    ],
     "Consumption": [
         st.Page(consumer_survey.render, title="[OFFICIAL] BI-Consumer Confidence Index", icon=":material/groups:", url_path="consumer-survey"),
-        st.Page(spip.render, title="[EXPLORATORY] BI & ASPI-Payment System Transactions", icon=":material/credit_card:", url_path="spip"),
         st.Page(seki.render_gdp, title="[OFFICIAL] BI-Household Consumption", icon=":material/account_balance:", url_path="seki-gdp"),
         # st.Page(seki.render_deposits, title="SEKI - Bank Deposits", icon=":material/account_balance_wallet:", url_path="seki-deposits"),
         # st.Page(ojk.render, title="SPI · Third-party funds (DPK)", icon=":material/savings:", url_path="ojk"),
         # st.Page(ecommerce.render, title="Magpie IQ · E-commerce GMV", icon=":material/shopping_cart:", url_path="ecommerce"),
+        st.Page(spip.render, title="[EXPLORATORY] BI & ASPI-Payment System Transactions", icon=":material/credit_card:", url_path="spip"),
         st.Page(ibid.render, title="[EXPLORATORY] Ibid-Sales of used automobiles", icon=":material/directions_car:", url_path="ibid"),
     ],
 }
