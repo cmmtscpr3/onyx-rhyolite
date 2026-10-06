@@ -249,6 +249,9 @@ COMPONENT_LABELS = {
 }
 REGION = "Region"
 MONTH_FORMAT = "%b %Y"
+#: The province table's cell colours: the overview's own red and green, so
+#: "worse than the national rate" reads the same way everywhere.
+VERDICT_COLOUR = {1: theme.STATUS["stale"], -1: theme.STATUS["fresh"]}
 
 
 def _inflation_chart(
@@ -356,41 +359,45 @@ def province_table(inflation: data.Inflation, *, since_year: int | None = None) 
     return table.reset_index(drop=True)
 
 
-def province_hotter_than_national(table: pd.DataFrame) -> pd.DataFrame:
-    """True where a province's rate exceeds Indonesia's in the same month.
+#: How a province's rate sits against Indonesia's in the same month.
+ABOVE, BELOW, LEVEL_WITH = 1, -1, 0
+
+
+def province_vs_national(table: pd.DataFrame) -> pd.DataFrame:
+    """``ABOVE`` (1) where a province's rate exceeds Indonesia's in the same
+    month, ``BELOW`` (-1) where it is under it, ``LEVEL_WITH`` (0) where they
+    match or a value is missing.
 
     Same shape as :func:`province_table`; the region column and Indonesia's own
-    row are False.
+    row are ``LEVEL_WITH``.
     """
     months = [c for c in table.columns if c != REGION]
-    mask = pd.DataFrame(False, index=table.index, columns=table.columns)
+    verdict = pd.DataFrame(LEVEL_WITH, index=table.index, columns=table.columns)
     national = table[table[REGION] == data.province_label(data.NATIONAL_COLUMN)]
     if national.empty or not months:
-        return mask
+        return verdict
     benchmark = national.iloc[0][months].astype(float)
-    hotter = table[months].astype(float).gt(benchmark, axis=1)
-    hotter.loc[national.index] = False
-    mask[months] = hotter
-    return mask
+    rates = table[months].astype(float)
+    sign = rates.gt(benchmark, axis=1).astype(int) - rates.lt(benchmark, axis=1).astype(int)
+    sign.loc[national.index] = LEVEL_WITH
+    verdict[months] = sign
+    return verdict
 
 
 def province_panel(inflation: data.Inflation, *, palette: str = "light") -> Panel:
     """The latest month's year-on-year rate by region, ranked, for the export.
 
-    The app shows the month-by-month table with the hot cells coloured; the
-    offline file has no styled table, so it carries the ranking instead,
-    with the provinces above Indonesia in the same red.
+    The app shows the month-by-month table with its cells coloured; the
+    offline file has no styled table, so it carries the ranking instead, in
+    the same colours: red above Indonesia, green below, grey for Indonesia.
     """
     table = province_table(inflation)
     months = [c for c in table.columns if c != REGION]
     month = months[0] if months else ""
-    hot = province_hotter_than_national(table)[month] if month else pd.Series(dtype=bool)
+    verdict = province_vs_national(table)[month] if month else pd.Series(dtype=int)
     values = table[month].astype(float) if month else pd.Series(dtype=float)
     national = table[REGION] == data.province_label(data.NATIONAL_COLUMN)
-    colours = [
-        theme.STATUS["stale"] if is_hot else (theme.CHROME[palette]["muted"] if is_national else theme.CATEGORICAL[palette][0])
-        for is_hot, is_national in zip(hot, national)
-    ]
+    colours = [theme.STATUS["no data"] if is_national else VERDICT_COLOUR.get(v, theme.CATEGORICAL[palette][0]) for v, is_national in zip(verdict, national)]
     figure = figures.count_bar(
         list(table[REGION]),
         list(values),
@@ -417,7 +424,7 @@ def province_panel(inflation: data.Inflation, *, palette: str = "light") -> Pane
         title=f"Year-on-year inflation by province, {month}" if month else "Year-on-year inflation by province",
         figure=figure,
         table=shown,
-        note="Red: above Indonesia's rate in the same month.",
+        note="Red: above Indonesia's rate in the same month. Green: below it.",
         unit=INFLATION_UNIT,
     )
 
