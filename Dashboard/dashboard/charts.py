@@ -306,7 +306,7 @@ def inflation_chart(
         data.INFLATION_MEASURES,
         measures,
         INFLATION_LABELS,
-        key="headline",
+        key="Overall",
         title="Inflation",
         note="Consumer price inflation as BPS publishes it; the year-on-year rate starts in December 2009.",
         since_year=since_year,
