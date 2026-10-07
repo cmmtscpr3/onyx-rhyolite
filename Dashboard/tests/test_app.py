@@ -124,6 +124,24 @@ def test_bps_inflation_page_puts_each_visualisation_on_its_own_tab():
     assert not [control for control in at.segmented_control if control.label == "Show as"]
 
 
+def test_overview_lists_the_sidebars_datasets_in_its_order():
+    at = AppTest.from_function(_page_script, kwargs={"page_name": "overview", "root": str(ROOT)}, default_timeout=300)
+    at.run()
+    assert not at.exception, [e.message for e in at.exception]
+    table = at.dataframe[0].value
+    assert list(table.columns)[:2] == ["Dataset", "Type"]
+    assert list(table["Dataset"]) == [
+        "BPS Inflation",
+        "PIHPS: weekly food prices",
+        "Survei Konsumen: consumer survey",
+        "SEKI: economic and financial statistics",
+        "SPIP: payment system statistics",
+        "QRIS transactions",
+        "ibid vehicle auctions",
+    ]
+    assert list(table["Type"]) == ["Official", "Exploratory", "Official", "Official", "Exploratory", "Exploratory", "Exploratory"]
+
+
 def test_qris_is_a_tab_of_the_payment_page_not_a_page_of_its_own(monkeypatch):
     import runpy
 

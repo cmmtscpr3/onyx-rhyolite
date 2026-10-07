@@ -15,7 +15,7 @@ python Dashboard/export_html.py                 # Dashboard/dist/indonesia-indic
 
 | Section | Page | Series file(s) |
 |---|---|---|
-| Overview | Freshness of every dataset | all |
+| Overview | Updatedness of the datasets in the sidebar, in its order, each marked official or exploratory | all |
 | Food prices | PIHPS weekly food prices, 31 commodities at three market levels | `Dataset/Food Prices/PIHPS/**` |
 | Inflation | BPS Inflation: headline year-on-year and month-on-month, the province table, BI's components | `Dataset/BPS-Inflation/*.csv` |
 | Bank Indonesia | Payment system transactions: one tab each for SPIP's e-money, cards, and currency and BI-RTGS, then ASPI's QRIS (transcribed, quarterly), one chart at a time | `bi_emoney`, `bi_card_transactions`, `bi_payment_system`, `qris_transactions` |
