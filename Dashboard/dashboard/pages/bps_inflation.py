@@ -19,7 +19,7 @@ KEY = charts.INFLATION_KEY
 #: shows every region rather than hiding most behind an inner scrollbar.
 ROW_PX = 35
 HEADER_PX = 38
-TABS = ("Headline", "Provinces", "Components")
+TABS = ("Overall", "Provinces", "Components")
 
 
 def render() -> None:
@@ -38,7 +38,7 @@ def render() -> None:
 
 
 def _headline(inflation: data.Inflation) -> None:
-    st.subheader("Headline inflation")
+    st.subheader("Inflation")
     with st.container(border=True):
         left, right = st.columns([6, 2], vertical_alignment="bottom")
         measures = left.multiselect(
