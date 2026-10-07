@@ -140,6 +140,10 @@ def test_overview_lists_the_sidebars_datasets_in_its_order():
         "ibid vehicle auctions",
     ]
     assert list(table["Type"]) == ["Official", "Exploratory", "Official", "Official", "Exploratory", "Exploratory", "Exploratory"]
+    # The Datasets list under the table is built from the same rows.
+    bullets = [m.value for m in at.markdown if m.value.startswith("- ")]
+    assert [b.split("**")[1] for b in bullets] == list(table["Dataset"])
+    assert [b.split("(")[1].split(")")[0] for b in bullets] == list(table["Type"])
 
 
 def test_qris_is_a_tab_of_the_payment_page_not_a_page_of_its_own(monkeypatch):

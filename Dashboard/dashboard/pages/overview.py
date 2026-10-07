@@ -56,11 +56,6 @@ def render() -> None:
         "Official: a publisher's own statistic. Exploratory: a proxy, or a source still being assessed."
     )
     st.subheader("Datasets")
-    for section in catalogue.SECTIONS[1:]:
-        datasets = catalogue.datasets_in(section)
-        if not datasets:
-            continue
-        st.markdown(f"**{section}**")
-        for dataset in datasets:
-            groups = len(dataset.groups) if dataset.groups else (3 if dataset.key == "pihps" else 4)
-            st.markdown(f"- {dataset.title}: {dataset.publisher}. {groups} chart{'s' if groups != 1 else ''}.")
+    for key, tier in ROWS:
+        dataset = catalogue.BY_KEY[key]
+        st.markdown(f"- **{dataset.title}** ({tier}): {dataset.publisher}.")
