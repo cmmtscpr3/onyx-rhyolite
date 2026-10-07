@@ -83,8 +83,7 @@ def _provinces(inflation: data.Inflation) -> None:
         key=f"{KEY}:provinces:table",
     )
     st.caption(
-        "Percent, year-on-year, newest month first; Indonesia on top, then the provinces by their latest rate. "
-        "Red: the province's rate is above Indonesia's for that month. Green: below it."
+        "Red: Province's rate is above Indonesia's for that month. Green: Province rat is above National Level"
     )
 
 
