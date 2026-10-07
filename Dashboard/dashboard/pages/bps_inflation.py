@@ -83,7 +83,7 @@ def _provinces(inflation: data.Inflation) -> None:
         key=f"{KEY}:provinces:table",
     )
     st.caption(
-        "Red: Province's rate is above Indonesia's for that month. Green: Province rat is above National Level"
+        "Red: Province's rate is above Indonesia's for that month. Green: Province rate is above National Level"
     )
 
 
