@@ -18,6 +18,7 @@ COLLECTORS = REPO_ROOT / "Collectors"
 # Settings kept in git next to the code.
 INVENTORY = EWS_ROOT / "Scope" / "indicator_inventory.csv"
 DATA_ISSUES = EWS_ROOT / "data_issues.csv"
+BREAKS = EWS_ROOT / "breaks.csv"            # Phase 2: structural breaks (Profiling/PHASE2_SPEC.md, section 2)
 
 # Outputs: the datasets the early warning system uses.
 DATA_OUT = EWS_ROOT / "data"

@@ -1,0 +1,7 @@
+series_id,date,reason
+bi_emoney.value,2019-01-01,value jumps about 4.5x and stays: reporting coverage change
+bi_emoney.value_topup,2019-01-01,value jumps about 4.5x and stays: reporting coverage change
+bi_emoney.instruments,2017-11-01,cashless toll roads: real but a permanent step
+bi_emoney.instruments_chip,2017-11-01,cashless toll roads: real but a permanent step
+bi_emoney.instruments_server,2017-11-01,cashless toll roads: real but a permanent step
+bi_payment_system.emoney_instruments_outstanding,2017-11-01,cashless toll roads: real but a permanent step
