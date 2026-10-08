@@ -11,7 +11,7 @@ Tick a box (`[x]`) when an item is done. Update the status table when a phase st
 |---|---|---|---|---|
 | 0. Scoping & setup | 5 – 11 Oct 2026 | ⏸️ | ⬜ | Docs done in [Scope/](Scope/). Your checkpoint items deferred. |
 | 1. Data foundation | 12 – 25 Oct 2026 | 🟡 | ⬜ | Started early (30 Sep). Specs in [DataFoundation/](DataFoundation/). You write the code. |
-| 2. Profiling | 26 Oct – 8 Nov 2026 | ⬜ | ⬜ | |
+| 2. Profiling | 26 Oct – 8 Nov 2026 | 🟡 | ⬜ | Started early (8 Oct). Spec in [Profiling/](Profiling/). You write the code. |
 | 3. Expected-value checks | 9 – 29 Nov 2026 | ⬜ | ⬜ | |
 | 4. Anomaly & change detection | 16 Nov – 6 Dec 2026 | ⬜ | ⬜ | |
 | 5. Early warning layer | 30 Nov – 20 Dec 2026 | ⬜ | ⬜ | |
@@ -80,13 +80,34 @@ Documents: [PHASE1_SPEC.md](DataFoundation/PHASE1_SPEC.md) · [DATA_QUALITY.md](
 
 ## Phase 2 — Profiling (weeks 4–5)
 
-- [ ] Robust STL (or MSTL) decomposition for each indicator
-- [ ] Seasonal strength and trend strength scores
-- [ ] Mann-Kendall test and Sen's slope (full and rolling windows)
-- [ ] Baseline volatility (rolling MAD)
-- [ ] Profile card per indicator
-- [ ] Group indicators by behaviour (seasonal, trending, noisy, stable)
-- [ ] Review the profiles with an analyst
+Documents: [PHASE2_SPEC.md](Profiling/PHASE2_SPEC.md)
+
+**Spec (Claude)**
+
+- [x] Inputs, outputs and settings defined (spec sections 1–2): `components.csv`, `profile_cards.csv`, `profiles.md`
+- [x] Preparation rules: breaks, short-gap interpolation, week 53 (section 3)
+- [x] Robust STL settings, with the reason MSTL is not needed (section 4)
+- [x] Seasonal and trend strength, robust and textbook versions, shape and stability (section 5)
+- [x] Mann-Kendall and Sen's slope, full and rolling, and the `trend_now` label (section 6)
+- [x] Baseline volatility: rolling MAD with floor, sticky share, observed tier, tail ratio (section 7)
+- [x] Idul Fitri diagnostic (section 8)
+- [x] Profile card columns, sentence rules and behaviour groups (sections 9–10)
+- [x] Acceptance checks with expected values from a prototype run (section 11)
+- [x] Checkpoint agenda (section 12)
+
+**Code (you)**
+
+- [ ] `breaks.csv` seeded from spec section 2
+- [ ] Preparation: break cut, interpolation, week-53 handling
+- [ ] Robust STL decomposition for each indicator (`components.csv`)
+- [ ] Seasonal strength and trend strength scores (robust and textbook)
+- [ ] Mann-Kendall test and Sen's slope (full and rolling windows), `trend_now`
+- [ ] Baseline volatility (rolling MAD with floor), sticky share, observed tier, tail ratio
+- [ ] Idul Fitri diagnostic
+- [ ] Profile card per indicator (`profile_cards.csv`, `profiles.md`)
+- [ ] Group indicators by behaviour (three axes: trend, season, noise; plus sticky)
+- [ ] Tests for the acceptance checks (spec section 11)
+- [ ] Review the profiles with an analyst (spec section 12)
 - [ ] **◆ Checkpoint:** profiles match analyst knowledge
 
 ## Phase 3 — Expected-value checks, Q1 & Q2 (weeks 6–8)
@@ -182,6 +203,15 @@ Record key choices so we remember why things are the way they are.
 | 2026-10-01 | Outputs in `EarlyWarning/data/`; `Dataset/` is read-only | Your decision; tested by hashing `Dataset/` before and after a run |
 | 2026-10-01 | Suspected errors are flagged `review`, not masked | Your decision; switch to `mask` once confirmed |
 | 2026-10-01 | SPIP freshness: month M is expected after the 15th of M+2 | Matches when BI publishes and when the collector runs (the 15th) |
+| 2026-10-08 | Phase 2 split: Claude writes the spec with pseudocode only (no function signatures, no stubs, no tests); you write all the code | Your decision |
+| 2026-10-08 | Phase 2 may use statsmodels (STL), scipy (MAD) and pymannkendall (Mann-Kendall, Sen's slope) | Your decision |
+| 2026-10-08 | Plain robust STL; Idul Fitri is measured in the remainder, not modelled | Your decision; Phase 3 adds holiday regressors where the diagnostic says so |
+| 2026-10-08 | No MSTL | Every series has one observation per week or month, so one seasonal cycle |
+| 2026-10-08 | STL seasonal window 13; strengths use a robust spread (1.4826 × MAD, squared) | Prototype: the variance version is dominated by a few COVID-era months (ATM/debit value 0.18 vs 0.73 robust) |
+| 2026-10-08 | Week 53 is left out of the STL input and re-inserted with week 52's seasonal value | Rule C9; keeps exactly 52 periods per cycle |
+| 2026-10-08 | Trend is profiled on the seasonally adjusted series with the Hamed-Rao test, full and rolling 3-year windows; the card reports `trend_now` (steady, slowing, accelerating, faded, reversed) | 53 of 54 series are "increasing" in nominal terms, so the verdict alone is uninformative |
+| 2026-10-08 | Behaviour groups on three axes (trend, season, noise) plus a sticky flag, rule-based | The one-label draft put 50 of 54 in "trending" |
+| 2026-10-08 | E-money value and instrument series are profiled after their breaks (Jan 2019, Nov 2017), kept in `breaks.csv` | TRANSFORMS step 6 |
 
 ## Known events (test set)
 

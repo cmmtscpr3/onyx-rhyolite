@@ -1,7 +1,7 @@
 # Early Warning System
 
-The plan is in [WORKPLAN.md](WORKPLAN.md), progress in [CHECKLIST.md](CHECKLIST.md), the scope in [Scope/](Scope/)
-and the Phase 1 design in [DataFoundation/](DataFoundation/).
+The plan is in [WORKPLAN.md](WORKPLAN.md), progress in [CHECKLIST.md](CHECKLIST.md), the scope in [Scope/](Scope/),
+the Phase 1 design in [DataFoundation/](DataFoundation/) and the Phase 2 design in [Profiling/](Profiling/).
 
 This folder also holds the **Phase 1 code** (`ews/`), which turns the collected data into clean, validated,
 log-transformed datasets in `data/`.

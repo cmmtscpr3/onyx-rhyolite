@@ -5,3 +5,7 @@ pandas>=2.2
 numpy
 openpyxl>=3.1
 pytest
+# Phase 2 profiling (Profiling/PHASE2_SPEC.md).
+statsmodels>=0.14   # STL decomposition
+scipy>=1.11         # median_abs_deviation
+pymannkendall>=1.4  # Mann-Kendall tests and Sen's slope
