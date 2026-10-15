@@ -18,6 +18,7 @@ bi_seki.deposits_by_owner.cooperatives,0000,Indonesia (national),2026-04-01,M,mo
 bi_seki.deposits_by_owner.cooperatives,0000,Indonesia (national),2026-05-01,M,monthly,20437.0083,IDR billion
 bi_seki.deposits_by_owner.cooperatives,0000,Indonesia (national),2026-06-01,M,monthly,16398.973,IDR billion
 bi_seki.deposits_by_owner.cooperatives,0000,Indonesia (national),2026-07-01,M,monthly,16533.5125,IDR billion
+bi_seki.deposits_by_owner.cooperatives,0000,Indonesia (national),2026-08-01,M,monthly,16376.3644,IDR billion
 bi_seki.deposits_by_owner.foundations_and_social_bodies,0000,Indonesia (national),2025-01-01,M,monthly,233594.5577,IDR billion
 bi_seki.deposits_by_owner.foundations_and_social_bodies,0000,Indonesia (national),2025-02-01,M,monthly,234840.8322,IDR billion
 bi_seki.deposits_by_owner.foundations_and_social_bodies,0000,Indonesia (national),2025-03-01,M,monthly,227799.3744,IDR billion
@@ -37,6 +38,7 @@ bi_seki.deposits_by_owner.foundations_and_social_bodies,0000,Indonesia (national
 bi_seki.deposits_by_owner.foundations_and_social_bodies,0000,Indonesia (national),2026-05-01,M,monthly,249502.5154,IDR billion
 bi_seki.deposits_by_owner.foundations_and_social_bodies,0000,Indonesia (national),2026-06-01,M,monthly,263373.7394,IDR billion
 bi_seki.deposits_by_owner.foundations_and_social_bodies,0000,Indonesia (national),2026-07-01,M,monthly,275680.0813,IDR billion
+bi_seki.deposits_by_owner.foundations_and_social_bodies,0000,Indonesia (national),2026-08-01,M,monthly,312708.1992,IDR billion
 bi_seki.deposits_by_owner.households,0000,Indonesia (national),2025-01-01,M,monthly,4012324.268,IDR billion
 bi_seki.deposits_by_owner.households,0000,Indonesia (national),2025-02-01,M,monthly,4034853.9622,IDR billion
 bi_seki.deposits_by_owner.households,0000,Indonesia (national),2025-03-01,M,monthly,4115851.6643,IDR billion
@@ -56,6 +58,7 @@ bi_seki.deposits_by_owner.households,0000,Indonesia (national),2026-04-01,M,mont
 bi_seki.deposits_by_owner.households,0000,Indonesia (national),2026-05-01,M,monthly,4203153.4272,IDR billion
 bi_seki.deposits_by_owner.households,0000,Indonesia (national),2026-06-01,M,monthly,4236599.6332,IDR billion
 bi_seki.deposits_by_owner.households,0000,Indonesia (national),2026-07-01,M,monthly,4242035.7437,IDR billion
+bi_seki.deposits_by_owner.households,0000,Indonesia (national),2026-08-01,M,monthly,4233110.8708,IDR billion
 bi_seki.deposits_by_owner.local_government,0000,Indonesia (national),2025-01-01,M,monthly,150729.3813,IDR billion
 bi_seki.deposits_by_owner.local_government,0000,Indonesia (national),2025-02-01,M,monthly,166109.1215,IDR billion
 bi_seki.deposits_by_owner.local_government,0000,Indonesia (national),2025-03-01,M,monthly,157364.5841,IDR billion
@@ -75,6 +78,7 @@ bi_seki.deposits_by_owner.local_government,0000,Indonesia (national),2026-04-01,
 bi_seki.deposits_by_owner.local_government,0000,Indonesia (national),2026-05-01,M,monthly,208701.8455,IDR billion
 bi_seki.deposits_by_owner.local_government,0000,Indonesia (national),2026-06-01,M,monthly,242564.4936,IDR billion
 bi_seki.deposits_by_owner.local_government,0000,Indonesia (national),2026-07-01,M,monthly,218395.8089,IDR billion
+bi_seki.deposits_by_owner.local_government,0000,Indonesia (national),2026-08-01,M,monthly,258129.5872,IDR billion
 bi_seki.deposits_by_owner.other_financial_institutions,0000,Indonesia (national),2025-01-01,M,monthly,652734.2159,IDR billion
 bi_seki.deposits_by_owner.other_financial_institutions,0000,Indonesia (national),2025-02-01,M,monthly,695202.6538,IDR billion
 bi_seki.deposits_by_owner.other_financial_institutions,0000,Indonesia (national),2025-03-01,M,monthly,687985.7104,IDR billion
@@ -94,6 +98,7 @@ bi_seki.deposits_by_owner.other_financial_institutions,0000,Indonesia (national)
 bi_seki.deposits_by_owner.other_financial_institutions,0000,Indonesia (national),2026-05-01,M,monthly,892448.6166,IDR billion
 bi_seki.deposits_by_owner.other_financial_institutions,0000,Indonesia (national),2026-06-01,M,monthly,857655.2769,IDR billion
 bi_seki.deposits_by_owner.other_financial_institutions,0000,Indonesia (national),2026-07-01,M,monthly,855407.3137,IDR billion
+bi_seki.deposits_by_owner.other_financial_institutions,0000,Indonesia (national),2026-08-01,M,monthly,841305.8348,IDR billion
 bi_seki.deposits_by_owner.other_private_sector,0000,Indonesia (national),2025-01-01,M,monthly,4265794.5872,IDR billion
 bi_seki.deposits_by_owner.other_private_sector,0000,Indonesia (national),2025-02-01,M,monthly,4291841.9425,IDR billion
 bi_seki.deposits_by_owner.other_private_sector,0000,Indonesia (national),2025-03-01,M,monthly,4362150.3258,IDR billion
@@ -113,6 +118,7 @@ bi_seki.deposits_by_owner.other_private_sector,0000,Indonesia (national),2026-04
 bi_seki.deposits_by_owner.other_private_sector,0000,Indonesia (national),2026-05-01,M,monthly,4477656.2534,IDR billion
 bi_seki.deposits_by_owner.other_private_sector,0000,Indonesia (national),2026-06-01,M,monthly,4520726.3426,IDR billion
 bi_seki.deposits_by_owner.other_private_sector,0000,Indonesia (national),2026-07-01,M,monthly,4538931.5837,IDR billion
+bi_seki.deposits_by_owner.other_private_sector,0000,Indonesia (national),2026-08-01,M,monthly,4566026.8436,IDR billion
 bi_seki.deposits_by_owner.private_nonfinancial_business,0000,Indonesia (national),2025-01-01,M,monthly,3092781.973,IDR billion
 bi_seki.deposits_by_owner.private_nonfinancial_business,0000,Indonesia (national),2025-02-01,M,monthly,3123128.6743,IDR billion
 bi_seki.deposits_by_owner.private_nonfinancial_business,0000,Indonesia (national),2025-03-01,M,monthly,3137567.9431,IDR billion
@@ -132,6 +138,7 @@ bi_seki.deposits_by_owner.private_nonfinancial_business,0000,Indonesia (national
 bi_seki.deposits_by_owner.private_nonfinancial_business,0000,Indonesia (national),2026-05-01,M,monthly,3683353.3729,IDR billion
 bi_seki.deposits_by_owner.private_nonfinancial_business,0000,Indonesia (national),2026-06-01,M,monthly,3666921.1352,IDR billion
 bi_seki.deposits_by_owner.private_nonfinancial_business,0000,Indonesia (national),2026-07-01,M,monthly,3658779.6168,IDR billion
+bi_seki.deposits_by_owner.private_nonfinancial_business,0000,Indonesia (national),2026-08-01,M,monthly,3690894.5095,IDR billion
 bi_seki.deposits_by_owner.state_nonfinancial_business,0000,Indonesia (national),2025-01-01,M,monthly,401246.2294,IDR billion
 bi_seki.deposits_by_owner.state_nonfinancial_business,0000,Indonesia (national),2025-02-01,M,monthly,374964.8783,IDR billion
 bi_seki.deposits_by_owner.state_nonfinancial_business,0000,Indonesia (national),2025-03-01,M,monthly,378905.448,IDR billion
@@ -151,6 +158,7 @@ bi_seki.deposits_by_owner.state_nonfinancial_business,0000,Indonesia (national),
 bi_seki.deposits_by_owner.state_nonfinancial_business,0000,Indonesia (national),2026-05-01,M,monthly,437265.5299,IDR billion
 bi_seki.deposits_by_owner.state_nonfinancial_business,0000,Indonesia (national),2026-06-01,M,monthly,428973.2214,IDR billion
 bi_seki.deposits_by_owner.state_nonfinancial_business,0000,Indonesia (national),2026-07-01,M,monthly,395383.0916,IDR billion
+bi_seki.deposits_by_owner.state_nonfinancial_business,0000,Indonesia (national),2026-08-01,M,monthly,374795.5391,IDR billion
 bi_seki.deposits_by_owner.total,0000,Indonesia (national),2025-01-01,M,monthly,8563286.3868,IDR billion
 bi_seki.deposits_by_owner.total,0000,Indonesia (national),2025-02-01,M,monthly,8651247.2704,IDR billion
 bi_seki.deposits_by_owner.total,0000,Indonesia (national),2025-03-01,M,monthly,8723974.0114,IDR billion
@@ -170,6 +178,7 @@ bi_seki.deposits_by_owner.total,0000,Indonesia (national),2026-04-01,M,monthly,9
 bi_seki.deposits_by_owner.total,0000,Indonesia (national),2026-05-01,M,monthly,9699425.6183,IDR billion
 bi_seki.deposits_by_owner.total,0000,Indonesia (national),2026-06-01,M,monthly,9716840.4697,IDR billion
 bi_seki.deposits_by_owner.total,0000,Indonesia (national),2026-07-01,M,monthly,9666897.4147,IDR billion
+bi_seki.deposits_by_owner.total,0000,Indonesia (national),2026-08-01,M,monthly,9731152.3142,IDR billion
 bi_seki.gdp_expenditure_constant.gdp,0000,Indonesia (national),2010-01-01,Q,quarterly,1642356.3,IDR billion
 bi_seki.gdp_expenditure_constant.gdp,0000,Indonesia (national),2010-04-01,Q,quarterly,1709132.0,IDR billion
 bi_seki.gdp_expenditure_constant.gdp,0000,Indonesia (national),2010-07-01,Q,quarterly,1775109.9,IDR billion
