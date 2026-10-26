@@ -18,7 +18,7 @@ python Dashboard/export_html.py                 # Dashboard/dist/indonesia-indic
 | Overview | Updatedness of the datasets in the sidebar, in its order, each marked official or exploratory | all |
 | Food prices | PIHPS weekly food prices, 31 commodities at three market levels | `Dataset/Food Prices/PIHPS/**` |
 | Inflation | BPS Inflation: headline year-on-year and month-on-month, the province table, BI's components | `Dataset/BPS-Inflation/*.csv` |
-| Bank Indonesia | Payment system transactions: one tab each for SPIP's e-money, cards, and currency and BI-RTGS, then ASPI's QRIS (transcribed, quarterly), one chart at a time | `bi_emoney`, `bi_card_transactions`, `bi_payment_system`, `qris_transactions` |
+| Bank Indonesia | Payment system transactions: one tab each for SPIP's e-money, cards, and currency and BI-RTGS, then ASPI's QRIS (transcribed, monthly), one chart at a time | `bi_emoney`, `bi_card_transactions`, `bi_payment_system`, `qris_transactions` |
 | Bank Indonesia | SEKI: GDP by expenditure, deposits by owner group | `bi_seki` |
 | Bank Indonesia | Survei Konsumen: confidence indices, budget shares | `bi_consumer_survey` |
 | OJK | SPI third-party funds (stale at source since June 2025) | `ojk_dpk` |
@@ -32,8 +32,8 @@ frequency calls for.
 | Frequency | Compared with | Pages |
 |---|---|---|
 | weekly | a week earlier | PIHPS food prices |
-| monthly | a month earlier | SPIP, SEKI deposits, Survei Konsumen, OJK, e-commerce GMV |
-| quarterly or rarer | a year earlier | SEKI GDP, SPIP cash intensity, QRIS (its tab of the payment page) |
+| monthly | a month earlier | SPIP, SEKI deposits, Survei Konsumen, OJK, e-commerce GMV, QRIS (its tab of the payment page) |
+| quarterly or rarer | a year earlier | SEKI GDP, SPIP cash intensity |
 
 A quarterly series has too few observations either side for a shorter
 comparison to say much, which is why it is the one case that still looks back a

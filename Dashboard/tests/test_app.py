@@ -74,9 +74,9 @@ def test_each_page_renders(page):
         ("pihps", "", "Week-on-week % change"),
         ("spip", "spip:E-money:", "Month-on-month % change"),
         ("ecommerce", "", "Month-on-month % change"),
-        # ASPI's quarterly QRIS shares the payment page, on a tab of its own,
-        # and keeps the comparison its own cadence calls for.
-        ("spip", "spip:QRIS:", "Year-on-year % change"),
+        # ASPI's QRIS shares the payment page, on a tab of its own, and keeps
+        # the comparison its own cadence calls for.
+        ("spip", "spip:QRIS:", "Month-on-month % change"),
     ],
 )
 def test_show_as_offers_levels_and_the_frequencys_own_comparison(page, bar, expected):
