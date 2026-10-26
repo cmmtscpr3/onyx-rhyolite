@@ -1,11 +1,13 @@
 """Invariants on the transcribed QRIS dataset.
 
 The figures in ``Dataset/Consumption/qris_transactions.csv`` were read off the
-data labels of a published chart, by hand. That is a different risk profile
-from a parsed source: the failure mode is a mistyped digit, not a layout
-change. These checks are what a mistyped digit would break — the Off-Us share
-moves smoothly in the real series, so a wrong digit shows up as a kink or as a
-share outside the plausible band.
+data labels of two published charts, by hand: one printing the last month of
+each quarter from March 2023 to March 2026, and one printing every month from
+December 2024 to June 2026. That is a different risk profile from a parsed
+source: the failure mode is a mistyped digit, not a layout change. These checks
+are what a mistyped digit would break — the Off-Us share moves smoothly in the
+real series, so a wrong digit shows up as a kink or as a share outside the
+plausible band, and both charts print growth rates their labels must reproduce.
 """
 
 from __future__ import annotations
@@ -37,37 +39,84 @@ def test_the_four_transcribed_series_are_present(series):
         "qris_transactions.value.total",
         "qris_transactions.value.off_us",
     }
-    assert all(len(points) == 13 for points in series.values())
+    assert all(len(points) == 26 for points in series.values())
 
 
-def test_every_period_is_a_quarter_end_month(series):
+def test_months_are_quarter_ends_until_the_monthly_chart_begins(series):
+    """Every month from December 2024; before it only the months the
+    quarterly chart printed, which are single months, not quarter totals."""
+    monthly = ["2024-12-01"] + [f"{year}-{month:02d}-01" for year in (2025, 2026) for month in range(1, 13)]
+    monthly = [date for date in monthly if date <= "2026-06-01"]
     for points in series.values():
-        assert {date[5:7] for date in points} == {"03", "06", "09", "12"}
+        earlier = [date for date in points if date < "2024-12-01"]
+        assert {date[5:7] for date in earlier} == {"03", "06", "09", "12"}
+        assert sorted(date for date in points if date >= "2024-12-01") == monthly
 
 
 @pytest.mark.parametrize(
     "name", ["volume.total", "volume.off_us", "value.total", "value.off_us"]
 )
-def test_each_series_rises_monotonically(series, name):
-    """QRIS grew every quarter in this window; a dip would be a typo."""
+def test_every_month_is_up_on_a_year_earlier(series, name):
+    """QRIS grew year on year throughout; month to month it does dip (February
+    is short), so a fall on a year earlier is what would be a typo."""
     points = series[f"qris_transactions.{name}"]
-    ordered = [points[date] for date in sorted(points)]
-    assert all(b >= a for a, b in zip(ordered, ordered[1:])), ordered
+    compared = 0
+    for date, value in points.items():
+        earlier = f"{int(date[:4]) - 1}{date[4:]}"
+        if earlier in points:
+            assert value > points[earlier], (date, value, points[earlier])
+            compared += 1
+    assert compared >= 12
+
+
+def _growth_bounds(later: float, earlier: float, rounding: float) -> tuple[float, float]:
+    """The % growth two rounded labels allow, each off by up to ``rounding``."""
+    return (
+        ((later - rounding) / (earlier + rounding) - 1) * 100,
+        ((later + rounding) / (earlier - rounding) - 1) * 100,
+    )
+
+
+@pytest.mark.parametrize(
+    "name, later, earlier, months, printed",
+    [
+        # The monthly chart: "Vol Tx QRIS Jun 2026 to Jun 2025 97,99%".
+        ("volume.total", "2026-06", "2025-06", 1, 97.99),
+        ("value.total", "2026-06", "2025-06", 1, 87.92),
+        # The quarterly chart's Q1 2026 annotations, on Q1 2025 and on Q4 2025.
+        # They are three-month totals, which the monthly labels now let us add up.
+        ("volume.total", "2026-03", "2025-03", 3, 116.43),
+        ("volume.total", "2026-03", "2025-12", 3, 9.56),
+    ],
+)
+def test_the_labels_reproduce_the_growth_the_charts_print(series, name, later, earlier, months, printed):
+    points = series[f"qris_transactions.{name}"]
+
+    def total(end: str) -> float:
+        year, month = int(end[:4]), int(end[5:7])
+        dates = []
+        for _ in range(months):
+            dates.append(f"{year}-{month:02d}-01")
+            year, month = (year, month - 1) if month > 1 else (year - 1, 12)
+        return sum(points[date] for date in dates)
+
+    low, high = _growth_bounds(total(later), total(earlier), 0.5 * months)
+    assert low <= printed <= high, (low, printed, high)
 
 
 def _share_tolerance(total: float) -> float:
     """How much a share can move on label rounding alone.
 
-    The chart prints integers, so a value of 13 carries +/-0.5 -- worth about
+    The charts print integers, so a value of 13 carries +/-0.5 -- worth about
     seven points of share. Ignoring that makes the early, small-magnitude
-    quarters look like errors when they are just coarse labels.
+    months look like errors when they are just coarse labels.
     """
     return 0.5 / total * 2
 
 
 @pytest.mark.parametrize("measure", ["volume", "value"])
 def test_off_us_is_a_smooth_and_plausible_share_of_the_total(series, measure):
-    """Off-Us runs 77-91% and climbs steadily, with no real quarter-on-quarter jolt.
+    """Off-Us runs 77-91% and climbs steadily, with no real jolt from one point to the next.
 
     A single mistyped digit in either series would show here before anywhere
     else -- as a share outside the band, or as a step bigger than the labels'

@@ -121,7 +121,7 @@ naming what it skipped and why, so a stale dataset is never a silent surprise.
 | `bi_consumer_survey` | BI Survei Konsumen data-series zip | `bi_consumer_survey.csv` | monthly |
 | `ojk_dpk` | OJK Statistik Perbankan Indonesia | `ojk_dpk.csv` | monthly (see caveat) |
 | `qris` | [ASPI QRIS statistics](https://aspi-indonesia.or.id/statistik-qris/) | `qris_transactions.csv` | monthly (see caveat) |
-| *(none)* | QRIS charts, transcribed by hand | `qris_transactions.csv` | quarterly, 2023 Q1 – 2026 Q1 |
+| *(none)* | QRIS charts, transcribed by hand | `qris_transactions.csv` | monthly, Mar 2023 – Jun 2026 (quarter-end months only before Dec 2024) |
 | `magpieiq` | [Magpie IQ e-commerce data pages](https://magpieiq.com/data/shopee-gmv-trend-indonesia-2026/) | `ecommerce_gmv.csv` | monthly (see caveat) |
 | `ibid` | [ibid auctions](https://www.ibid.astra.co.id/cari-lelang/motor-bekas) | `ibid_motor_data.csv`, `ibid_car_data.csv` | weekly |
 | `bps_inflation` | [BPS table 908: inflasi umum, inti, harga diatur pemerintah, bergejolak](https://www.bps.go.id/id/statistics-table/1/OTA4IzE=/inflasi-umum--inti--harga-diatur-pemerintah--dan-bergejolak-nasional--m-to-m-dan-y-to-d---2009-2026.html), in a browser window | `bps_inflation.csv` | monthly (see caveat) |
@@ -240,9 +240,9 @@ identical backup every run, for no new information.
   exact figures as a product, so check those terms before republishing this
   series — they advertise an API, which would be the cleaner route.
 - **Part of `qris_transactions.csv` is transcribed, not collected.** Four series
-  — `qris_transactions.{volume,value}.{total,off_us}`, 52 observations covering
-  2023 Q1 to 2026 Q1 — were read off the printed data labels of a published
-  QRIS chart, because ASPI's own page is unreachable (above). There is no
+  — `qris_transactions.{volume,value}.{total,off_us}`, 104 observations from
+  March 2023 to June 2026 — were read off the printed data labels of two
+  published QRIS charts, because ASPI's own page is unreachable (above). There is no
   scraper behind them, so they will not update themselves; extending the series
   means transcribing the next chart.
 
@@ -252,18 +252,19 @@ identical backup every run, for no new information.
   sources coexist under one prefix rather than overwriting each other. A test
   pins that.
 
-  Two things to know about the figures themselves. **They are quarterly**,
-  confirmed against the source: each figure is a quarter, dated to its final
-  month, which is what the chart's x-axis (months 3/6/9/12 under year bands) and
-  its "Q1"/"Q4" annotations describe. **And the chart is internally inconsistent**: its printed growth annotations
-  do not follow from its own printed bar labels. It states Q1 2026 volume up
-  116.43% year-on-year where the labels give 107.4%, and up 9.56% on Q4 2025
-  where the labels give 14.7%. The bars are what is stored, because the Off-Us
-  share they imply moves smoothly from 78% to 90% across all 13 quarters, which
-  a misread digit would break; the annotations look like a stale overlay from an
-  earlier version of the deck. `tests/test_qris_dataset.py` encodes those
-  invariants, because a hand-keyed dataset fails by mistyped digit rather than
-  by layout change.
+  **Every figure is one month's transactions, dated to that month.** The first
+  chart printed only March, June, September and December, from March 2023 to
+  March 2026, which is why the series has a point a quarter until December
+  2024; the second prints every month from December 2024 to June 2026. The six
+  months the two share agree on all four series to the digit. The first chart
+  was once read as quarterly totals, and its growth annotations as contradicting
+  its bars, but the annotations are three-month totals: Q1 2026 volume of
+  1,830 + 1,725 + 2,118 = 5,673 million is the printed +116.43% on Q1 2025 and
+  +9.56% on Q4 2025, while the March bars alone give 107.4% and 14.7%.
+  `tests/test_qris_dataset.py` checks that the labels reproduce every growth
+  rate the charts print, and that the Off-Us share moves smoothly (78% to 90%),
+  because a hand-keyed dataset fails by mistyped digit rather than by layout
+  change.
 - **ibid needs a browser, is the slowest collector by far, and is opt-in.** It is
   a React single-page app behind F5 BIG-IP — the HTML is a 3 KB shell — so there
   is no requests-and-regex route. Both categories together are a few hundred

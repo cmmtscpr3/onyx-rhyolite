@@ -39,7 +39,7 @@ def test_frequency_is_read_or_inferred_per_series(series):
     # Files that carry the column keep it.
     assert frequency["bi_seki.gdp_expenditure_current.gdp"] == "quarterly"
     assert frequency["bi_seki.deposits_by_owner.total"] == "monthly"
-    assert frequency["qris_transactions.value.total"] == "quarterly"
+    assert frequency["qris_transactions.value.total"] == "monthly"
     assert (series["frequency"] != "").all()
 
 
