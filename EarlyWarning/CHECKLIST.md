@@ -83,7 +83,6 @@ Documents: [PHASE1_SPEC.md](DataFoundation/PHASE1_SPEC.md) · [DATA_QUALITY.md](
 - [ ] Robust STL (or MSTL) decomposition for each indicator
 - [ ] Seasonal strength and trend strength scores
 - [ ] Mann-Kendall test and Sen's slope (full and rolling windows)
-- [ ] Baseline volatility (rolling MAD)
 - [ ] Profile card per indicator
 - [ ] Group indicators by behaviour (seasonal, trending, noisy, stable)
 - [ ] Review the profiles with an analyst
@@ -113,7 +112,6 @@ Documents: [PHASE1_SPEC.md](DataFoundation/PHASE1_SPEC.md) · [DATA_QUALITY.md](
 - [ ] Level shifts: EWMA control chart
 - [ ] Changepoints: PELT
 - [ ] (If needed) Bayesian online changepoint detection
-- [ ] Volatility regime detector
 - [ ] Synthetic anomaly test set (injected spikes and shifts)
 - [ ] Hit/miss report on known events: caught, missed, how early
 - [ ] Drop detectors that are too noisy
@@ -182,6 +180,7 @@ Record key choices so we remember why things are the way they are.
 | 2026-10-01 | Outputs in `EarlyWarning/data/`; `Dataset/` is read-only | Your decision; tested by hashing `Dataset/` before and after a run |
 | 2026-10-01 | Suspected errors are flagged `review`, not masked | Your decision; switch to `mask` once confirmed |
 | 2026-10-01 | SPIP freshness: month M is expected after the 15th of M+2 | Matches when BI publishes and when the collector runs (the 15th) |
+| 2026-11-02 | Rolling MAD dropped from the plan (Phase 2 baseline volatility, Phase 4 volatility regime) | Your decision |
 
 ## Known events (test set)
 

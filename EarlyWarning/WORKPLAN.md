@@ -125,7 +125,6 @@ Expect a slower pace over the year-end holidays during the pilot.
 - Robust STL decomposition (use MSTL where there are several seasonal patterns).
 - Seasonal strength and trend strength scores.
 - Mann-Kendall test and Sen's slope, on full and rolling windows.
-- Baseline volatility (rolling MAD).
 - A profile card per indicator, and groups of indicators by behaviour.
 
 **Deliverable:** profile cards and behaviour groups.
@@ -149,7 +148,6 @@ Expect a slower pace over the year-end holidays during the pilot.
 - Point outliers: robust z-score on the STL remainder, and a Hampel filter.
 - Level shifts: CUSUM and EWMA control charts.
 - Changepoints: PELT, and Bayesian online changepoint detection if needed.
-- Volatility regime: current rolling MAD vs its history.
 - Test against the known events and against synthetic anomalies we inject.
 
 **Deliverable:** the final detector set and a hit/miss report.
