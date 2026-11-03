@@ -47,6 +47,14 @@ The run takes about 5 seconds. It exits with code 1 if any check returns STOP.
 | `validate.py`, pass 2 | Checks missing periods, zeros and negatives, unit switches and one-off spikes; applies `data_issues.csv`; marks provisional periods | `data/steps/03_validated.csv` |
 | `transform.py` | Per-day adjustment for flows, then log for every series | `data/steps/04_transformed.csv` = `data/observations.csv` |
 
+## Concept notebooks (`notebooks/`)
+
+Ideas tested in Google Colab before they become code in `ews/`. They read `data/observations.csv` from GitHub.
+
+| Notebook | What it tests |
+|---|---|
+| [`hampel_anomaly_colab.ipynb`](notebooks/hampel_anomaly_colab.ipynb) | Phase 4 point outliers: a Hampel filter over all 54 series, its flags matched against the known events (hit/miss, lead time, unexplained episodes), and a comparison of settings |
+
 ## Outputs (`data/`)
 
 | File | One row per | Use |
