@@ -175,6 +175,8 @@ bi_consumer_survey.durable_goods_purchase,0000,Indonesia (national),2026-05-01,M
 bi_consumer_survey.durable_goods_purchase,0000,Indonesia (national),2026-06-01,M,monthly,105.9,index
 bi_consumer_survey.durable_goods_purchase,0000,Indonesia (national),2026-07-01,M,monthly,104.1,index
 bi_consumer_survey.durable_goods_purchase,0000,Indonesia (national),2026-08-01,M,monthly,106.1,index
+bi_consumer_survey.durable_goods_purchase,0000,Indonesia (national),2026-09-01,M,monthly,106.7,index
+bi_consumer_survey.durable_goods_purchase,0000,Indonesia (national),2026-10-01,M,monthly,106.7,index
 bi_consumer_survey.expectation.consumption_spend_3m,0000,Indonesia (national),2012-01-01,M,monthly,165.5,index
 bi_consumer_survey.expectation.consumption_spend_3m,0000,Indonesia (national),2012-02-01,M,monthly,164.1,index
 bi_consumer_survey.expectation.consumption_spend_3m,0000,Indonesia (national),2012-03-01,M,monthly,175.5,index
@@ -2129,6 +2131,8 @@ bi_consumer_survey.expenditure_share.consumption,0000,Indonesia (national),2026-
 bi_consumer_survey.expenditure_share.consumption,0000,Indonesia (national),2026-06-01,M,monthly,73.0,percent
 bi_consumer_survey.expenditure_share.consumption,0000,Indonesia (national),2026-07-01,M,monthly,72.7,percent
 bi_consumer_survey.expenditure_share.consumption,0000,Indonesia (national),2026-08-01,M,monthly,74.2,percent
+bi_consumer_survey.expenditure_share.consumption,0000,Indonesia (national),2026-09-01,M,monthly,74.9,percent
+bi_consumer_survey.expenditure_share.consumption,0000,Indonesia (national),2026-10-01,M,monthly,73.6,percent
 bi_consumer_survey.expenditure_share.consumption.above_rp5juta,0000,Indonesia (national),2012-01-01,M,monthly,63.2,percent
 bi_consumer_survey.expenditure_share.consumption.above_rp5juta,0000,Indonesia (national),2012-02-01,M,monthly,60.1,percent
 bi_consumer_survey.expenditure_share.consumption.above_rp5juta,0000,Indonesia (national),2012-03-01,M,monthly,62.0,percent
@@ -2301,6 +2305,8 @@ bi_consumer_survey.expenditure_share.consumption.above_rp5juta,0000,Indonesia (n
 bi_consumer_survey.expenditure_share.consumption.above_rp5juta,0000,Indonesia (national),2026-06-01,M,monthly,70.9,percent
 bi_consumer_survey.expenditure_share.consumption.above_rp5juta,0000,Indonesia (national),2026-07-01,M,monthly,69.0,percent
 bi_consumer_survey.expenditure_share.consumption.above_rp5juta,0000,Indonesia (national),2026-08-01,M,monthly,71.4,percent
+bi_consumer_survey.expenditure_share.consumption.above_rp5juta,0000,Indonesia (national),2026-09-01,M,monthly,72.0,percent
+bi_consumer_survey.expenditure_share.consumption.above_rp5juta,0000,Indonesia (national),2026-10-01,M,monthly,71.5,percent
 bi_consumer_survey.expenditure_share.consumption.rp1_2juta,0000,Indonesia (national),2012-01-01,M,monthly,69.1,percent
 bi_consumer_survey.expenditure_share.consumption.rp1_2juta,0000,Indonesia (national),2012-02-01,M,monthly,69.4,percent
 bi_consumer_survey.expenditure_share.consumption.rp1_2juta,0000,Indonesia (national),2012-03-01,M,monthly,69.1,percent
@@ -2473,6 +2479,8 @@ bi_consumer_survey.expenditure_share.consumption.rp1_2juta,0000,Indonesia (natio
 bi_consumer_survey.expenditure_share.consumption.rp1_2juta,0000,Indonesia (national),2026-06-01,M,monthly,74.6,percent
 bi_consumer_survey.expenditure_share.consumption.rp1_2juta,0000,Indonesia (national),2026-07-01,M,monthly,76.3,percent
 bi_consumer_survey.expenditure_share.consumption.rp1_2juta,0000,Indonesia (national),2026-08-01,M,monthly,77.6,percent
+bi_consumer_survey.expenditure_share.consumption.rp1_2juta,0000,Indonesia (national),2026-09-01,M,monthly,77.2,percent
+bi_consumer_survey.expenditure_share.consumption.rp1_2juta,0000,Indonesia (national),2026-10-01,M,monthly,75.9,percent
 bi_consumer_survey.expenditure_share.consumption.rp2_3juta,0000,Indonesia (national),2012-01-01,M,monthly,68.0,percent
 bi_consumer_survey.expenditure_share.consumption.rp2_3juta,0000,Indonesia (national),2012-02-01,M,monthly,67.6,percent
 bi_consumer_survey.expenditure_share.consumption.rp2_3juta,0000,Indonesia (national),2012-03-01,M,monthly,67.9,percent
@@ -2645,6 +2653,8 @@ bi_consumer_survey.expenditure_share.consumption.rp2_3juta,0000,Indonesia (natio
 bi_consumer_survey.expenditure_share.consumption.rp2_3juta,0000,Indonesia (national),2026-06-01,M,monthly,75.2,percent
 bi_consumer_survey.expenditure_share.consumption.rp2_3juta,0000,Indonesia (national),2026-07-01,M,monthly,73.5,percent
 bi_consumer_survey.expenditure_share.consumption.rp2_3juta,0000,Indonesia (national),2026-08-01,M,monthly,75.5,percent
+bi_consumer_survey.expenditure_share.consumption.rp2_3juta,0000,Indonesia (national),2026-09-01,M,monthly,76.2,percent
+bi_consumer_survey.expenditure_share.consumption.rp2_3juta,0000,Indonesia (national),2026-10-01,M,monthly,74.1,percent
 bi_consumer_survey.expenditure_share.consumption.rp3_4juta,0000,Indonesia (national),2012-01-01,M,monthly,65.4,percent
 bi_consumer_survey.expenditure_share.consumption.rp3_4juta,0000,Indonesia (national),2012-02-01,M,monthly,66.4,percent
 bi_consumer_survey.expenditure_share.consumption.rp3_4juta,0000,Indonesia (national),2012-03-01,M,monthly,66.3,percent
@@ -2817,6 +2827,8 @@ bi_consumer_survey.expenditure_share.consumption.rp3_4juta,0000,Indonesia (natio
 bi_consumer_survey.expenditure_share.consumption.rp3_4juta,0000,Indonesia (national),2026-06-01,M,monthly,72.1,percent
 bi_consumer_survey.expenditure_share.consumption.rp3_4juta,0000,Indonesia (national),2026-07-01,M,monthly,73.0,percent
 bi_consumer_survey.expenditure_share.consumption.rp3_4juta,0000,Indonesia (national),2026-08-01,M,monthly,72.6,percent
+bi_consumer_survey.expenditure_share.consumption.rp3_4juta,0000,Indonesia (national),2026-09-01,M,monthly,75.0,percent
+bi_consumer_survey.expenditure_share.consumption.rp3_4juta,0000,Indonesia (national),2026-10-01,M,monthly,73.1,percent
 bi_consumer_survey.expenditure_share.consumption.rp4_5juta,0000,Indonesia (national),2012-01-01,M,monthly,63.0,percent
 bi_consumer_survey.expenditure_share.consumption.rp4_5juta,0000,Indonesia (national),2012-02-01,M,monthly,65.3,percent
 bi_consumer_survey.expenditure_share.consumption.rp4_5juta,0000,Indonesia (national),2012-03-01,M,monthly,63.0,percent
@@ -2989,6 +3001,8 @@ bi_consumer_survey.expenditure_share.consumption.rp4_5juta,0000,Indonesia (natio
 bi_consumer_survey.expenditure_share.consumption.rp4_5juta,0000,Indonesia (national),2026-06-01,M,monthly,71.8,percent
 bi_consumer_survey.expenditure_share.consumption.rp4_5juta,0000,Indonesia (national),2026-07-01,M,monthly,71.3,percent
 bi_consumer_survey.expenditure_share.consumption.rp4_5juta,0000,Indonesia (national),2026-08-01,M,monthly,72.3,percent
+bi_consumer_survey.expenditure_share.consumption.rp4_5juta,0000,Indonesia (national),2026-09-01,M,monthly,74.3,percent
+bi_consumer_survey.expenditure_share.consumption.rp4_5juta,0000,Indonesia (national),2026-10-01,M,monthly,71.3,percent
 bi_consumer_survey.expenditure_share.loan_instalment,0000,Indonesia (national),2012-01-01,M,monthly,13.5,percent
 bi_consumer_survey.expenditure_share.loan_instalment,0000,Indonesia (national),2012-02-01,M,monthly,13.8,percent
 bi_consumer_survey.expenditure_share.loan_instalment,0000,Indonesia (national),2012-03-01,M,monthly,14.1,percent
@@ -3161,6 +3175,8 @@ bi_consumer_survey.expenditure_share.loan_instalment,0000,Indonesia (national),2
 bi_consumer_survey.expenditure_share.loan_instalment,0000,Indonesia (national),2026-06-01,M,monthly,10.0,percent
 bi_consumer_survey.expenditure_share.loan_instalment,0000,Indonesia (national),2026-07-01,M,monthly,10.5,percent
 bi_consumer_survey.expenditure_share.loan_instalment,0000,Indonesia (national),2026-08-01,M,monthly,10.0,percent
+bi_consumer_survey.expenditure_share.loan_instalment,0000,Indonesia (national),2026-09-01,M,monthly,9.7,percent
+bi_consumer_survey.expenditure_share.loan_instalment,0000,Indonesia (national),2026-10-01,M,monthly,10.1,percent
 bi_consumer_survey.expenditure_share.loan_instalment.above_rp5juta,0000,Indonesia (national),2012-01-01,M,monthly,16.5,percent
 bi_consumer_survey.expenditure_share.loan_instalment.above_rp5juta,0000,Indonesia (national),2012-02-01,M,monthly,20.3,percent
 bi_consumer_survey.expenditure_share.loan_instalment.above_rp5juta,0000,Indonesia (national),2012-03-01,M,monthly,17.1,percent
@@ -3333,6 +3349,8 @@ bi_consumer_survey.expenditure_share.loan_instalment.above_rp5juta,0000,Indonesi
 bi_consumer_survey.expenditure_share.loan_instalment.above_rp5juta,0000,Indonesia (national),2026-06-01,M,monthly,11.5,percent
 bi_consumer_survey.expenditure_share.loan_instalment.above_rp5juta,0000,Indonesia (national),2026-07-01,M,monthly,13.0,percent
 bi_consumer_survey.expenditure_share.loan_instalment.above_rp5juta,0000,Indonesia (national),2026-08-01,M,monthly,11.2,percent
+bi_consumer_survey.expenditure_share.loan_instalment.above_rp5juta,0000,Indonesia (national),2026-09-01,M,monthly,11.1,percent
+bi_consumer_survey.expenditure_share.loan_instalment.above_rp5juta,0000,Indonesia (national),2026-10-01,M,monthly,10.9,percent
 bi_consumer_survey.expenditure_share.loan_instalment.rp1_2juta,0000,Indonesia (national),2012-01-01,M,monthly,12.3,percent
 bi_consumer_survey.expenditure_share.loan_instalment.rp1_2juta,0000,Indonesia (national),2012-02-01,M,monthly,13.0,percent
 bi_consumer_survey.expenditure_share.loan_instalment.rp1_2juta,0000,Indonesia (national),2012-03-01,M,monthly,12.9,percent
@@ -3505,6 +3523,8 @@ bi_consumer_survey.expenditure_share.loan_instalment.rp1_2juta,0000,Indonesia (n
 bi_consumer_survey.expenditure_share.loan_instalment.rp1_2juta,0000,Indonesia (national),2026-06-01,M,monthly,8.2,percent
 bi_consumer_survey.expenditure_share.loan_instalment.rp1_2juta,0000,Indonesia (national),2026-07-01,M,monthly,7.9,percent
 bi_consumer_survey.expenditure_share.loan_instalment.rp1_2juta,0000,Indonesia (national),2026-08-01,M,monthly,7.3,percent
+bi_consumer_survey.expenditure_share.loan_instalment.rp1_2juta,0000,Indonesia (national),2026-09-01,M,monthly,7.7,percent
+bi_consumer_survey.expenditure_share.loan_instalment.rp1_2juta,0000,Indonesia (national),2026-10-01,M,monthly,8.2,percent
 bi_consumer_survey.expenditure_share.loan_instalment.rp2_3juta,0000,Indonesia (national),2012-01-01,M,monthly,12.5,percent
 bi_consumer_survey.expenditure_share.loan_instalment.rp2_3juta,0000,Indonesia (national),2012-02-01,M,monthly,13.5,percent
 bi_consumer_survey.expenditure_share.loan_instalment.rp2_3juta,0000,Indonesia (national),2012-03-01,M,monthly,13.5,percent
@@ -3677,6 +3697,8 @@ bi_consumer_survey.expenditure_share.loan_instalment.rp2_3juta,0000,Indonesia (n
 bi_consumer_survey.expenditure_share.loan_instalment.rp2_3juta,0000,Indonesia (national),2026-06-01,M,monthly,9.2,percent
 bi_consumer_survey.expenditure_share.loan_instalment.rp2_3juta,0000,Indonesia (national),2026-07-01,M,monthly,10.3,percent
 bi_consumer_survey.expenditure_share.loan_instalment.rp2_3juta,0000,Indonesia (national),2026-08-01,M,monthly,9.9,percent
+bi_consumer_survey.expenditure_share.loan_instalment.rp2_3juta,0000,Indonesia (national),2026-09-01,M,monthly,9.4,percent
+bi_consumer_survey.expenditure_share.loan_instalment.rp2_3juta,0000,Indonesia (national),2026-10-01,M,monthly,9.7,percent
 bi_consumer_survey.expenditure_share.loan_instalment.rp3_4juta,0000,Indonesia (national),2012-01-01,M,monthly,14.3,percent
 bi_consumer_survey.expenditure_share.loan_instalment.rp3_4juta,0000,Indonesia (national),2012-02-01,M,monthly,14.4,percent
 bi_consumer_survey.expenditure_share.loan_instalment.rp3_4juta,0000,Indonesia (national),2012-03-01,M,monthly,13.9,percent
@@ -3849,6 +3871,8 @@ bi_consumer_survey.expenditure_share.loan_instalment.rp3_4juta,0000,Indonesia (n
 bi_consumer_survey.expenditure_share.loan_instalment.rp3_4juta,0000,Indonesia (national),2026-06-01,M,monthly,10.8,percent
 bi_consumer_survey.expenditure_share.loan_instalment.rp3_4juta,0000,Indonesia (national),2026-07-01,M,monthly,11.3,percent
 bi_consumer_survey.expenditure_share.loan_instalment.rp3_4juta,0000,Indonesia (national),2026-08-01,M,monthly,12.0,percent
+bi_consumer_survey.expenditure_share.loan_instalment.rp3_4juta,0000,Indonesia (national),2026-09-01,M,monthly,9.9,percent
+bi_consumer_survey.expenditure_share.loan_instalment.rp3_4juta,0000,Indonesia (national),2026-10-01,M,monthly,11.2,percent
 bi_consumer_survey.expenditure_share.loan_instalment.rp4_5juta,0000,Indonesia (national),2012-01-01,M,monthly,15.9,percent
 bi_consumer_survey.expenditure_share.loan_instalment.rp4_5juta,0000,Indonesia (national),2012-02-01,M,monthly,14.5,percent
 bi_consumer_survey.expenditure_share.loan_instalment.rp4_5juta,0000,Indonesia (national),2012-03-01,M,monthly,15.0,percent
@@ -4021,6 +4045,8 @@ bi_consumer_survey.expenditure_share.loan_instalment.rp4_5juta,0000,Indonesia (n
 bi_consumer_survey.expenditure_share.loan_instalment.rp4_5juta,0000,Indonesia (national),2026-06-01,M,monthly,11.4,percent
 bi_consumer_survey.expenditure_share.loan_instalment.rp4_5juta,0000,Indonesia (national),2026-07-01,M,monthly,12.7,percent
 bi_consumer_survey.expenditure_share.loan_instalment.rp4_5juta,0000,Indonesia (national),2026-08-01,M,monthly,11.5,percent
+bi_consumer_survey.expenditure_share.loan_instalment.rp4_5juta,0000,Indonesia (national),2026-09-01,M,monthly,10.7,percent
+bi_consumer_survey.expenditure_share.loan_instalment.rp4_5juta,0000,Indonesia (national),2026-10-01,M,monthly,12.8,percent
 bi_consumer_survey.expenditure_share.saving,0000,Indonesia (national),2012-01-01,M,monthly,19.6,percent
 bi_consumer_survey.expenditure_share.saving,0000,Indonesia (national),2012-02-01,M,monthly,18.7,percent
 bi_consumer_survey.expenditure_share.saving,0000,Indonesia (national),2012-03-01,M,monthly,19.0,percent
@@ -4193,6 +4219,8 @@ bi_consumer_survey.expenditure_share.saving,0000,Indonesia (national),2026-05-01
 bi_consumer_survey.expenditure_share.saving,0000,Indonesia (national),2026-06-01,M,monthly,17.0,percent
 bi_consumer_survey.expenditure_share.saving,0000,Indonesia (national),2026-07-01,M,monthly,16.8,percent
 bi_consumer_survey.expenditure_share.saving,0000,Indonesia (national),2026-08-01,M,monthly,15.8,percent
+bi_consumer_survey.expenditure_share.saving,0000,Indonesia (national),2026-09-01,M,monthly,15.4,percent
+bi_consumer_survey.expenditure_share.saving,0000,Indonesia (national),2026-10-01,M,monthly,16.4,percent
 bi_consumer_survey.expenditure_share.saving.above_rp5juta,0000,Indonesia (national),2012-01-01,M,monthly,20.3,percent
 bi_consumer_survey.expenditure_share.saving.above_rp5juta,0000,Indonesia (national),2012-02-01,M,monthly,19.6,percent
 bi_consumer_survey.expenditure_share.saving.above_rp5juta,0000,Indonesia (national),2012-03-01,M,monthly,20.9,percent
@@ -4365,6 +4393,8 @@ bi_consumer_survey.expenditure_share.saving.above_rp5juta,0000,Indonesia (nation
 bi_consumer_survey.expenditure_share.saving.above_rp5juta,0000,Indonesia (national),2026-06-01,M,monthly,17.6,percent
 bi_consumer_survey.expenditure_share.saving.above_rp5juta,0000,Indonesia (national),2026-07-01,M,monthly,18.0,percent
 bi_consumer_survey.expenditure_share.saving.above_rp5juta,0000,Indonesia (national),2026-08-01,M,monthly,17.4,percent
+bi_consumer_survey.expenditure_share.saving.above_rp5juta,0000,Indonesia (national),2026-09-01,M,monthly,16.9,percent
+bi_consumer_survey.expenditure_share.saving.above_rp5juta,0000,Indonesia (national),2026-10-01,M,monthly,17.7,percent
 bi_consumer_survey.expenditure_share.saving.rp1_2juta,0000,Indonesia (national),2012-01-01,M,monthly,18.6,percent
 bi_consumer_survey.expenditure_share.saving.rp1_2juta,0000,Indonesia (national),2012-02-01,M,monthly,17.7,percent
 bi_consumer_survey.expenditure_share.saving.rp1_2juta,0000,Indonesia (national),2012-03-01,M,monthly,18.0,percent
@@ -4537,6 +4567,8 @@ bi_consumer_survey.expenditure_share.saving.rp1_2juta,0000,Indonesia (national),
 bi_consumer_survey.expenditure_share.saving.rp1_2juta,0000,Indonesia (national),2026-06-01,M,monthly,17.2,percent
 bi_consumer_survey.expenditure_share.saving.rp1_2juta,0000,Indonesia (national),2026-07-01,M,monthly,15.9,percent
 bi_consumer_survey.expenditure_share.saving.rp1_2juta,0000,Indonesia (national),2026-08-01,M,monthly,15.1,percent
+bi_consumer_survey.expenditure_share.saving.rp1_2juta,0000,Indonesia (national),2026-09-01,M,monthly,15.1,percent
+bi_consumer_survey.expenditure_share.saving.rp1_2juta,0000,Indonesia (national),2026-10-01,M,monthly,15.9,percent
 bi_consumer_survey.expenditure_share.saving.rp2_3juta,0000,Indonesia (national),2012-01-01,M,monthly,19.5,percent
 bi_consumer_survey.expenditure_share.saving.rp2_3juta,0000,Indonesia (national),2012-02-01,M,monthly,18.9,percent
 bi_consumer_survey.expenditure_share.saving.rp2_3juta,0000,Indonesia (national),2012-03-01,M,monthly,18.6,percent
@@ -4709,6 +4741,8 @@ bi_consumer_survey.expenditure_share.saving.rp2_3juta,0000,Indonesia (national),
 bi_consumer_survey.expenditure_share.saving.rp2_3juta,0000,Indonesia (national),2026-06-01,M,monthly,15.6,percent
 bi_consumer_survey.expenditure_share.saving.rp2_3juta,0000,Indonesia (national),2026-07-01,M,monthly,16.3,percent
 bi_consumer_survey.expenditure_share.saving.rp2_3juta,0000,Indonesia (national),2026-08-01,M,monthly,14.7,percent
+bi_consumer_survey.expenditure_share.saving.rp2_3juta,0000,Indonesia (national),2026-09-01,M,monthly,14.4,percent
+bi_consumer_survey.expenditure_share.saving.rp2_3juta,0000,Indonesia (national),2026-10-01,M,monthly,16.2,percent
 bi_consumer_survey.expenditure_share.saving.rp3_4juta,0000,Indonesia (national),2012-01-01,M,monthly,20.2,percent
 bi_consumer_survey.expenditure_share.saving.rp3_4juta,0000,Indonesia (national),2012-02-01,M,monthly,19.1,percent
 bi_consumer_survey.expenditure_share.saving.rp3_4juta,0000,Indonesia (national),2012-03-01,M,monthly,19.7,percent
@@ -4881,6 +4915,8 @@ bi_consumer_survey.expenditure_share.saving.rp3_4juta,0000,Indonesia (national),
 bi_consumer_survey.expenditure_share.saving.rp3_4juta,0000,Indonesia (national),2026-06-01,M,monthly,17.1,percent
 bi_consumer_survey.expenditure_share.saving.rp3_4juta,0000,Indonesia (national),2026-07-01,M,monthly,15.8,percent
 bi_consumer_survey.expenditure_share.saving.rp3_4juta,0000,Indonesia (national),2026-08-01,M,monthly,15.4,percent
+bi_consumer_survey.expenditure_share.saving.rp3_4juta,0000,Indonesia (national),2026-09-01,M,monthly,15.1,percent
+bi_consumer_survey.expenditure_share.saving.rp3_4juta,0000,Indonesia (national),2026-10-01,M,monthly,15.7,percent
 bi_consumer_survey.expenditure_share.saving.rp4_5juta,0000,Indonesia (national),2012-01-01,M,monthly,21.1,percent
 bi_consumer_survey.expenditure_share.saving.rp4_5juta,0000,Indonesia (national),2012-02-01,M,monthly,20.2,percent
 bi_consumer_survey.expenditure_share.saving.rp4_5juta,0000,Indonesia (national),2012-03-01,M,monthly,22.1,percent
@@ -5053,6 +5089,8 @@ bi_consumer_survey.expenditure_share.saving.rp4_5juta,0000,Indonesia (national),
 bi_consumer_survey.expenditure_share.saving.rp4_5juta,0000,Indonesia (national),2026-06-01,M,monthly,16.9,percent
 bi_consumer_survey.expenditure_share.saving.rp4_5juta,0000,Indonesia (national),2026-07-01,M,monthly,15.9,percent
 bi_consumer_survey.expenditure_share.saving.rp4_5juta,0000,Indonesia (national),2026-08-01,M,monthly,16.2,percent
+bi_consumer_survey.expenditure_share.saving.rp4_5juta,0000,Indonesia (national),2026-09-01,M,monthly,15.1,percent
+bi_consumer_survey.expenditure_share.saving.rp4_5juta,0000,Indonesia (national),2026-10-01,M,monthly,15.9,percent
 bi_consumer_survey.iek,0000,Indonesia (national),2012-01-01,M,monthly,127.5,index
 bi_consumer_survey.iek,0000,Indonesia (national),2012-02-01,M,monthly,120.0,index
 bi_consumer_survey.iek,0000,Indonesia (national),2012-03-01,M,monthly,112.1,index
@@ -5229,6 +5267,8 @@ bi_consumer_survey.iek,0000,Indonesia (national),2026-05-01,M,monthly,129.7,inde
 bi_consumer_survey.iek,0000,Indonesia (national),2026-06-01,M,monthly,126.4,index
 bi_consumer_survey.iek,0000,Indonesia (national),2026-07-01,M,monthly,125.7,index
 bi_consumer_survey.iek,0000,Indonesia (national),2026-08-01,M,monthly,127.6,index
+bi_consumer_survey.iek,0000,Indonesia (national),2026-09-01,M,monthly,128.7,index
+bi_consumer_survey.iek,0000,Indonesia (national),2026-10-01,M,monthly,130.7,index
 bi_consumer_survey.ieklk,0000,Indonesia (national),2012-01-01,M,monthly,109.6,index
 bi_consumer_survey.ieklk,0000,Indonesia (national),2012-02-01,M,monthly,100.2,index
 bi_consumer_survey.ieklk,0000,Indonesia (national),2012-03-01,M,monthly,94.3,index
@@ -5405,6 +5445,8 @@ bi_consumer_survey.ieklk,0000,Indonesia (national),2026-05-01,M,monthly,128.1,in
 bi_consumer_survey.ieklk,0000,Indonesia (national),2026-06-01,M,monthly,124.4,index
 bi_consumer_survey.ieklk,0000,Indonesia (national),2026-07-01,M,monthly,123.1,index
 bi_consumer_survey.ieklk,0000,Indonesia (national),2026-08-01,M,monthly,125.7,index
+bi_consumer_survey.ieklk,0000,Indonesia (national),2026-09-01,M,monthly,127.7,index
+bi_consumer_survey.ieklk,0000,Indonesia (national),2026-10-01,M,monthly,129.3,index
 bi_consumer_survey.ieku,0000,Indonesia (national),2012-01-01,M,monthly,129.2,index
 bi_consumer_survey.ieku,0000,Indonesia (national),2012-02-01,M,monthly,120.7,index
 bi_consumer_survey.ieku,0000,Indonesia (national),2012-03-01,M,monthly,108.9,index
@@ -5581,6 +5623,8 @@ bi_consumer_survey.ieku,0000,Indonesia (national),2026-05-01,M,monthly,124.5,ind
 bi_consumer_survey.ieku,0000,Indonesia (national),2026-06-01,M,monthly,121.2,index
 bi_consumer_survey.ieku,0000,Indonesia (national),2026-07-01,M,monthly,120.4,index
 bi_consumer_survey.ieku,0000,Indonesia (national),2026-08-01,M,monthly,122.1,index
+bi_consumer_survey.ieku,0000,Indonesia (national),2026-09-01,M,monthly,121.5,index
+bi_consumer_survey.ieku,0000,Indonesia (national),2026-10-01,M,monthly,124.3,index
 bi_consumer_survey.iep,0000,Indonesia (national),2012-01-01,M,monthly,143.7,index
 bi_consumer_survey.iep,0000,Indonesia (national),2012-02-01,M,monthly,139.1,index
 bi_consumer_survey.iep,0000,Indonesia (national),2012-03-01,M,monthly,133.1,index
@@ -5757,6 +5801,8 @@ bi_consumer_survey.iep,0000,Indonesia (national),2026-05-01,M,monthly,136.5,inde
 bi_consumer_survey.iep,0000,Indonesia (national),2026-06-01,M,monthly,133.6,index
 bi_consumer_survey.iep,0000,Indonesia (national),2026-07-01,M,monthly,133.6,index
 bi_consumer_survey.iep,0000,Indonesia (national),2026-08-01,M,monthly,134.9,index
+bi_consumer_survey.iep,0000,Indonesia (national),2026-09-01,M,monthly,136.9,index
+bi_consumer_survey.iep,0000,Indonesia (national),2026-10-01,M,monthly,138.6,index
 bi_consumer_survey.ike,0000,Indonesia (national),2012-01-01,M,monthly,110.9,index
 bi_consumer_survey.ike,0000,Indonesia (national),2012-02-01,M,monthly,103.5,index
 bi_consumer_survey.ike,0000,Indonesia (national),2012-03-01,M,monthly,102.4,index
@@ -5933,6 +5979,8 @@ bi_consumer_survey.ike,0000,Indonesia (national),2026-05-01,M,monthly,112.2,inde
 bi_consumer_survey.ike,0000,Indonesia (national),2026-06-01,M,monthly,109.2,index
 bi_consumer_survey.ike,0000,Indonesia (national),2026-07-01,M,monthly,107.9,index
 bi_consumer_survey.ike,0000,Indonesia (national),2026-08-01,M,monthly,109.4,index
+bi_consumer_survey.ike,0000,Indonesia (national),2026-09-01,M,monthly,107.5,index
+bi_consumer_survey.ike,0000,Indonesia (national),2026-10-01,M,monthly,109.1,index
 bi_consumer_survey.ikk,0000,Indonesia (national),2012-01-01,M,monthly,119.2,index
 bi_consumer_survey.ikk,0000,Indonesia (national),2012-02-01,M,monthly,111.7,index
 bi_consumer_survey.ikk,0000,Indonesia (national),2012-03-01,M,monthly,107.3,index
@@ -6109,6 +6157,8 @@ bi_consumer_survey.ikk,0000,Indonesia (national),2026-05-01,M,monthly,120.9,inde
 bi_consumer_survey.ikk,0000,Indonesia (national),2026-06-01,M,monthly,117.8,index
 bi_consumer_survey.ikk,0000,Indonesia (national),2026-07-01,M,monthly,116.8,index
 bi_consumer_survey.ikk,0000,Indonesia (national),2026-08-01,M,monthly,118.5,index
+bi_consumer_survey.ikk,0000,Indonesia (national),2026-09-01,M,monthly,118.1,index
+bi_consumer_survey.ikk,0000,Indonesia (national),2026-10-01,M,monthly,119.9,index
 bi_consumer_survey.iklk,0000,Indonesia (national),2012-01-01,M,monthly,97.7,index
 bi_consumer_survey.iklk,0000,Indonesia (national),2012-02-01,M,monthly,87.6,index
 bi_consumer_survey.iklk,0000,Indonesia (national),2012-03-01,M,monthly,82.9,index
@@ -6285,6 +6335,8 @@ bi_consumer_survey.iklk,0000,Indonesia (national),2026-05-01,M,monthly,105.0,ind
 bi_consumer_survey.iklk,0000,Indonesia (national),2026-06-01,M,monthly,101.8,index
 bi_consumer_survey.iklk,0000,Indonesia (national),2026-07-01,M,monthly,101.1,index
 bi_consumer_survey.iklk,0000,Indonesia (national),2026-08-01,M,monthly,104.1,index
+bi_consumer_survey.iklk,0000,Indonesia (national),2026-09-01,M,monthly,101.1,index
+bi_consumer_survey.iklk,0000,Indonesia (national),2026-10-01,M,monthly,105.5,index
 bi_consumer_survey.ipsi,0000,Indonesia (national),2012-01-01,M,monthly,129.7,index
 bi_consumer_survey.ipsi,0000,Indonesia (national),2012-02-01,M,monthly,124.6,index
 bi_consumer_survey.ipsi,0000,Indonesia (national),2012-03-01,M,monthly,124.0,index
@@ -6461,6 +6513,8 @@ bi_consumer_survey.ipsi,0000,Indonesia (national),2026-05-01,M,monthly,123.2,ind
 bi_consumer_survey.ipsi,0000,Indonesia (national),2026-06-01,M,monthly,119.8,index
 bi_consumer_survey.ipsi,0000,Indonesia (national),2026-07-01,M,monthly,118.5,index
 bi_consumer_survey.ipsi,0000,Indonesia (national),2026-08-01,M,monthly,118.0,index
+bi_consumer_survey.ipsi,0000,Indonesia (national),2026-09-01,M,monthly,114.6,index
+bi_consumer_survey.ipsi,0000,Indonesia (national),2026-10-01,M,monthly,114.9,index
 bi_consumer_survey.price_expectation_12m,0000,Indonesia (national),2012-01-01,M,monthly,186.4,index
 bi_consumer_survey.price_expectation_12m,0000,Indonesia (national),2012-02-01,M,monthly,187.6,index
 bi_consumer_survey.price_expectation_12m,0000,Indonesia (national),2012-03-01,M,monthly,187.2,index
