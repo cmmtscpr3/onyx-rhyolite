@@ -9,7 +9,21 @@ plausible.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
+
+_SPACE = re.compile(r"\s+")
+_SLASH = re.compile(r"\s*/\s*")
+
+
+def _fold(label: str) -> str:
+    """A label reduced to what identifies it: case and spacing ignored.
+
+    BI retypes these labels between releases.  'Jumlah Kartu/ Instrumen' lost
+    its space in November 2026 and the series stopped without an error, so
+    spacing -- around a slash especially -- is not part of the match.
+    """
+    return _SLASH.sub("/", _SPACE.sub(" ", label)).casefold().strip()
 
 
 @dataclass(frozen=True, slots=True)
@@ -29,7 +43,7 @@ class RowSpec:
         without it a total would capture its own components and the series
         would quietly be the wrong one.
         """
-        left, right = label.casefold().strip(), self.match.casefold().strip()
+        left, right = _fold(label), _fold(self.match)
         return left == right if self.exact else right in left
 
 

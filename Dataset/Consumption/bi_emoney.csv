@@ -162,6 +162,8 @@ bi_emoney.float_funds,0000,Indonesia (national),2026-04-01,16239.2933473632,IDR 
 bi_emoney.float_funds,0000,Indonesia (national),2026-05-01,18220.4691604941,IDR billion
 bi_emoney.float_funds,0000,Indonesia (national),2026-06-01,18417.114,IDR billion
 bi_emoney.float_funds,0000,Indonesia (national),2026-07-01,18785.888943661008,IDR billion
+bi_emoney.float_funds,0000,Indonesia (national),2026-08-01,18911.717096066433,IDR billion
+bi_emoney.float_funds,0000,Indonesia (national),2026-09-01,19078.452,IDR billion
 bi_emoney.float_funds_bank,0000,Indonesia (national),2013-01-01,218.01340674300002,IDR billion
 bi_emoney.float_funds_bank,0000,Indonesia (national),2013-02-01,219.254746835,IDR billion
 bi_emoney.float_funds_bank,0000,Indonesia (national),2013-03-01,225.41147996900003,IDR billion
@@ -325,6 +327,8 @@ bi_emoney.float_funds_bank,0000,Indonesia (national),2026-04-01,5090.57534736319
 bi_emoney.float_funds_bank,0000,Indonesia (national),2026-05-01,5098.529160494099,IDR billion
 bi_emoney.float_funds_bank,0000,Indonesia (national),2026-06-01,5155.016000000001,IDR billion
 bi_emoney.float_funds_bank,0000,Indonesia (national),2026-07-01,5165.107943661007,IDR billion
+bi_emoney.float_funds_bank,0000,Indonesia (national),2026-08-01,5189.174096066434,IDR billion
+bi_emoney.float_funds_bank,0000,Indonesia (national),2026-09-01,5207.844000000001,IDR billion
 bi_emoney.float_funds_nonbank,0000,Indonesia (national),2013-01-01,37.689591799,IDR billion
 bi_emoney.float_funds_nonbank,0000,Indonesia (national),2013-02-01,53.606328368,IDR billion
 bi_emoney.float_funds_nonbank,0000,Indonesia (national),2013-03-01,53.831566634999994,IDR billion
@@ -488,6 +492,8 @@ bi_emoney.float_funds_nonbank,0000,Indonesia (national),2026-04-01,11148.718,IDR
 bi_emoney.float_funds_nonbank,0000,Indonesia (national),2026-05-01,13121.94,IDR billion
 bi_emoney.float_funds_nonbank,0000,Indonesia (national),2026-06-01,13262.098,IDR billion
 bi_emoney.float_funds_nonbank,0000,Indonesia (national),2026-07-01,13620.781,IDR billion
+bi_emoney.float_funds_nonbank,0000,Indonesia (national),2026-08-01,13722.543,IDR billion
+bi_emoney.float_funds_nonbank,0000,Indonesia (national),2026-09-01,13870.608,IDR billion
 bi_emoney.instruments,0000,Indonesia (national),2009-01-01,0.576264,million units
 bi_emoney.instruments,0000,Indonesia (national),2009-02-01,1.151832,million units
 bi_emoney.instruments,0000,Indonesia (national),2009-03-01,1.423515,million units
@@ -699,6 +705,8 @@ bi_emoney.instruments,0000,Indonesia (national),2026-04-01,1052.816368,million u
 bi_emoney.instruments,0000,Indonesia (national),2026-05-01,1111.7420849999999,million units
 bi_emoney.instruments,0000,Indonesia (national),2026-06-01,1117.77194,million units
 bi_emoney.instruments,0000,Indonesia (national),2026-07-01,1137.7521729999999,million units
+bi_emoney.instruments,0000,Indonesia (national),2026-08-01,1142.835754,million units
+bi_emoney.instruments,0000,Indonesia (national),2026-09-01,1154.413408,million units
 bi_emoney.instruments_chip,0000,Indonesia (national),2013-01-01,9.391467,million units
 bi_emoney.instruments_chip,0000,Indonesia (national),2013-02-01,9.607338,million units
 bi_emoney.instruments_chip,0000,Indonesia (national),2013-03-01,9.85277,million units
@@ -862,6 +870,8 @@ bi_emoney.instruments_chip,0000,Indonesia (national),2026-04-01,131.189941,milli
 bi_emoney.instruments_chip,0000,Indonesia (national),2026-05-01,132.313721,million units
 bi_emoney.instruments_chip,0000,Indonesia (national),2026-06-01,132.926153,million units
 bi_emoney.instruments_chip,0000,Indonesia (national),2026-07-01,134.184878,million units
+bi_emoney.instruments_chip,0000,Indonesia (national),2026-08-01,134.923361,million units
+bi_emoney.instruments_chip,0000,Indonesia (national),2026-09-01,135.874987,million units
 bi_emoney.instruments_server,0000,Indonesia (national),2013-01-01,13.027332,million units
 bi_emoney.instruments_server,0000,Indonesia (national),2013-02-01,13.451256,million units
 bi_emoney.instruments_server,0000,Indonesia (national),2013-03-01,14.216459,million units
@@ -1025,6 +1035,8 @@ bi_emoney.instruments_server,0000,Indonesia (national),2026-04-01,921.626427,mil
 bi_emoney.instruments_server,0000,Indonesia (national),2026-05-01,979.428364,million units
 bi_emoney.instruments_server,0000,Indonesia (national),2026-06-01,984.845787,million units
 bi_emoney.instruments_server,0000,Indonesia (national),2026-07-01,1003.567295,million units
+bi_emoney.instruments_server,0000,Indonesia (national),2026-08-01,1007.912393,million units
+bi_emoney.instruments_server,0000,Indonesia (national),2026-09-01,1018.538421,million units
 bi_emoney.value,0000,Indonesia (national),2009-01-01,21.65838,IDR billion
 bi_emoney.value,0000,Indonesia (national),2009-02-01,23.38916,IDR billion
 bi_emoney.value,0000,Indonesia (national),2009-03-01,29.776229999999998,IDR billion
@@ -1236,6 +1248,8 @@ bi_emoney.value,0000,Indonesia (national),2026-04-01,314118.5846140073,IDR billi
 bi_emoney.value,0000,Indonesia (national),2026-05-01,344123.35571843287,IDR billion
 bi_emoney.value,0000,Indonesia (national),2026-06-01,337188.8780203046,IDR billion
 bi_emoney.value,0000,Indonesia (national),2026-07-01,348631.5969647504,IDR billion
+bi_emoney.value,0000,Indonesia (national),2026-08-01,346602.37949025806,IDR billion
+bi_emoney.value,0000,Indonesia (national),2026-09-01,335356.27022692474,IDR billion
 bi_emoney.value_purchase,0000,Indonesia (national),2009-01-01,21.65838,IDR billion
 bi_emoney.value_purchase,0000,Indonesia (national),2009-02-01,23.38916,IDR billion
 bi_emoney.value_purchase,0000,Indonesia (national),2009-03-01,29.776229999999998,IDR billion
@@ -1447,6 +1461,8 @@ bi_emoney.value_purchase,0000,Indonesia (national),2026-04-01,112512.7625654393,
 bi_emoney.value_purchase,0000,Indonesia (national),2026-05-01,118575.29571749391,IDR billion
 bi_emoney.value_purchase,0000,Indonesia (national),2026-06-01,110940.1004483157,IDR billion
 bi_emoney.value_purchase,0000,Indonesia (national),2026-07-01,113026.69125839398,IDR billion
+bi_emoney.value_purchase,0000,Indonesia (national),2026-08-01,113442.35874187885,IDR billion
+bi_emoney.value_purchase,0000,Indonesia (national),2026-09-01,112221.47421550688,IDR billion
 bi_emoney.value_topup,0000,Indonesia (national),2013-01-01,189.867316181,IDR billion
 bi_emoney.value_topup,0000,Indonesia (national),2013-02-01,160.117537531,IDR billion
 bi_emoney.value_topup,0000,Indonesia (national),2013-03-01,253.383498741,IDR billion
@@ -1610,6 +1626,8 @@ bi_emoney.value_topup,0000,Indonesia (national),2026-04-01,142559.9804702649,IDR
 bi_emoney.value_topup,0000,Indonesia (national),2026-05-01,156673.9019199099,IDR billion
 bi_emoney.value_topup,0000,Indonesia (national),2026-06-01,157727.45905580392,IDR billion
 bi_emoney.value_topup,0000,Indonesia (national),2026-07-01,163937.68566716838,IDR billion
+bi_emoney.value_topup,0000,Indonesia (national),2026-08-01,162394.44711050618,IDR billion
+bi_emoney.value_topup,0000,Indonesia (national),2026-09-01,154608.96930287185,IDR billion
 bi_emoney.volume,0000,Indonesia (national),2009-01-01,492.818,thousand transactions
 bi_emoney.volume,0000,Indonesia (national),2009-02-01,760.746,thousand transactions
 bi_emoney.volume,0000,Indonesia (national),2009-03-01,1235.384,thousand transactions
@@ -1821,6 +1839,8 @@ bi_emoney.volume,0000,Indonesia (national),2026-04-01,3316940.1280000005,thousan
 bi_emoney.volume,0000,Indonesia (national),2026-05-01,3503613.192000004,thousand transactions
 bi_emoney.volume,0000,Indonesia (national),2026-06-01,3372747.3630000004,thousand transactions
 bi_emoney.volume,0000,Indonesia (national),2026-07-01,3505315.334,thousand transactions
+bi_emoney.volume,0000,Indonesia (national),2026-08-01,3557556.2370000007,thousand transactions
+bi_emoney.volume,0000,Indonesia (national),2026-09-01,3495021.3470000005,thousand transactions
 bi_emoney.volume_purchase,0000,Indonesia (national),2009-01-01,492.818,thousand transactions
 bi_emoney.volume_purchase,0000,Indonesia (national),2009-02-01,760.746,thousand transactions
 bi_emoney.volume_purchase,0000,Indonesia (national),2009-03-01,1235.384,thousand transactions
@@ -2032,6 +2052,8 @@ bi_emoney.volume_purchase,0000,Indonesia (national),2026-04-01,2242145.105000000
 bi_emoney.volume_purchase,0000,Indonesia (national),2026-05-01,2369760.227000003,thousand transactions
 bi_emoney.volume_purchase,0000,Indonesia (national),2026-06-01,2257131.328,thousand transactions
 bi_emoney.volume_purchase,0000,Indonesia (national),2026-07-01,2355139.441,thousand transactions
+bi_emoney.volume_purchase,0000,Indonesia (national),2026-08-01,2416473.1109999996,thousand transactions
+bi_emoney.volume_purchase,0000,Indonesia (national),2026-09-01,2403224.493,thousand transactions
 bi_emoney.volume_topup,0000,Indonesia (national),2013-01-01,932.1469999999999,thousand transactions
 bi_emoney.volume_topup,0000,Indonesia (national),2013-02-01,749.793,thousand transactions
 bi_emoney.volume_topup,0000,Indonesia (national),2013-03-01,1223.174,thousand transactions
@@ -2195,3 +2217,5 @@ bi_emoney.volume_topup,0000,Indonesia (national),2026-04-01,603253.779,thousand 
 bi_emoney.volume_topup,0000,Indonesia (national),2026-05-01,649648.2960000006,thousand transactions
 bi_emoney.volume_topup,0000,Indonesia (national),2026-06-01,644264.282,thousand transactions
 bi_emoney.volume_topup,0000,Indonesia (national),2026-07-01,667705.288,thousand transactions
+bi_emoney.volume_topup,0000,Indonesia (national),2026-08-01,666873.9180000011,thousand transactions
+bi_emoney.volume_topup,0000,Indonesia (national),2026-09-01,636433.9440000006,thousand transactions

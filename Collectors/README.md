@@ -116,7 +116,7 @@ naming what it skipped and why, so a stale dataset is never a silent surprise.
 | Collector | Source | Writes | Cadence |
 |---|---|---|---|
 | `pihps` | [PIHPS weekly food prices](https://www.bi.go.id/hargapangan) | `Dataset/Food Prices/PIHPS/<Market>/Tabel Harga Berdasarkan Daerah <year>.xlsx` × 3 | weekly |
-| `bi_spip` | BI payment & transaction system, `TABEL_{5e,5a,5c,1,2}.xlsx` | `bi_emoney.csv`, `bi_card_transactions.csv`, `bi_payment_system.csv` | monthly |
+| `bi_spip` | BI payment & transaction system, `TABEL_{5e,5a,5c,1,2}` as `.xls` or `.xlsx`, whichever reaches the later month | `bi_emoney.csv`, `bi_card_transactions.csv`, `bi_payment_system.csv` | monthly |
 | `bi_seki` | BI SEKI `TABEL{7_3,7_4,1_18}.xls` | `bi_seki.csv` | monthly + quarterly |
 | `bi_consumer_survey` | BI Survei Konsumen data-series zip | `bi_consumer_survey.csv` | monthly |
 | `ojk_dpk` | OJK Statistik Perbankan Indonesia | `ojk_dpk.csv` | monthly (see caveat) |
