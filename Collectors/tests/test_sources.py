@@ -6,12 +6,13 @@ because that would hide a real parser regression behind an unrelated outage.
 
 from __future__ import annotations
 
+import dataclasses
 import datetime as dt
 
 import pytest
 
 from collectors.sources import bi_consumer_survey as sk
-from collectors import excelio, model
+from collectors import excelio, http, model
 from collectors.sources import bi_seki, bi_spip, ibid, ojk_dpk, pihps
 
 SELECTORS_ASSET_PREFIX = ibid.SELECTORS["asset_prefix"]
@@ -127,9 +128,73 @@ def test_spip_since_filters_history(fixtures):
     assert observations and min(o.ref_date for o in observations) >= dt.date(2025, 1, 1)
 
 
-def test_spip_fetches_the_xlsx_since_the_xls_links_died():
-    """Every .xls URL has redirected to BI's 404 page since September 2026."""
-    assert all(spec.url.endswith(".xlsx") for spec in bi_spip.load_config())
+def test_spip_asks_for_every_format_bi_has_served():
+    """.xls died in September 2026 and was the only live copy by November."""
+    for spec in bi_spip.load_config():
+        assert [url.rsplit(".", 1)[1] for url in spec.urls] == ["xls", "xlsx"]
+
+
+def _serve(monkeypatch, pages):
+    """Stand in for bi.go.id: ``pages`` maps a URL suffix to bytes or an error."""
+
+    def fake_fetch(url, *, sess=None):
+        answer = pages[url.rsplit(".", 1)[1]]
+        if isinstance(answer, Exception):
+            raise answer
+        return http.Payload(url, answer, dt.datetime(2026, 11, 20), "")
+
+    monkeypatch.setattr(bi_spip, "fetch", fake_fetch)
+
+
+def test_spip_keeps_whichever_copy_reaches_the_later_month(fixtures, monkeypatch):
+    """BI left the .xlsx copies answering 200 and frozen when it went back to
+    .xls, so a collector tied to one name ran green and collected nothing."""
+    spec = next(s for s in bi_spip.load_config() if s.table == "TABEL_2")
+    older = (fixtures / "bi_spip_tabel_2.xls").read_bytes()
+    newer = (fixtures / "bi_spip_tabel_2.xlsx").read_bytes()
+    assert bi_spip.latest_month(newer, spec) > bi_spip.latest_month(older, spec)
+
+    _serve(monkeypatch, {"xls": older, "xlsx": newer})
+    assert bi_spip.fetch_table(spec) == newer
+    # Fresher wins wherever it is served from, not whichever is asked first.
+    _serve(monkeypatch, {"xls": newer, "xlsx": older})
+    assert bi_spip.fetch_table(spec) == newer
+
+
+def test_spip_reads_past_a_dead_copy_but_not_past_two(fixtures, monkeypatch):
+    spec = next(s for s in bi_spip.load_config() if s.table == "TABEL_2")
+    workbook = (fixtures / "bi_spip_tabel_2.xls").read_bytes()
+    not_found = b"<!DOCTYPE html><html><title>Halaman tidak ditemukan</title></html>"
+    gone = http.FetchError("answered HTTP 404", url="x")
+
+    _serve(monkeypatch, {"xls": workbook, "xlsx": not_found})
+    assert bi_spip.fetch_table(spec) == workbook
+    _serve(monkeypatch, {"xls": gone, "xlsx": workbook})
+    assert bi_spip.fetch_table(spec) == workbook
+    _serve(monkeypatch, {"xls": gone, "xlsx": not_found})
+    with pytest.raises(http.FetchError, match="no readable copy"):
+        bi_spip.fetch_table(spec)
+
+
+def test_spip_labels_match_however_bi_spaces_them():
+    """'Jumlah Kartu/ Instrumen' became 'Jumlah Kartu/Instrumen' in November
+    2026 and bi_emoney.instruments silently stopped."""
+    spec = next(s for s in bi_spip.load_config() if s.table == "TABEL_5e")
+    row = next(r for r in spec.rows if r.sub == "instruments")
+    for label in ("Jumlah Kartu/ Instrumen", "Jumlah Kartu/Instrumen", "Jumlah  Kartu / Instrumen"):
+        assert row.matches(label)
+    total = next(r for r in spec.rows if r.sub == "volume")
+    assert total.matches("Volume  Transaksi") and not total.matches("Volume Transaksi Belanja")
+
+
+def test_spip_a_relabelled_row_fails_instead_of_going_stale(fixtures):
+    content = (fixtures / "bi_spip_tabel_2.xls").read_bytes()
+    spec = next(s for s in bi_spip.load_config() if s.table == "TABEL_2")
+    renamed = dataclasses.replace(
+        spec, rows=spec.rows + (bi_spip.RowSpec(sub="gone", match="Label BI no longer writes"),)
+    )
+    with pytest.raises(excelio.WorkbookError, match="gone"):
+        bi_spip.parse_table(content, renamed)
 
 
 def test_spip_xlsx_carries_the_numbers_the_xls_did(fixtures):
