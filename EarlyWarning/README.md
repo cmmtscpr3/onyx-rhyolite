@@ -6,6 +6,15 @@ and the Phase 1 design in [DataFoundation/](DataFoundation/).
 This folder also holds the **Phase 1 code** (`ews/`), which turns the collected data into clean, validated,
 log-transformed datasets in `data/`.
 
+## Research notes (`Research/`)
+
+Background for Phases 3–6. Notes only; nothing in them is decided.
+
+| Note | What it covers |
+|---|---|
+| [`EWS_DESIGN_METHODS.md`](Research/EWS_DESIGN_METHODS.md) | How established early warning systems are designed, what to borrow, thresholds and evaluation |
+| [`EXPECTED_VALUE_FORECASTING.md`](Research/EXPECTED_VALUE_FORECASTING.md) | Methods for Q1 and Q2, forecasts and bands, with a first test on the 54 series ([`backtest_probe.py`](Research/backtest_probe.py), needs `statsmodels`) |
+
 ## Scope of the code
 
 **54 series:**
